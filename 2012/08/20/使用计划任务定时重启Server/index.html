@@ -4,38 +4,23 @@
 <head>
   <meta charset="UTF-8">
   
-    <title>基于Nexus的Maven私库部署注意事项 | 陈洋|晨阳</title>
+    <title>使用计划任务定时重启Server | 陈洋|晨阳</title>
     <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
     
     <meta name="author" content="chenyang">
     
 
     
-    <meta name="description" content="基于Nexus的Maven私库部署注意事项最近基于Nexus部署一套Maven私库，简单记录下部署过程，另外记录下注意事项，备忘。
-安装
-安装JDK需要Java7以上，这里使用Jave8，安装过程略
-使用Nexus OSS版本下载地址为：http://www.sonatype.org/nexus/go/
-安装  
-12345wget http://www.sonatype.org/download">
+    <meta name="description" content="使用计划任务定时重启Server想做个计划任务，定时重启一台服务器，但是批处理文件总是不能执行，之前遇到过解决了，但这次又忘了。记录下来，备忘。具体原因是我写的批处理名称是shutdown.bat，与shudown.exe命令同名，导致计划任务以为在执行shutdown.exe，但没有任何参数，故执行失败。将批处理任意改一个名字即可，如reboot.bat，myshutdown.bat等。批处理命">
 <meta property="og:type" content="article">
-<meta property="og:title" content="基于Nexus的Maven私库部署注意事项">
-<meta property="og:url" content="http://chenyang.me/2015/07/28/基于Nexus的Maven私库部署注意事项/index.html">
+<meta property="og:title" content="使用计划任务定时重启Server">
+<meta property="og:url" content="http://chenyang.me/2012/08/20/使用计划任务定时重启Server/index.html">
 <meta property="og:site_name" content="陈洋|晨阳">
-<meta property="og:description" content="基于Nexus的Maven私库部署注意事项最近基于Nexus部署一套Maven私库，简单记录下部署过程，另外记录下注意事项，备忘。
-安装
-安装JDK需要Java7以上，这里使用Jave8，安装过程略
-使用Nexus OSS版本下载地址为：http://www.sonatype.org/nexus/go/
-安装  
-12345wget http://www.sonatype.org/download">
-<meta property="og:updated_time" content="2015-07-28T05:33:33.000Z">
+<meta property="og:description" content="使用计划任务定时重启Server想做个计划任务，定时重启一台服务器，但是批处理文件总是不能执行，之前遇到过解决了，但这次又忘了。记录下来，备忘。具体原因是我写的批处理名称是shutdown.bat，与shudown.exe命令同名，导致计划任务以为在执行shutdown.exe，但没有任何参数，故执行失败。将批处理任意改一个名字即可，如reboot.bat，myshutdown.bat等。批处理命">
+<meta property="og:updated_time" content="2015-07-28T05:31:35.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="基于Nexus的Maven私库部署注意事项">
-<meta name="twitter:description" content="基于Nexus的Maven私库部署注意事项最近基于Nexus部署一套Maven私库，简单记录下部署过程，另外记录下注意事项，备忘。
-安装
-安装JDK需要Java7以上，这里使用Jave8，安装过程略
-使用Nexus OSS版本下载地址为：http://www.sonatype.org/nexus/go/
-安装  
-12345wget http://www.sonatype.org/download">
+<meta name="twitter:title" content="使用计划任务定时重启Server">
+<meta name="twitter:description" content="使用计划任务定时重启Server想做个计划任务，定时重启一台服务器，但是批处理文件总是不能执行，之前遇到过解决了，但这次又忘了。记录下来，备忘。具体原因是我写的批处理名称是shutdown.bat，与shudown.exe命令同名，导致计划任务以为在执行shutdown.exe，但没有任何参数，故执行失败。将批处理任意改一个名字即可，如reboot.bat，myshutdown.bat等。批处理命">
 
     
     <link rel="alternative" href="/atom.xml" title="陈洋|晨阳" type="application/atom+xml">
@@ -88,14 +73,14 @@
 		<header class="article-info clearfix">
   <h1 itemprop="name">
     
-      <a href="/2015/07/28/基于Nexus的Maven私库部署注意事项/" title="基于Nexus的Maven私库部署注意事项" itemprop="url">基于Nexus的Maven私库部署注意事项</a>
+      <a href="/2012/08/20/使用计划任务定时重启Server/" title="使用计划任务定时重启Server" itemprop="url">使用计划任务定时重启Server</a>
   </h1>
   <p class="article-author">By
        
 		<a href="/about" title="chenyang" target="_blank" itemprop="author">chenyang</a>
 		
   <p class="article-time">
-    <time datetime="2015-07-28T04:03:07.000Z" itemprop="datePublished"> 发表于 2015-07-28</time>
+    <time datetime="2012-08-20T06:11:26.000Z" itemprop="datePublished"> 发表于 2012-08-20</time>
     
   </p>
 </header>
@@ -104,73 +89,11 @@
 		<div id="toc" class="toc-article">
 			<strong class="toc-title">文章目录</strong>
 		
-			<ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#基于Nexus的Maven私库部署注意事项"><span class="toc-number">1.</span> <span class="toc-text">基于Nexus的Maven私库部署注意事项</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#安装"><span class="toc-number">1.1.</span> <span class="toc-text">安装</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#配置"><span class="toc-number">1.2.</span> <span class="toc-text">配置</span></a></li></ol></li></ol>
+			<ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#使用计划任务定时重启Server"><span class="toc-number">1.</span> <span class="toc-text">使用计划任务定时重启Server</span></a></li></ol>
 		
 		</div>
 		
-		<h1 id="基于Nexus的Maven私库部署注意事项">基于Nexus的Maven私库部署注意事项</h1><p>最近基于Nexus部署一套Maven私库，简单记录下部署过程，另外记录下注意事项，备忘。</p>
-<h2 id="安装">安装</h2><ol>
-<li>安装JDK<br>需要Java7以上，这里使用Jave8，安装过程略</li>
-<li>使用Nexus OSS版本<br>下载地址为：<a href="http://www.sonatype.org/nexus/go/" target="_blank" rel="external">http://www.sonatype.org/nexus/go/</a></li>
-<li><p>安装  </p>
-<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">wget <span class="string">http:</span><span class="comment">//www.sonatype.org/downloads/nexus-latest-bundle.tar.gz  </span></span><br><span class="line">tar -xzvf nexus-<span class="number">2.11</span>.4-<span class="number">01</span>-bundle.tar.gz  </span><br><span class="line">cp nexus-<span class="number">2.11</span>.4-<span class="number">01</span> <span class="regexp">/usr/</span>local  </span><br><span class="line">ln -s nexus-<span class="number">2.11</span>.4-<span class="number">01</span> nexus  </span><br><span class="line">mkdir <span class="regexp">/usr/</span>local/sonatype-work</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>最好创建一个单独的用户，用来启动nexus  </p>
-<figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">useradd nexus  </span><br><span class="line">chown -R nexus.nexus <span class="regexp">/usr/</span>local<span class="regexp">/nexus /u</span>sr<span class="regexp">/local/</span>sonatype-work</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>添加Linux服务并设置自启动  </p>
-<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">cp <span class="regexp">/usr/</span>local<span class="regexp">/nexus/</span>bin<span class="regexp">/nexus /</span>etc<span class="regexp">/init.d/</span>nexus  </span><br><span class="line">chmod <span class="number">755</span> <span class="regexp">/etc/</span>init.d/nexus  </span><br><span class="line">chown root.root <span class="regexp">/etc/</span>init.d/nexus  </span><br><span class="line">chkconfig --add nexus &amp;&amp; chkconfig nexus on</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>启动Nexus  </p>
-<figure class="highlight puppet"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">service</span> nexus <span class="literal">start</span></span><br></pre></td></tr></table></figure>
-</li>
-</ol>
-<h2 id="配置">配置</h2><ol>
-<li>修改默认的路径<br>默认的地址为<a href="http://localhost:8081/nexus" target="_blank" rel="external">http://localhost:8081/nexus</a><br>可以修改配置文件，位置为/usr/local/nexus/conf/nexus.properties<br>默认为nexus-webapp-context-path=/nexus，修改为：nexus-webapp-context-path=/<br>如此，访问地址变更为<a href="http://localhost:8081" target="_blank" rel="external">http://localhost:8081</a></li>
-<li>使用nginx代理<br>在nginx配置一个server，监听80，代理到<a href="http://localhost:8081（略）" target="_blank" rel="external">http://localhost:8081（略）</a><br>如此，访问地址变更为：<a href="http://localhost" target="_blank" rel="external">http://localhost</a></li>
-<li><p>配置LDAP认证  </p>
-<ul>
-<li>这个比较坑，默认其实是不支持LDAP认证的，需先启用LDAP认证。<br>登录Nexus—Administration—Server—Security Settings，将『OSS LDAP Authentication Realm』添加到左侧，并移动到最上边，点击保存。</li>
-<li>配置LDAP服务器，登录Nexus—Security—LDAP Configuration</li>
-<li>这里支持两种方式，一种是帐号的绑定，一种是Group的绑定，也可以两者都用</li>
-<li>Connetion选择LDAP并配置服务、绑定一个有读权限的LDAP用户。</li>
-<li>User的绑定可用的配置方式为：<ul>
-<li>Base DN：ou=users</li>
-<li>User Subtree：选择</li>
-<li>Object Class：user</li>
-<li>User Filter：(&amp;(objectCategory=Person)(sAMAccountName=*))</li>
-<li>User ID Attribute：sAMAccountName</li>
-<li>Real Name Attribute：cn</li>
-<li>E-Mail Attribute：mail</li>
-<li>Password Attribute：</li>
-</ul>
-</li>
-<li>Group的绑定需要调试，经过查阅文档，可用的配置方式为<ul>
-<li>Group Type：Static Group</li>
-<li>Base DN:ou=Groups</li>
-<li>Group Subtree:选中</li>
-<li>Object Class：group</li>
-<li>Group ID Attrbute：cn</li>
-<li>Group Member Attribute：member:1.2.840.113556.1.4.1941:</li>
-<li>Group Member Format：${dn}</li>
-</ul>
-</li>
-</ul>
-</li>
-<li><p>权限配置</p>
-<ul>
-<li>可以单独在User里添加AD用户，并分配相应的角色、权限</li>
-<li>也可以在AD中创建不同的组，比如dev、master等，在Nexus—Security-Role中添加外部映射Group，并分配相应的权限。</li>
-</ul>
-</li>
-<li>注意一个比较坑的地方：<ul>
-<li>在官方文档中推荐了一个很好用的功能，『User Token Realm』。因为使用LDAP验证后，在Maven的settings.xml中需要明文保存用户名、密码，这样并不安全，而『User Token』就是允许我们在Nexus的个人Profile生成一个Token，将Token存放到settings.xml即可。</li>
-<li>这真的是一个很好的功能。但是！！！默认是没有这个的功能的，翻遍了官方文档也没找到如何添加这个Realm。</li>
-<li>偶然想起翻了一下Nexus OSS、Nexus Pro等版本的区别，赫然发现『User Token Realm』只是Pro版的功能！！！</li>
-<li>想用这个功能的购买Pro版吧。</li>
-</ul>
-</li>
-</ol>
+		<h1 id="使用计划任务定时重启Server">使用计划任务定时重启Server</h1><p>想做个计划任务，定时重启一台服务器，但是批处理文件总是不能执行，之前遇到过解决了，但这次又忘了。记录下来，备忘。<br>具体原因是我写的批处理名称是shutdown.bat，与shudown.exe命令同名，导致计划任务以为在执行shutdown.exe，但没有任何参数，故执行失败。<br>将批处理任意改一个名字即可，如reboot.bat，myshutdown.bat等。<br>批处理命令：<br><figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">shutdown <span class="regexp">/f /</span>r <span class="regexp">/t 10</span></span><br></pre></td></tr></table></figure></p>
   
 	</div>
 		<footer class="article-footer clearfix">
@@ -184,7 +107,7 @@
 
   <div class="article-tags">
   
-  <span></span> <a href="/tags/maven/">maven</a><a href="/tags/nexus/">nexus</a>
+  <span></span> <a href="/tags/shutdown/">shutdown</a><a href="/tags/批处理/">批处理</a>
   </div>
 
 </div>
@@ -193,7 +116,7 @@
 
 	<div class="article-share" id="share">
 	
-	  <div data-url="http://chenyang.me/2015/07/28/基于Nexus的Maven私库部署注意事项/" data-title="基于Nexus的Maven私库部署注意事项 | 陈洋|晨阳" data-tsina="null" class="share clearfix">
+	  <div data-url="http://chenyang.me/2012/08/20/使用计划任务定时重启Server/" data-title="使用计划任务定时重启Server | 陈洋|晨阳" data-tsina="null" class="share clearfix">
 	  </div>
 	
 	</div>
@@ -206,14 +129,14 @@
 	
 <nav class="article-nav clearfix">
  
-
-<div class="next">
-<a href="/2014/04/29/mac下使用ssh动态代理/"  title="Mac下使用SSH动态代理">
- <strong>下一篇：</strong><br/> 
- <span>Mac下使用SSH动态代理
-</span>
+ <div class="prev" >
+ <a href="/2014/02/14/在DigitalOcean 512M内存VPS上部署 LEMP/" title="在DigitalOcean 512M内存VPS上部署 LEMP">
+  <strong>上一篇：</strong><br/>
+  <span>
+  在DigitalOcean 512M内存VPS上部署 LEMP</span>
 </a>
 </div>
+
 
 </nav>
 
@@ -225,7 +148,7 @@
   <div id="toc" class="toc-aside">
   <strong class="toc-title">文章目录</strong>
  
- <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#基于Nexus的Maven私库部署注意事项"><span class="toc-number">1.</span> <span class="toc-text">基于Nexus的Maven私库部署注意事项</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#安装"><span class="toc-number">1.1.</span> <span class="toc-text">安装</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#配置"><span class="toc-number">1.2.</span> <span class="toc-text">配置</span></a></li></ol></li></ol>
+ <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#使用计划任务定时重启Server"><span class="toc-number">1.</span> <span class="toc-text">使用计划任务定时重启Server</span></a></li></ol>
  
   </div>
 
