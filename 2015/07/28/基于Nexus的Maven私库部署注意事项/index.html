@@ -27,7 +27,10 @@
 使用Nexus OSS版本下载地址为：http://www.sonatype.org/nexus/go/
 安装  
 12345wget http://www.sonatype.org/download">
-<meta property="og:updated_time" content="2015-07-28T05:33:33.000Z">
+<meta property="og:image" content="http://7xkqij.com1.z0.glb.clouddn.com/QQ20150727-1.png">
+<meta property="og:image" content="http://7xkqij.com1.z0.glb.clouddn.com/QQ20150727-4.png">
+<meta property="og:image" content="http://7xkqij.com1.z0.glb.clouddn.com/QQ20150727-3.png">
+<meta property="og:updated_time" content="2015-07-29T02:13:19.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="基于Nexus的Maven私库部署注意事项">
 <meta name="twitter:description" content="基于Nexus的Maven私库部署注意事项最近基于Nexus部署一套Maven私库，简单记录下部署过程，另外记录下注意事项，备忘。
@@ -130,10 +133,10 @@
 <li>使用nginx代理<br>在nginx配置一个server，监听80，代理到<a href="http://localhost:8081（略）" target="_blank" rel="external">http://localhost:8081（略）</a><br>如此，访问地址变更为：<a href="http://localhost" target="_blank" rel="external">http://localhost</a></li>
 <li><p>配置LDAP认证  </p>
 <ul>
-<li>这个比较坑，默认其实是不支持LDAP认证的，需先启用LDAP认证。<br>登录Nexus—Administration—Server—Security Settings，将『OSS LDAP Authentication Realm』添加到左侧，并移动到最上边，点击保存。</li>
+<li>这个比较坑，默认其实是不支持LDAP认证的，需先启用LDAP认证。<br>登录Nexus—Administration—Server—Security Settings，将『OSS LDAP Authentication Realm』添加到左侧，并移动到最上边，点击保存。<br><img src="http://7xkqij.com1.z0.glb.clouddn.com/QQ20150727-1.png" alt=""></li>
 <li>配置LDAP服务器，登录Nexus—Security—LDAP Configuration</li>
 <li>这里支持两种方式，一种是帐号的绑定，一种是Group的绑定，也可以两者都用</li>
-<li>Connetion选择LDAP并配置服务、绑定一个有读权限的LDAP用户。</li>
+<li>Connetion选择LDAP并配置服务、绑定一个有读权限的LDAP用户。<br><img src="http://7xkqij.com1.z0.glb.clouddn.com/QQ20150727-4.png" alt=""></li>
 <li>User的绑定可用的配置方式为：<ul>
 <li>Base DN：ou=users</li>
 <li>User Subtree：选择</li>
@@ -152,7 +155,7 @@
 <li>Object Class：group</li>
 <li>Group ID Attrbute：cn</li>
 <li>Group Member Attribute：member:1.2.840.113556.1.4.1941:</li>
-<li>Group Member Format：${dn}</li>
+<li>Group Member Format：${dn}<br><img src="http://7xkqij.com1.z0.glb.clouddn.com/QQ20150727-3.png" alt=""></li>
 </ul>
 </li>
 </ul>
@@ -260,6 +263,14 @@
 			
 		
 			
+				<li><a href="/tags/mac/" title="mac">mac<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ssh/" title="ssh">ssh<sup>1</sup></a></li>
+			
+		
+			
 				<li><a href="/tags/DigitalOcean/" title="DigitalOcean">DigitalOcean<sup>1</sup></a></li>
 			
 		
@@ -273,14 +284,6 @@
 		
 			
 				<li><a href="/tags/批处理/" title="批处理">批处理<sup>1</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/mac/" title="mac">mac<sup>1</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/ssh/" title="ssh">ssh<sup>1</sup></a></li>
 			
 		
 		</ul>
