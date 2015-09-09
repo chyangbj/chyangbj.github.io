@@ -33,7 +33,7 @@
 
 修改ifcfg文件这是br0的配置文件ifcfg-br0：
 12345678910111213DEVICE=br0TYPE=BridgeUUID=99a50e">
-<meta property="og:updated_time" content="2015-09-09T04:17:11.000Z">
+<meta property="og:updated_time" content="2015-09-09T04:21:04.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="CentOS 6.x上为Docker容器配置物理网段的静态IP">
 <meta name="twitter:description" content="CentOS 6.x上为Docker容器配置物理网段的静态IP设置宿主机的桥接网卡
@@ -104,7 +104,7 @@
 		<a href="/about" title="chenyang" target="_blank" itemprop="author">chenyang</a>
 		
   <p class="article-time">
-    <time datetime="2015-09-09T04:17:12.000Z" itemprop="datePublished"> 发表于 2015-09-09</time>
+    <time datetime="2015-09-09T04:21:04.000Z" itemprop="datePublished"> 发表于 2015-09-09</time>
     
   </p>
 </header>
@@ -143,20 +143,20 @@
 </ul>
 <blockquote>
 <p>不同的系统变量不一致，官方文档是基于ubuntu的</p>
-<ul>
-<li>启动Docker<figure class="highlight puppet"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">service</span> docker <span class="literal">start</span></span><br></pre></td></tr></table></figure>
-</li>
-</ul>
 </blockquote>
 <ul>
-<li>查看iptables是否正常<figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">iptables -t nat -<span class="keyword">L</span> -<span class="keyword">n</span></span><br></pre></td></tr></table></figure>
+<li><p>启动Docker</p>
+<figure class="highlight puppet"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">service</span> docker <span class="literal">start</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>查看iptables是否正常</p>
+<figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">iptables -t nat -<span class="keyword">L</span> -<span class="keyword">n</span></span><br></pre></td></tr></table></figure>
 </li>
 </ul>
 <blockquote>
 <p>Chain POSTROUTING (policy ACCEPT)<br>target     prot opt source               destination<br>MASQUERADE  all  —  192.168.5.0/24      0.0.0.0/0</p>
 </blockquote>
 <h2 id="启动Docker容器并设置固定IP">启动Docker容器并设置固定IP</h2><ul>
-<li><p>启动容器</p>
+<li><p>启动容器  </p>
 <blockquote>
 <p>启动容器时一定要添加—net=none参数，否则会自动从桥接网卡br0取一个未占用IP地址，很可能是x.x.x.1网关</p>
 </blockquote>
