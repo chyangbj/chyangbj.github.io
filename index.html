@@ -74,6 +74,138 @@
         <header class="article-info clearfix">
   <h1 itemprop="name">
     
+      <a href="/2015/09/09/CentOS 6.x上为Docker容器配置物理网段的静态IP/" title="CentOS 6.x上为Docker容器配置物理网段的静态IP" itemprop="url">CentOS 6.x上为Docker容器配置物理网段的静态IP</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="chenyang" target="_blank" itemprop="author">chenyang</a>
+		
+  <p class="article-time">
+    <time datetime="2015-09-09T04:17:12.000Z" itemprop="datePublished"> 发表于 2015-09-09</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <h1 id="CentOS_6-x上为Docker容器配置物理网段的静态IP">CentOS 6.x上为Docker容器配置物理网段的静态IP</h1><h2 id="设置宿主机的桥接网卡">设置宿主机的桥接网卡</h2><ul>
+<li><p>安装brctl</p>
+<figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum <span class="keyword">install</span> bridge-util</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>配置桥接接口</p>
+<figure class="highlight armasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">brctl </span><span class="keyword">addbr </span><span class="keyword">br0</span><br><span class="line"></span><span class="keyword">brctl </span><span class="keyword">addif </span><span class="keyword">br0 </span>em1</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>修改ifcfg文件<br>这是br0的配置文件ifcfg-br0：</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="setting">DEVICE=<span class="value">br0</span></span></span><br><span class="line"><span class="setting">TYPE=<span class="value">Bridge</span></span></span><br><span class="line"><span class="setting">UUID=<span class="value"><span class="number">99</span>a50e2f-<span class="number">821</span>f-<span class="number">4</span>f1a-a8b1-<span class="number">7</span>cbae4be0cbe</span></span></span><br><span class="line"><span class="setting">ONBOOT=<span class="value"><span class="keyword">yes</span></span></span></span><br><span class="line"><span class="setting">NM_CONTROLLED=<span class="value"><span class="keyword">yes</span></span></span></span><br><span class="line"><span class="setting">BOOTPROTO=<span class="value">none</span></span></span><br><span class="line"><span class="setting">HWADDR=<span class="value"><span class="number">78</span>:<span class="number">2</span>B:CB:<span class="number">43</span>:B8:<span class="number">8</span>E</span></span></span><br><span class="line"><span class="setting">IPADDR=<span class="value"><span class="number">192.168</span>.<span class="number">8.100</span></span></span></span><br><span class="line"><span class="setting">PREFIX=<span class="value"><span class="number">24</span></span></span></span><br><span class="line"><span class="setting">DEFROUTE=<span class="value"><span class="keyword">yes</span></span></span></span><br><span class="line"><span class="setting">IPV4_FAILURE_FATAL=<span class="value"><span class="keyword">yes</span></span></span></span><br><span class="line"><span class="setting">IPV6INIT=<span class="value"><span class="keyword">no</span></span></span></span><br><span class="line"><span class="setting">NAME=<span class="value"><span class="string">"System br0"</span></span></span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>这是em1的配置文件ifcfg-em1：<br><figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="setting">DEVICE=<span class="value">em1</span></span></span><br><span class="line"><span class="setting">TYPE=<span class="value">Ethernet</span></span></span><br><span class="line"><span class="setting">UUID=<span class="value"><span class="number">99</span>a50e2f-<span class="number">821</span>f-<span class="number">4</span>f1a-a8b1-<span class="number">7</span>cbae4be0cbe</span></span></span><br><span class="line"><span class="setting">ONBOOT=<span class="value"><span class="keyword">yes</span></span></span></span><br><span class="line"><span class="setting">NM_CONTROLLED=<span class="value"><span class="keyword">yes</span></span></span></span><br><span class="line"><span class="setting">BOOTPROTO=<span class="value">none</span></span></span><br><span class="line"><span class="setting">HWADDR=<span class="value"><span class="number">78</span>:<span class="number">2</span>B:CB:<span class="number">43</span>:B8:<span class="number">8</span>E</span></span></span><br><span class="line"><span class="setting">DEFROUTE=<span class="value"><span class="keyword">yes</span></span></span></span><br><span class="line"><span class="setting">IPV4_FAILURE_FATAL=<span class="value"><span class="keyword">yes</span></span></span></span><br><span class="line"><span class="setting">IPV6INIT=<span class="value"><span class="keyword">no</span></span></span></span><br><span class="line"><span class="setting">NAME=<span class="value"><span class="string">"System em1"</span></span></span></span><br><span class="line"><span class="setting">BRIDGE=<span class="value">br0</span></span></span><br></pre></td></tr></table></figure></p>
+<ul>
+<li>重启网络<figure class="highlight puppet"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">service</span> network <span class="literal">restart</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h2 id="配置Docker使用br0">配置Docker使用br0</h2><ul>
+<li><p>删掉docker0</p>
+<figure class="highlight puppet"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">service</span> docker <span class="literal">stop</span></span><br><span class="line"><span class="literal">ip</span> <span class="literal">link</span> set dev docker<span class="number">0</span> down</span><br><span class="line">brctl delbr docker<span class="number">0</span></span><br><span class="line">iptables -t nat -<span class="constant">F</span> <span class="constant">P</span>OSTROUTING</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>修改Docker变量使用br0</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">vim <span class="regexp">/etc/</span>sysconfig/docker</span><br><span class="line">other_args=<span class="string">"-b=br0"</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<blockquote>
+<p>不同的系统变量不一致，官方文档是基于ubuntu的</p>
+<ul>
+<li>启动Docker<figure class="highlight puppet"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">service</span> docker <span class="literal">start</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</blockquote>
+<ul>
+<li>查看iptables是否正常<figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">iptables -t nat -<span class="keyword">L</span> -<span class="keyword">n</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<blockquote>
+<p>Chain POSTROUTING (policy ACCEPT)<br>target     prot opt source               destination<br>MASQUERADE  all  —  192.168.5.0/24      0.0.0.0/0</p>
+</blockquote>
+<h2 id="启动Docker容器并设置固定IP">启动Docker容器并设置固定IP</h2><ul>
+<li><p>启动容器</p>
+<blockquote>
+<p>启动容器时一定要添加—net=none参数，否则会自动从桥接网卡br0取一个未占用IP地址，很可能是x.x.x.1网关</p>
+</blockquote>
+<figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="keyword">run</span> -it --<span class="keyword">rm</span> -<span class="keyword">h</span> test000 --<span class="keyword">net</span>=none centos:6 /bin/bash</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>配置IP，步骤比较复杂，参考网络上的脚本略作修改，在宿主机上执行如下脚本</p>
+<blockquote>
+<p>原文：<a href="http://www.xiaomastack.com/2015/02/06/docker-static-ip/" target="_blank" rel="external">http://www.xiaomastack.com/2015/02/06/docker-static-ip/</a></p>
+</blockquote>
+</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#/bin/bash</span></span><br><span class="line"><span class="keyword">if</span> [ -z <span class="variable">$1</span> ] || [ -z <span class="variable">$2</span> ] || [ -z <span class="variable">$3</span> ] || [ -z <span class="variable">$4</span> ];</span><br><span class="line"><span class="keyword">then</span></span><br><span class="line">        <span class="built_in">echo</span> <span class="string">"*****Input the necessary parameters: CONTAINERID IP MASK GATEWAY"</span></span><br><span class="line">        <span class="built_in">echo</span> <span class="string">"*****Call the script like: sh manual_con_static_ip.sh  b0e18b6a4432 192.168.5.123 24 192.168.5.1"</span></span><br><span class="line">        <span class="built_in">exit</span></span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line"></span><br><span class="line">CONTAINERID=<span class="variable">$1</span></span><br><span class="line">SETIP=<span class="variable">$2</span></span><br><span class="line">SETMASK=<span class="variable">$3</span></span><br><span class="line">GATEWAY=<span class="variable">$4</span></span><br><span class="line"></span><br><span class="line">pid=`docker inspect <span class="operator">-f</span> <span class="string">'&#123;&#123;.State.Pid&#125;&#125;'</span> <span class="variable">$CONTAINERID</span>`</span><br><span class="line"><span class="comment">#判断宿主机网卡是否存在</span></span><br><span class="line">ifconfig docker<span class="variable">$pid</span> &gt; /dev/null <span class="number">2</span>&gt;&amp;<span class="number">1</span></span><br><span class="line"><span class="keyword">if</span> [ $? <span class="operator">-eq</span> <span class="number">0</span> ]; <span class="keyword">then</span></span><br><span class="line">    <span class="built_in">read</span> -p <span class="string">"docker<span class="variable">$pid</span> exist,do you want delelte it? y/n "</span> del</span><br><span class="line">    <span class="keyword">if</span> [[ <span class="variable">$del</span> == <span class="string">'y'</span> ]]; <span class="keyword">then</span></span><br><span class="line">    ip link del docker<span class="variable">$pid</span></span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    <span class="built_in">exit</span></span><br><span class="line">    <span class="keyword">fi</span></span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"></span><br><span class="line">mkdir -p /var/run/netns</span><br><span class="line">find -L /var/run/netns -type l -delete</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> [ <span class="operator">-f</span> /var/run/netns/<span class="variable">$pid</span> ]; <span class="keyword">then</span></span><br><span class="line">    rm <span class="operator">-f</span> /var/run/netns/<span class="variable">$pid</span></span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line">ln <span class="operator">-s</span> /proc/<span class="variable">$pid</span>/ns/net /var/run/netns/<span class="variable">$pid</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line">ip link add docker<span class="variable">$pid</span> <span class="built_in">type</span> veth peer name bridge0</span><br><span class="line">brctl addif br0 docker<span class="variable">$pid</span></span><br><span class="line">ip link <span class="built_in">set</span> docker<span class="variable">$pid</span> up</span><br><span class="line">ip link <span class="built_in">set</span> bridge0 netns <span class="variable">$pid</span></span><br><span class="line"><span class="comment">#先删除容器内已存在的eth0</span></span><br><span class="line">ip netns <span class="built_in">exec</span> <span class="variable">$pid</span> ip link del eth0 &gt; /dev/null <span class="number">2</span>&gt;&amp;<span class="number">1</span></span><br><span class="line"><span class="comment">#设置容器新的网卡eth0</span></span><br><span class="line">ip netns <span class="built_in">exec</span> <span class="variable">$pid</span> ip link <span class="built_in">set</span> dev bridge0 name eth0</span><br><span class="line">ip netns <span class="built_in">exec</span> <span class="variable">$pid</span> ip link <span class="built_in">set</span> eth0 up</span><br><span class="line">ip netns <span class="built_in">exec</span> <span class="variable">$pid</span> ip addr add <span class="variable">$SETIP</span>/<span class="variable">$SETMASK</span> dev eth0</span><br><span class="line">ip netns <span class="built_in">exec</span> <span class="variable">$pid</span> ip route add default via <span class="variable">$GATEWAY</span></span><br></pre></td></tr></table></figure>
+<h2 id="关闭容器">关闭容器</h2><p>关闭容器后如果不再使用，要删掉添加的网卡及网络namespace，简单的脚本如下：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#/bin/bash</span></span><br><span class="line"><span class="keyword">if</span> [ -z <span class="variable">$1</span> ];</span><br><span class="line"><span class="keyword">then</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">"*****Input then ecessary parameters: CONTAINERID****"</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">"*****Call the script like: sh shutdowndocker.sh e8eae14aa992"</span></span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line"><span class="comment">#获取到容器的PID</span></span><br><span class="line">pid=`docker inspect <span class="operator">-f</span> <span class="string">'&#123;&#123;.State.Pid&#125;&#125;'</span> <span class="variable">$1</span>`</span><br><span class="line"><span class="comment">#停用并删掉容器</span></span><br><span class="line">docker stop <span class="variable">$1</span></span><br><span class="line">docker rm <span class="variable">$1</span></span><br><span class="line"><span class="comment">#删除容器的网络命名空间及虚拟网卡</span></span><br><span class="line">ip netns delete <span class="variable">$pid</span></span><br></pre></td></tr></table></figure></p>
+<h2 id="遇到的问题">遇到的问题</h2><ul>
+<li>可能会遇到<code>Object &quot;netns&quot; is unknown, try &quot;ip help&quot;.</code>的报错。  </li>
+</ul>
+<ol>
+<li><p>在CentOS6.5以前，内核不支持网络namespace，需要升级内核和iproute。CentOS6.5以后内核已支持网络namespace，只需要升级iproute即可。</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum install -y <span class="string">http:</span><span class="comment">//rdo.fedorapeople.org/rdo-release.rpm</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>默认的源中的地址已经无效，会报404，修改地址即可</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">cat /etc/yum<span class="class">.repos</span><span class="class">.d</span>/rdo-release<span class="class">.repo</span></span><br><span class="line">[openstack-kilo]</span><br><span class="line">name=OpenStack Kilo Repository</span><br><span class="line">baseurl=https:<span class="comment">//repos.fedorapeople.org/repos/openstack/EOL/openstack-icehouse/epel-6/</span></span><br><span class="line">skip_if_unavailable=<span class="number">0</span></span><br><span class="line">enabled=<span class="number">1</span></span><br><span class="line">gpgcheck=<span class="number">0</span></span><br><span class="line">gpgkey=file:<span class="comment">///etc/pki/rpm-gpg/RPM-GPG-KEY-RDO-kilo</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>安装iproute</p>
+<figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum <span class="keyword">install</span> -y iproute</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<ul>
+<li>还可能遇到<code>RTNETLINK answers: No such process</code>的报错<br>我这里在执行<code>ip netns exec $pid ip route add default via $GATEWAY</code>遇到的是设置容器的IP地址是没有设置掩码，默认设置为了32位，所以无法指定默认网关</li>
+</ul>
+
+        
+        
+        <p class="article-more-link">
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/运维/">运维</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/docker/">docker</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2015/09/09/CentOS 6.x上为Docker容器配置物理网段的静态IP/#comments" class="ds-thread-count comments-count-link" data-thread-key="2015/09/09/CentOS 6.x上为Docker容器配置物理网段的静态IP/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
       <a href="/2015/07/28/基于Nexus的Maven私库部署注意事项/" title="基于Nexus的Maven私库部署注意事项" itemprop="url">基于Nexus的Maven私库部署注意事项</a>
   </h1>
   <p class="article-author">By
@@ -178,6 +310,9 @@
 
 <div class="comments-count">
 	
+	  	<span></span>
+		<a href="/2015/07/28/基于Nexus的Maven私库部署注意事项/#comments" class="ds-thread-count comments-count-link" data-thread-key="2015/07/28/基于Nexus的Maven私库部署注意事项/" data-count-type="comments">&nbsp;</a>
+	
 </div>
 
 </footer>
@@ -254,6 +389,9 @@
 
 
 <div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2014/04/29/mac下使用ssh动态代理/#comments" class="ds-thread-count comments-count-link" data-thread-key="2014/04/29/mac下使用ssh动态代理/" data-count-type="comments">&nbsp;</a>
 	
 </div>
 
@@ -370,6 +508,9 @@
 
 <div class="comments-count">
 	
+	  	<span></span>
+		<a href="/2014/02/14/在DigitalOcean 512M内存VPS上部署 LEMP/#comments" class="ds-thread-count comments-count-link" data-thread-key="2014/02/14/在DigitalOcean 512M内存VPS上部署 LEMP/" data-count-type="comments">&nbsp;</a>
+	
 </div>
 
 </footer>
@@ -430,6 +571,9 @@
 
 <div class="comments-count">
 	
+	  	<span></span>
+		<a href="/2012/08/20/使用计划任务定时重启Server/#comments" class="ds-thread-count comments-count-link" data-thread-key="2012/08/20/使用计划任务定时重启Server/" data-count-type="comments">&nbsp;</a>
+	
 </div>
 
 </footer>
@@ -456,7 +600,7 @@
 		<ul>
 		
 		  
-			<li><a href="/categories/运维/" title="运维">运维<sup>4</sup></a></li>
+			<li><a href="/categories/运维/" title="运维">运维<sup>5</sup></a></li>
 		  
 		
 		</ul>
@@ -498,6 +642,10 @@
 		
 			
 				<li><a href="/tags/批处理/" title="批处理">批处理<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker/" title="docker">docker<sup>1</sup></a></li>
 			
 		
 		</ul>
@@ -605,6 +753,18 @@ $(document).ready(function(){
 
 
 
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"晨阳"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
 
 
 
