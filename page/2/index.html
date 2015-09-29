@@ -1,0 +1,577 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>陈洋|晨阳</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="chenyang">
+    
+
+    
+    <meta name="description">
+<meta property="og:type" content="website">
+<meta property="og:title" content="陈洋|晨阳">
+<meta property="og:url" content="http://chenyang.me/page/2/index.html">
+<meta property="og:site_name" content="陈洋|晨阳">
+<meta property="og:description">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="陈洋|晨阳">
+<meta name="twitter:description">
+
+    
+    <link rel="alternative" href="/atom.xml" title="陈洋|晨阳" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="stylesheet" href="/css/style.css" type="text/css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="陈洋|晨阳">陈洋|晨阳</a></h1>
+				<h2 class="blog-motto"></h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:chenyang.me">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main">
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2014/04/29/mac下使用ssh动态代理/" title="Mac下使用SSH动态代理" itemprop="url">Mac下使用SSH动态代理</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="chenyang" target="_blank" itemprop="author">chenyang</a>
+		
+  <p class="article-time">
+    <time datetime="2014-04-29T04:03:07.000Z" itemprop="datePublished"> 发表于 2014-04-29</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <h1 id="Mac下使用SSH动态代理">Mac下使用SSH动态代理</h1><p>最近IDC内部署了不少虚拟机，没有公网IP，之前使用ssh端口映射的方式，但没一个会话都需要映射一个端口，且ssh断开后，映射的侦听端口还在，总之，很不方便。用动态代理的方式就好多了，只需要侦听一个端口即可：</p>
+<ul>
+<li>在家目录.ssh下新建config文件，这其实是一个策略文件，172.16.10.*段的IP都会走这个代理</li>
+</ul>
+<blockquote>
+<p>Host 172.16.10.*</p>
+<p>   ProxyCommand /usr/bin/nc -x 127.0.0.1:1080 %h %p</p>
+</blockquote>
+<ul>
+<li>使用ssh命令创建侦听端口，其中-D 1080为指定本地侦听端口，可自定义；-p 22为远程跳板机的SSH端口，chenyang为用户，200.200.200.200为跳板机IP</li>
+</ul>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">ssh</span> -D <span class="number">1080</span> -qfnN -p <span class="number">2222</span> chenyang@<span class="number">200.200.200.200</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>接下来就可以直接ssh内网服务器了</li>
+</ul>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">ssh</span> -p <span class="number">2222</span> chenyang@<span class="number">172.16.10.10</span></span><br></pre></td></tr></table></figure>
+<h2 id="简化方式">简化方式</h2><p>BTW,还有一种简单的方式，将命令保存为alias，以后只需执行别名即可，如以下直接执行myproxy即可创建代理，执行my10即可SSH到远程服务器。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">alias</span> myproxy=<span class="string">'ssh -D 1080 -qfnN -p 2222 chenyang@200.200.200.200'</span></span><br><span class="line"><span class="built_in">alias</span> my10=<span class="string">'ssh -p 2222 chenyang@172.16.10.10'</span></span><br></pre></td></tr></table></figure>
+
+        
+        
+        <p class="article-more-link">
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/运维/">运维</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/mac/">mac</a><a href="/tags/ssh/">ssh</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2014/04/29/mac下使用ssh动态代理/#comments" class="ds-thread-count comments-count-link" data-thread-key="2014/04/29/mac下使用ssh动态代理/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+  
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2014/02/14/在DigitalOcean 512M内存VPS上部署 LEMP/" title="在DigitalOcean 512M内存VPS上部署 LEMP" itemprop="url">在DigitalOcean 512M内存VPS上部署 LEMP</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="chenyang" target="_blank" itemprop="author">chenyang</a>
+		
+  <p class="article-time">
+    <time datetime="2014-02-14T04:03:07.000Z" itemprop="datePublished"> 发表于 2014-02-14</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <h1 id="在DigitalOcean_512M内存VPS上部署_LEMP">在DigitalOcean 512M内存VPS上部署 LEMP</h1><p>之前用的 Amazon EC2这几天就到期了，发现 Digital Ocean 的 VPS 比较便宜，看了下评价也还不错，就花了5美元，并使用10美元的优惠码，先建起来一个把博客迁移过来了，我的 DO 推广链接是：<a href="https://www.digitalocean.com/?refcode=26027af1ccfe" title="https://www.digitalocean.com/?refcode=26027af1ccfe" target="_blank" rel="external">https://www.digitalocean.com/?refcode=26027af1ccfe</a>，欢迎试用</p>
+<p>整体感觉还可以，相比 Linode 略慢，感觉稳定性和 Linode 也差点，但 Linode 确实比较贵呀，20美元/月呢。昨晚配置时突然就连不上了，ssh 和网页控制台都不行，重启无效，索性关机了，今早一看恢复了，很无奈。。。</p>
+<p>下面是安装的经过，也是一个学习的过程</p>
+<h2 id="Linux_系统初始化配置">Linux 系统初始化配置</h2><h2 id="安装_Nginx">安装 Nginx</h2><h3 id="安装依赖组件">安装依赖组件</h3><figure class="highlight brainfuck"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">yum</span> <span class="literal">-</span><span class="comment">y</span> <span class="comment">install</span> <span class="comment">gcc</span> <span class="comment">gcc</span><span class="literal">-</span><span class="comment">c</span><span class="literal">+</span><span class="literal">+</span> <span class="comment">zlib</span><span class="literal">-</span><span class="comment">devel</span> <span class="comment">pcre</span><span class="literal">-</span><span class="comment">devel</span> <span class="comment">openssl</span><span class="literal">-</span><span class="comment">devel</span></span><br></pre></td></tr></table></figure>
+<h3 id="下载并进行编译安装">下载并进行编译安装</h3><figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">wget <span class="string">http:</span><span class="comment">//nginx.org/download/nginx-1.4.5.tar.gz  </span></span><br><span class="line">tar -xzvf nginx-<span class="number">1.4</span>.5.tar.gz  </span><br><span class="line">cd nginx-<span class="number">1.4</span>.5  </span><br><span class="line">.<span class="regexp">/configure —prefix=/</span>usr<span class="regexp">/local/</span>nginx —with-http_ssl_module  </span><br><span class="line">make  </span><br><span class="line">make install</span><br></pre></td></tr></table></figure>
+<p>注：这里有个误解，网上很多 nginx 编译安装的文档也都是这样：下载源码包，解压，移到安装路径，如/usr/local/nginx，然后再到此目录进行编译，如此就会有如下的报错“cp: <code>conf/koi-win&#39; and</code>/usr/local/nginx/conf/koi-win’ are the same file”，网上的解决方案大多是将 nginx.conf 指定到其他位置，如此虽能解决但对于强迫症的我却很不爽。仔细推敲发现这样编译确实有问题，正常的编译过程是将源码文件复制到prefix目标文件夹，但如果在源码目录里编译肯定会文件冲突，也就会有上面的报错了。</p>
+<p>解决方法也很简单，如我的编译方法，随便位置解压后进入目录编译，编译时指定 prefix 就可以了，如此编译好的程序也很干净，貌似仅有 sbin、conf、logs 三个目录。</p>
+<h2 id="安装_php-fpm">安装 php-fpm</h2><ul>
+<li><p>安装依赖组件  </p>
+<figure class="highlight livescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">yum -y install libmcrypt-devel mhash-devel libxslt-devel <span class="string">\</span></span><br><span class="line">libjpeg libjpeg-devel libpng libpng-devel freetype freetype-devel libxml2 libxml2-devel <span class="string">\</span></span><br><span class="line">zlib zlib-devel glibc glibc-devel glib2 glib2-devel bzip2 bzip2-devel <span class="string">\</span>  </span><br><span class="line">ncurses ncurses-devel curl curl-devel e2fsprogs e2fsprogs-devel <span class="string">\</span></span><br><span class="line">krb5 krb5-devel libidn libidn-devel openssl openssl-devel</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>下载解压并编译，同样不需要将源码拷贝到安装目录再编译  </p>
+<figure class="highlight brainfuck"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">wget</span> <span class="comment">http://am1</span><span class="string">.</span><span class="comment">php</span><span class="string">.</span><span class="comment">net/distributions/php</span><span class="literal">-</span><span class="comment">5</span><span class="string">.</span><span class="comment">5</span><span class="string">.</span><span class="comment">9</span><span class="string">.</span><span class="comment">tar</span><span class="string">.</span><span class="comment">gz</span>  </span><br><span class="line"><span class="comment">tar</span> <span class="literal">-</span><span class="comment">xzvf</span> <span class="comment">php</span><span class="literal">-</span><span class="comment">5</span><span class="string">.</span><span class="comment">5</span><span class="string">.</span><span class="comment">9</span><span class="string">.</span><span class="comment">tar</span><span class="string">.</span><span class="comment">gz</span>  </span><br><span class="line"><span class="string">.</span><span class="comment">/configure</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">prefix=/usr/local/php</span>  <span class="literal">-</span><span class="literal">-</span><span class="comment">enable</span><span class="literal">-</span><span class="comment">fpm</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">with</span><span class="literal">-</span><span class="comment">mcrypt</span> <span class="comment">\</span></span><br><span class="line"><span class="literal">-</span><span class="literal">-</span><span class="comment">enable</span><span class="literal">-</span><span class="comment">mbstring</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">disable</span><span class="literal">-</span><span class="comment">pdo</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">with</span><span class="literal">-</span><span class="comment">curl</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">disable</span><span class="literal">-</span><span class="comment">debug</span>  <span class="literal">-</span><span class="literal">-</span><span class="comment">disable</span><span class="literal">-</span><span class="comment">rpath</span> <span class="comment">\</span></span><br><span class="line"><span class="literal">-</span><span class="literal">-</span><span class="comment">enable</span><span class="literal">-</span><span class="comment">inline</span><span class="literal">-</span><span class="comment">optimization</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">with</span><span class="literal">-</span><span class="comment">bz2</span>  <span class="literal">-</span><span class="literal">-</span><span class="comment">with</span><span class="literal">-</span><span class="comment">zlib</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">enable</span><span class="literal">-</span><span class="comment">sockets</span> <span class="comment">\</span></span><br><span class="line"><span class="literal">-</span><span class="literal">-</span><span class="comment">enable</span><span class="literal">-</span><span class="comment">sysvsem</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">enable</span><span class="literal">-</span><span class="comment">sysvshm</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">enable</span><span class="literal">-</span><span class="comment">pcntl</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">enable</span><span class="literal">-</span><span class="comment">mbregex</span> <span class="comment">\</span></span><br><span class="line"><span class="literal">-</span><span class="literal">-</span><span class="comment">with</span><span class="literal">-</span><span class="comment">mhash</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">enable</span><span class="literal">-</span><span class="comment">zip</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">with</span><span class="literal">-</span><span class="comment">pcre</span><span class="literal">-</span><span class="comment">regex</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">with</span><span class="literal">-</span><span class="comment">mysql</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">with</span><span class="literal">-</span><span class="comment">mysqli</span> <span class="comment">\</span></span><br><span class="line"><span class="literal">-</span><span class="literal">-</span><span class="comment">with</span><span class="literal">-</span><span class="comment">gd</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">with</span><span class="literal">-</span><span class="comment">jpeg</span><span class="literal">-</span><span class="comment">dir</span>  </span><br><span class="line"><span class="comment">make</span>  </span><br><span class="line"><span class="comment">make</span> <span class="comment">install</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>注：对于低于1G 内存的服务器来说make 时会有报错，make: <em>*</em> [ext/fileinfo/libmagic/apprentice.lo] Error 1，在编译时加上如下参数即可：  </p>
+<blockquote>
+<p>–disable-fileinfo</p>
+</blockquote>
+<h2 id="安装MySQL">安装MySQL</h2><ul>
+<li><p>MySQL 采用cmake 进行编译，所以第一步先安装 cmake</p>
+<figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum -y <span class="keyword">install</span> cmake</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>创建 MySQL 用户组及用户</p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">groupadd</span> mysql  </span><br><span class="line">useradd -r -g mysql mysql</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>下载社区版源码包并编译安装 MySQL</p>
+<figure class="highlight haml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">wget http://dev.mysql.com/get/Downloads/MySQL-5.6/mysql-5.6.16.tar.gz  </span><br><span class="line">tar -xzvf mysql-5.6.16.tar.gz  </span><br><span class="line">cd mysql-5.6.16  </span><br><span class="line">cmake -DCMAKE_INSTALL_PREFIX=/usr/local/mysql \</span><br><span class="line">-<span class="ruby"><span class="constant">DMYSQL_UNIX_ADDR</span>=<span class="regexp">/tmp/mysql</span>.sock \</span><br><span class="line"></span>-<span class="ruby"><span class="constant">DDEFAULT_CHARSET</span>=utf8 \</span><br><span class="line"></span>-<span class="ruby"><span class="constant">DDEFAULT_COLLATION</span>=utf8_general_ci \</span><br><span class="line"></span>-<span class="ruby"><span class="constant">DWITH_MYISAM_STORAGE_ENGINE</span>=<span class="number">1</span> \</span><br><span class="line"></span>-<span class="ruby"><span class="constant">DWITH_INNOBASE_STORAGE_ENGINE</span>=<span class="number">1</span> \</span><br><span class="line"></span>-<span class="ruby"><span class="constant">DWITH_MEMORY_STORAGE_ENGINE</span>=<span class="number">1</span> \</span><br><span class="line"></span>-<span class="ruby"><span class="constant">DWITH_READLINE</span>=<span class="number">1</span> \</span><br><span class="line"></span>-<span class="ruby"><span class="constant">DENABLED_LOCAL_INFILE</span>=<span class="number">1</span> \</span><br><span class="line"></span>-<span class="ruby"><span class="constant">DMYSQL_DATADIR</span>=<span class="regexp">/usr/local</span><span class="regexp">/mysql/data</span> \</span><br><span class="line"></span>-<span class="ruby"><span class="constant">DMYSQL_USER</span>=mysql \</span><br><span class="line"></span>-<span class="ruby"><span class="constant">DMYSQL_TCP_PORT</span>=<span class="number">3306</span>  </span><br><span class="line"></span>make  </span><br><span class="line">make install</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>设置 MySQL 目录权限</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">cd <span class="regexp">/usr/</span>local/mysql  </span><br><span class="line">chown -R <span class="string">root:</span>mysql .  </span><br><span class="line">chown -R <span class="string">mysql:</span>mysql data</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>创建 MySQL 配置文件</p>
+<figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">cd</span> /usr/local/mysql  </span><br><span class="line"><span class="keyword">cp</span> support-<span class="keyword">files</span>/my-medium.<span class="keyword">cnf</span> /etc/my.<span class="keyword">cnf</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>创建系统数据库的表</p>
+<figure class="highlight applescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cd /usr/<span class="keyword">local</span>/mysql  </span><br><span class="line">scripts/mysql_install_db <span class="comment">--user=mysql</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>设置环境变量</p>
+<figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">vim</span> /etc/<span class="keyword">profile</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<blockquote>
+<p>修改为PATH=$PATH:$HOME/bin:/usr/local/mysql/bin:/usr/local/mysql/lib<br>source /etc/profile  </p>
+</blockquote>
+<ul>
+<li><p>将 MySQL 启动服务添加为系统服务，并设置开机启动</p>
+<figure class="highlight livecodeserver"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">cp support-<span class="built_in">files</span>/mysql.server /etc/init.d/mysqld  </span><br><span class="line">chmod +x /etc/init.d/mysqld  </span><br><span class="line">chkconfig <span class="comment">--add mysqld  </span></span><br><span class="line">chkconfig mysqld <span class="command"><span class="keyword">on</span></span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>启动 MySQL</p>
+<figure class="highlight puppet"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">service</span> mysqld <span class="literal">start</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<blockquote>
+<p>注：我的启动时有报错“Starting MySQL… ERROR! The server quit without updating PID file (/usr/local/mysql/data/chenyang.pid).”<br>检查权限没问题，后来查看/usr/local/mysql/data/chenyang.err，发现总是内存分配上出错，偶尔能启动，内存瞬间就占满了，定位应该是默认配置占用内存较高（内存占用75—83%），而我的 VPS 仅有512M 内存，就查看 mysql 官方文档，调整/etc/my.cnf 参数，更改缓存打开表的设置后一切正常，内存占用17-18%之间，调整的几个参数如下:<br>innodb_buffer_pool_size = 16M<br>innodb_log_file_size = 16M<br>max_connections = 32<br>key_buffer = 16M<br>max_allowed_packet = 1M<br>thread_stack = 128K<br>#table_cache = 16<br>#主要是下面这个参数，5.6版本以后默认是2000<br>table_open_cache = 512</p>
+</blockquote>
+
+        
+        
+        <p class="article-more-link">
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/运维/">运维</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/DigitalOcean/">DigitalOcean</a><a href="/tags/LEMP/">LEMP</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2014/02/14/在DigitalOcean 512M内存VPS上部署 LEMP/#comments" class="ds-thread-count comments-count-link" data-thread-key="2014/02/14/在DigitalOcean 512M内存VPS上部署 LEMP/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+  
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2012/08/20/使用计划任务定时重启Server/" title="使用计划任务定时重启Server" itemprop="url">使用计划任务定时重启Server</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="chenyang" target="_blank" itemprop="author">chenyang</a>
+		
+  <p class="article-time">
+    <time datetime="2012-08-20T06:11:26.000Z" itemprop="datePublished"> 发表于 2012-08-20</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <h1 id="使用计划任务定时重启Server">使用计划任务定时重启Server</h1><p>想做个计划任务，定时重启一台服务器，但是批处理文件总是不能执行，之前遇到过解决了，但这次又忘了。记录下来，备忘。<br>具体原因是我写的批处理名称是shutdown.bat，与shudown.exe命令同名，导致计划任务以为在执行shutdown.exe，但没有任何参数，故执行失败。<br>将批处理任意改一个名字即可，如reboot.bat，myshutdown.bat等。<br>批处理命令：<br><figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">shutdown <span class="regexp">/f /</span>r <span class="regexp">/t 10</span></span><br></pre></td></tr></table></figure></p>
+
+        
+        
+        <p class="article-more-link">
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/运维/">运维</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/shutdown/">shutdown</a><a href="/tags/批处理/">批处理</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2012/08/20/使用计划任务定时重启Server/#comments" class="ds-thread-count comments-count-link" data-thread-key="2012/08/20/使用计划任务定时重启Server/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+  
+
+
+
+
+  <nav id="page-nav" class="clearfix">
+    <a class="extend prev" rel="prev" href="/"><span></span>Prev</a><a class="page-number" href="/">1</a><span class="page-number current">2</span>
+  </nav>
+
+</div>
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/运维/" title="运维">运维<sup>6</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/docker/" title="docker">docker<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/nexus/" title="nexus">nexus<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/maven/" title="maven">maven<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/DigitalOcean/" title="DigitalOcean">DigitalOcean<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/LEMP/" title="LEMP">LEMP<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/shutdown/" title="shutdown">shutdown<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/批处理/" title="批处理">批处理<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mac/" title="mac">mac<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ssh/" title="ssh">ssh<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/zookeeper/" title="zookeeper">zookeeper<sup>1</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+    </ul>
+</div>
+
+  
+
+
+  <div class="rsspart">
+	<a href="/atom.xml" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	
+	<section class="info">
+		<p> Hello ,I&#39;m ChenYang from beijing. <br/>
+			This is my blog,believe it or not.</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2015 
+		
+		<a href="/about" target="_blank" title="chenyang">chenyang</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"chyang"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+ </html>
