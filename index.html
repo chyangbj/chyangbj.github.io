@@ -74,6 +74,111 @@
         <header class="article-info clearfix">
   <h1 itemprop="name">
     
+      <a href="/2015/10/12/【翻译】使用Nginx、Nginx Plus抵御DDOS攻击/" title="【翻译】使用Nginx、Nginx Plus抵御DDOS攻击" itemprop="url">【翻译】使用Nginx、Nginx Plus抵御DDOS攻击</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="chenyang" target="_blank" itemprop="author">chenyang</a>
+		
+  <p class="article-time">
+    <time datetime="2015-10-12T07:56:12.000Z" itemprop="datePublished"> 发表于 2015-10-12</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <h1 id="使用Nginx、Nginx_Plus抵御DDOS攻击">使用Nginx、Nginx Plus抵御DDOS攻击</h1><blockquote>
+<p>看到这篇文章觉得还不错，心血来潮就翻译一下，第一次尝试，请拍砖。<br>原文地址为：<a href="https://www.nginx.com/blog/mitigating-ddos-attacks-with-nginx-and-nginx-plus/" target="_blank" rel="external">Mitigating DDoS Attacks with NGINX and NGINX Plus</a></p>
+</blockquote>
+<p>DDOS是一种通过大流量的请求对目标进行轰炸式访问，导致提供服务的服务器资源耗尽进而无法继续提供服务的攻击手段。<br>一般情况下，攻击者通过大量请求与连接使服务器处于饱和状态，以至于无法接受新的请求或变得很慢。</p>
+<h2 id="应用层DDOS攻击的特征">应用层DDOS攻击的特征</h2><p>应用层（七层/HTTP层）DDOS攻击通常由木马程序发起，其可以通过设计更好的利用目标系统的脆弱点。例如，对于无法处理大量并发请求的系统，仅仅通过建立大量的连接，并周期性的发出少量数据包来保持会话就可以耗尽系统的资源，使其无法接受新的连接请求达到DDOS的目的。其他还有采用发送大量连接请求<br>发送大数据包的请求进行攻击的形式。因为攻击是由木马程序发起，攻击者可以在很短时间内快速建立大量的连接，并发出大量的请求。</p>
+<p>以下是一些DDOS的特证，我们可以据此特征来抵抗DDOS（包括但不限于）：</p>
+<ul>
+<li>攻击经常来源于一些相对固定的IP或IP段，每个IP都有远大于真实用户的连接数和请求数。<blockquote>
+<p>备注：这并不表明这种请求都是代表着DDOS攻击。在很多使用NAT的网络架构中，很多的客户端使用网关的IP地址访问公网资源。但是，即便如此，这样的请求数和连接数也会远少于DDOS攻击。</p>
+</blockquote>
+</li>
+<li>因为攻击是由木马发出且目的是使服务器超负荷，请求的频率会远远超过正常人的请求。</li>
+<li>User-Agent通常是一个非标准的值</li>
+<li>Referer有时是一个容易联想到攻击的值</li>
+</ul>
+<h2 id="使用Nginx、Nginx_Plus抵抗DDOS攻击">使用Nginx、Nginx Plus抵抗DDOS攻击</h2><p>结合上面提到的DDOS攻击的特征，Nginx、Nginx Plus有很多的特性可以用来有效的防御DDOS攻击，可以从调整入口访问流量和控制反向代理到后端服务器的流量两个方面来达到抵御DDOS攻击的目的。</p>
+<h3 id="限制请求速度">限制请求速度</h3><p>设置Nginx、Nginx Plus的连接请求在一个真实用户请求的合理范围内。比如，如果你觉得一个正常用户每两秒可以请求一次登录页面，你就可以设置Nginx每两秒钟接收一个客户端IP的请求（大约等同于每分钟30个请求）。<br><figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">limit_req_zone <span class="label">$binary_remote_addr</span> zone=<span class="keyword">one</span>:10m rate=30r/<span class="keyword">m</span>;</span><br><span class="line"></span><br><span class="line">server &#123;</span><br><span class="line">    ...</span><br><span class="line">    location /login.html &#123;</span><br><span class="line">        limit_req zone=<span class="keyword">one</span>;</span><br><span class="line">    ...</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p><code>limit_req_zone</code>命令设置了一个叫one的共享内存区来存储请求状态的特定键值，在上面的例子中是客户端IP($binary_remote_addr)。location块中的<code>limit_req</code>通过引用one共享内存区来实现限制访问/login.html的目的。</p>
+<h3 id="限制连接数量">限制连接数量</h3><p>设置Nginx、Nginx Plus的连接数在一个真实用户请求的合理范围内。比如，你可以设置每个客户端IP连接/store不可以超过10个。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">limit</span>_conn_zone <span class="variable">$binary_remote_addr</span> zone=addr:<span class="number">10</span>m;</span><br><span class="line"></span><br><span class="line">server &#123;</span><br><span class="line">    ...</span><br><span class="line">    location /store/ &#123;</span><br><span class="line">        <span class="built_in">limit</span>_conn addr <span class="number">10</span>;</span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p><code>limit_conn_zone</code>命令设置了一个叫addr的共享内存区来存储特定键值的状态，在上面的例子中是客户端IP（ $binary_remote_addr）。location块中<code>limit_conn</code>通过引用addr共享内存区来限制到/store/的最大连接数为10。</p>
+<h3 id="关闭慢连接">关闭慢连接</h3><p>有一些DDOS攻击，比如Slowlris，是通过建立大量的连接并周期性的发送一些数据包保持会话来达到攻击目的，这种周期通常会低于正常的请求。这种情况我们可以通过关闭慢连接来抵御攻击。<br><code>client_body_timeout</code>命令用来定义读取客户端请求的超时时间，<code>client_header_timeout</code>命令用来定于读取客户端请求头的超时时间。这两个参数的默认值都是60s，我们可以通过下面的命令将他们设置为5s：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">server &#123;</span><br><span class="line">    <span class="keyword">client_body_t</span>imeout <span class="number">5</span>s;</span><br><span class="line">    <span class="keyword">client_header_t</span>imeout <span class="number">5</span>s;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h3 id="设置IP黑名单">设置IP黑名单</h3><p>如果确定攻击来源于某些IP地址，我们可以将其加入黑名单，Nginx就不会再接受他们的请求。比如，你已经确定攻击来自于从123.123.123.1到123.123.123.16的一段IP地址，你可以这样设置：<br><figure class="highlight dns"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">location / &#123;</span><br><span class="line">    deny <span class="number">123.123.123.0</span>/28<span class="comment">;</span></span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>或者你确定攻击来源于123.123.123.3、123.123.123.5、123.123.123.7几个IP，可以这样设置：<br><figure class="highlight dns"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">location / &#123;</span><br><span class="line">    deny <span class="number">123.123.123.3</span><span class="comment">;</span></span><br><span class="line">    deny <span class="number">123.123.123.5</span><span class="comment">;</span></span><br><span class="line">    deny <span class="number">123.123.123.7</span><span class="comment">;</span></span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h3 id="设置IP白名单">设置IP白名单</h3><p>如果你的网站仅允许特定的IP或IP段访问，你可以结合使用allow和deny命令来限制仅允许你指定的IP地址访问你的网站。如下，你可以设置仅允许192.168.1.0段的内网用户访问：<br><figure class="highlight dns"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">location / &#123;</span><br><span class="line">    allow <span class="number">192.168.1.0</span>/24<span class="comment">;</span></span><br><span class="line">    deny all<span class="comment">;</span></span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>deny命令会拒绝除了allow指定的IP段之外的所有其他IP的访问请求。</p>
+<h3 id="使用缓存进行流量削峰">使用缓存进行流量削峰</h3><p>通过打开Nginx的缓存功能并设置特定的缓存参数，可以削减来自攻击的流量，同时也可以减轻对后端服务器的请求压力。以下是一些有用的设置：</p>
+<ul>
+<li><code>proxy_cache_use_stale</code>的updating参数告诉Nginx什么时候该更新所缓存的对象。只需要到后端的一个更新请求，在缓存有效期间客户端对该对象的请求都无需访问后端服务器。当通过对一个文件的频繁请求来实施攻击时，缓存功能可极大的降低到后端服务器的请求。</li>
+<li><code>proxy_cache_key</code>命令定义的键值通常包含一些内嵌的变量（默认的键值$scheme$proxy_host$request_uri包含了三个变量）。如果键值包含<code>$query_string</code>变量，当攻击的请求字符串是随机的时候就会给Nginx代理过重的缓存负担，因此我们建议一般情况下不要包含<code>$query_string</code>变量。<h3 id="屏蔽特定的请求">屏蔽特定的请求</h3>可以设置Nginx、Nginx Plus屏蔽一些类型的请求：</li>
+<li>针对特定URL的请求</li>
+<li>针对不是常见的User-Agent的请求</li>
+<li>针对Referer头中包含可以联想到攻击的值的请求</li>
+<li>针对其他请求头中包含可以联想到攻击的值的请求<br>比如，如果你判定攻击是针对一个特定的URL：/foo.php，我们就可以屏蔽到这个页面的请求：<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">location</span> /foo.php &#123;</span><br><span class="line">    <span class="title">deny</span> all;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>或者你判定攻击请求的User-Agent中包含foo或bar，我们也可以屏蔽这些请求：<br><figure class="highlight lasso"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">location <span class="subst">/</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="variable">$http_user_agent</span> ~<span class="subst">*</span> foo<span class="subst">|</span>bar) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">403</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="attribute">...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>http_name变量引用一个请求头，上述例子中是User-Agent头。可以针对其他的http头使用类似的方法来识别攻击。</p>
+<h3 id="限制到后端服务器的连接数">限制到后端服务器的连接数</h3><p>一个Nginx、Nginx Plus实例可以处理比后端服务器多的多的并发请求。在Nginx Plus中，你可以限制到每一个后端服务器的连接数，比如可以设置Nginx Plus与website upstream中的每个后端服务器建立的连接数不得超过200个：<br><figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">upstream</span> website &#123;</span><br><span class="line">    <span class="title">server</span> <span class="number">192.168.100.1:80</span> max_conns=<span class="number">200</span>;</span><br><span class="line">    <span class="title">server</span> <span class="number">192.168.100.2:80</span> max_conns=<span class="number">200</span>;</span><br><span class="line">    <span class="title">queue</span> <span class="number">10</span> timeout=<span class="number">30s</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p><code>max_conns</code>参数可以针对每一个后端服务器设置Nginx Plus可以与之建立的最大连接数。<code>queue</code>命令设置了当每个后端服务器都达到最大连接数后的队列大小，<code>timeout</code>参数指定了请求在队列中的保留时间。</p>
+<h3 id="处理特定类型的攻击">处理特定类型的攻击</h3><p>有一种攻击是发送包含特别大的值的请求头，引起服务器端缓冲区溢出。Nginx、Nginx Plus针对这种攻击类型的防御，可以参考<a href="http://nginx.com/blog/nginx-protect-cve-2015-1635/?_ga=1.14368116.2137319792.1439284699" target="_blank" rel="external">Using NGINX and NGINX Plus to Protect Against CVE-2015-1635</a></p>
+<h3 id="优化Nginx性能">优化Nginx性能</h3><p>DDOS攻击通常会带来高的负载压力，可以通过一些调优参数，提高Nginx、Nginx Plus处理性能，硬抗DDOS攻击，详细参考：<a href="http://nginx.com/blog/tuning-nginx/?_ga=1.48422373.2137319792.1439284699" target="_blank" rel="external">Tuning NGINX for Performance</a></p>
+<h2 id="识别DDOS攻击">识别DDOS攻击</h2><p>到目前为止，我们都是集中在如何是用Nginx、Nginx Plus来减轻DDOS攻击带来的影响。如何才能让Nginx、Nginx Plus帮助我们识别DDOS攻击呢？<code>Nginx Plus Status module</code>提供了到后端服务器流量的详细统计，可以用来识别异常的流量。Nginx Plus提供一个当前服务状态的仪表盘页面，同时也可以在自定义系统或其他第三方系统中通过API的方式获取这些统计信息，并根据历史趋势分析识别非正常的流量进而发出告警。</p>
+<h2 id="总结">总结</h2><p>Nginx和Nginx Plus可以作为抵御DDOS攻击的一个有力手段，而且Nginx Plus中提供了一些附加的特性来更好的抵御DDOS攻击并且当攻击发生时及时的识别到。</p>
+
+        
+        
+        <p class="article-more-link">
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/运维/">运维</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/DDOS/">DDOS</a><a href="/tags/Nginx/">Nginx</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2015/10/12/【翻译】使用Nginx、Nginx Plus抵御DDOS攻击/#comments" class="ds-thread-count comments-count-link" data-thread-key="2015/10/12/【翻译】使用Nginx、Nginx Plus抵御DDOS攻击/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+  
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
       <a href="/2015/09/10/Docker中部署Zookeeper集群/" title="Docker中部署Zookeeper集群" itemprop="url">Docker中部署Zookeeper集群</a>
   </h1>
   <p class="article-author">By
@@ -290,134 +395,9 @@
 
 
 
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2015/07/28/基于Nexus的Maven私库部署注意事项/" title="基于Nexus的Maven私库部署注意事项" itemprop="url">基于Nexus的Maven私库部署注意事项</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="chenyang" target="_blank" itemprop="author">chenyang</a>
-		
-  <p class="article-time">
-    <time datetime="2015-07-28T04:03:07.000Z" itemprop="datePublished"> 发表于 2015-07-28</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <h1 id="基于Nexus的Maven私库部署注意事项">基于Nexus的Maven私库部署注意事项</h1><p>最近基于Nexus部署一套Maven私库，简单记录下部署过程，另外记录下注意事项，备忘。</p>
-<h2 id="安装">安装</h2><ol>
-<li>安装JDK<br>需要Java7以上，这里使用Jave8，安装过程略</li>
-<li>使用Nexus OSS版本<br>下载地址为：<a href="http://www.sonatype.org/nexus/go/" target="_blank" rel="external">http://www.sonatype.org/nexus/go/</a></li>
-<li><p>安装  </p>
-<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">wget <span class="string">http:</span><span class="comment">//www.sonatype.org/downloads/nexus-latest-bundle.tar.gz  </span></span><br><span class="line">tar -xzvf nexus-<span class="number">2.11</span>.4-<span class="number">01</span>-bundle.tar.gz  </span><br><span class="line">cp nexus-<span class="number">2.11</span>.4-<span class="number">01</span> <span class="regexp">/usr/</span>local  </span><br><span class="line">ln -s nexus-<span class="number">2.11</span>.4-<span class="number">01</span> nexus  </span><br><span class="line">mkdir <span class="regexp">/usr/</span>local/sonatype-work</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>最好创建一个单独的用户，用来启动nexus  </p>
-<figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">useradd nexus  </span><br><span class="line">chown -R nexus.nexus <span class="regexp">/usr/</span>local<span class="regexp">/nexus /u</span>sr<span class="regexp">/local/</span>sonatype-work</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>添加Linux服务并设置自启动  </p>
-<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">cp <span class="regexp">/usr/</span>local<span class="regexp">/nexus/</span>bin<span class="regexp">/nexus /</span>etc<span class="regexp">/init.d/</span>nexus  </span><br><span class="line">chmod <span class="number">755</span> <span class="regexp">/etc/</span>init.d/nexus  </span><br><span class="line">chown root.root <span class="regexp">/etc/</span>init.d/nexus  </span><br><span class="line">chkconfig --add nexus &amp;&amp; chkconfig nexus on</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>启动Nexus  </p>
-<figure class="highlight puppet"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">service</span> nexus <span class="literal">start</span></span><br></pre></td></tr></table></figure>
-</li>
-</ol>
-<h2 id="配置">配置</h2><ol>
-<li>修改默认的路径<br>默认的地址为<a href="http://localhost:8081/nexus" target="_blank" rel="external">http://localhost:8081/nexus</a><br>可以修改配置文件，位置为/usr/local/nexus/conf/nexus.properties<br>默认为nexus-webapp-context-path=/nexus，修改为：nexus-webapp-context-path=/<br>如此，访问地址变更为<a href="http://localhost:8081" target="_blank" rel="external">http://localhost:8081</a></li>
-<li>使用nginx代理<br>在nginx配置一个server，监听80，代理到<a href="http://localhost:8081（略）" target="_blank" rel="external">http://localhost:8081（略）</a><br>如此，访问地址变更为：<a href="http://localhost" target="_blank" rel="external">http://localhost</a></li>
-<li><p>配置LDAP认证  </p>
-<ul>
-<li>这个比较坑，默认其实是不支持LDAP认证的，需先启用LDAP认证。<br>登录Nexus—Administration—Server—Security Settings，将『OSS LDAP Authentication Realm』添加到左侧，并移动到最上边，点击保存。<br><img src="http://7xkqij.com1.z0.glb.clouddn.com/QQ20150727-1.png" alt=""></li>
-<li>配置LDAP服务器，登录Nexus—Security—LDAP Configuration</li>
-<li>这里支持两种方式，一种是帐号的绑定，一种是Group的绑定，也可以两者都用</li>
-<li>Connetion选择LDAP并配置服务、绑定一个有读权限的LDAP用户。<br><img src="http://7xkqij.com1.z0.glb.clouddn.com/QQ20150727-4.png" alt=""></li>
-<li>User的绑定可用的配置方式为：<ul>
-<li>Base DN：ou=users</li>
-<li>User Subtree：选择</li>
-<li>Object Class：user</li>
-<li>User Filter：(&amp;(objectCategory=Person)(sAMAccountName=*))</li>
-<li>User ID Attribute：sAMAccountName</li>
-<li>Real Name Attribute：cn</li>
-<li>E-Mail Attribute：mail</li>
-<li>Password Attribute：</li>
-</ul>
-</li>
-<li>Group的绑定需要调试，经过查阅文档，可用的配置方式为<ul>
-<li>Group Type：Static Group</li>
-<li>Base DN:ou=Groups</li>
-<li>Group Subtree:选中</li>
-<li>Object Class：group</li>
-<li>Group ID Attrbute：cn</li>
-<li>Group Member Attribute：member:1.2.840.113556.1.4.1941:</li>
-<li>Group Member Format：${dn}<br><img src="http://7xkqij.com1.z0.glb.clouddn.com/QQ20150727-3.png" alt=""></li>
-</ul>
-</li>
-</ul>
-</li>
-<li><p>权限配置</p>
-<ul>
-<li>可以单独在User里添加AD用户，并分配相应的角色、权限</li>
-<li>也可以在AD中创建不同的组，比如dev、master等，在Nexus—Security-Role中添加外部映射Group，并分配相应的权限。</li>
-</ul>
-</li>
-<li>注意一个比较坑的地方：<ul>
-<li>在官方文档中推荐了一个很好用的功能，『User Token Realm』。因为使用LDAP验证后，在Maven的settings.xml中需要明文保存用户名、密码，这样并不安全，而『User Token』就是允许我们在Nexus的个人Profile生成一个Token，将Token存放到settings.xml即可。</li>
-<li>这真的是一个很好的功能。但是！！！默认是没有这个的功能的，翻遍了官方文档也没找到如何添加这个Realm。</li>
-<li>偶然想起翻了一下Nexus OSS、Nexus Pro等版本的区别，赫然发现『User Token Realm』只是Pro版的功能！！！</li>
-<li>想用这个功能的购买Pro版吧。</li>
-</ul>
-</li>
-</ol>
-
-        
-        
-        <p class="article-more-link">
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/运维/">运维</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/maven/">maven</a><a href="/tags/nexus/">nexus</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2015/07/28/基于Nexus的Maven私库部署注意事项/#comments" class="ds-thread-count comments-count-link" data-thread-key="2015/07/28/基于Nexus的Maven私库部署注意事项/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-  
-
-
-
 
   <nav id="page-nav" class="clearfix">
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" href="/page/2/">Next<span></span></a>
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><a class="extend next" rel="next" href="/page/2/">Next<span></span></a>
   </nav>
 
 </div>
@@ -433,7 +413,7 @@
 		<ul>
 		
 		  
-			<li><a href="/categories/运维/" title="运维">运维<sup>6</sup></a></li>
+			<li><a href="/categories/运维/" title="运维">运维<sup>7</sup></a></li>
 		  
 		
 		</ul>
@@ -450,11 +430,7 @@
 			
 		
 			
-				<li><a href="/tags/nexus/" title="nexus">nexus<sup>1</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/maven/" title="maven">maven<sup>1</sup></a></li>
+				<li><a href="/tags/DDOS/" title="DDOS">DDOS<sup>1</sup></a></li>
 			
 		
 			
@@ -474,11 +450,23 @@
 			
 		
 			
+				<li><a href="/tags/maven/" title="maven">maven<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Nginx/" title="Nginx">Nginx<sup>1</sup></a></li>
+			
+		
+			
 				<li><a href="/tags/mac/" title="mac">mac<sup>1</sup></a></li>
 			
 		
 			
 				<li><a href="/tags/ssh/" title="ssh">ssh<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/nexus/" title="nexus">nexus<sup>1</sup></a></li>
 			
 		
 			

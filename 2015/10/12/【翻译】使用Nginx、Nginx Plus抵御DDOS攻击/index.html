@@ -1,0 +1,532 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>【翻译】使用Nginx、Nginx Plus抵御DDOS攻击 | 陈洋|晨阳</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="chenyang">
+    
+
+    
+    <meta name="description" content="使用Nginx、Nginx Plus抵御DDOS攻击
+看到这篇文章觉得还不错，心血来潮就翻译一下，第一次尝试，请拍砖。原文地址为：Mitigating DDoS Attacks with NGINX and NGINX Plus
+
+DDOS是一种通过大流量的请求对目标进行轰炸式访问，导致提供服务的服务器资源耗尽进而无法继续提供服务的攻击手段。一般情况下，攻击者通过大量请求与连接使服务器处于饱和状态">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【翻译】使用Nginx、Nginx Plus抵御DDOS攻击">
+<meta property="og:url" content="http://chenyang.me/2015/10/12/【翻译】使用Nginx、Nginx Plus抵御DDOS攻击/index.html">
+<meta property="og:site_name" content="陈洋|晨阳">
+<meta property="og:description" content="使用Nginx、Nginx Plus抵御DDOS攻击
+看到这篇文章觉得还不错，心血来潮就翻译一下，第一次尝试，请拍砖。原文地址为：Mitigating DDoS Attacks with NGINX and NGINX Plus
+
+DDOS是一种通过大流量的请求对目标进行轰炸式访问，导致提供服务的服务器资源耗尽进而无法继续提供服务的攻击手段。一般情况下，攻击者通过大量请求与连接使服务器处于饱和状态">
+<meta property="og:updated_time" content="2015-10-12T07:56:12.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="【翻译】使用Nginx、Nginx Plus抵御DDOS攻击">
+<meta name="twitter:description" content="使用Nginx、Nginx Plus抵御DDOS攻击
+看到这篇文章觉得还不错，心血来潮就翻译一下，第一次尝试，请拍砖。原文地址为：Mitigating DDoS Attacks with NGINX and NGINX Plus
+
+DDOS是一种通过大流量的请求对目标进行轰炸式访问，导致提供服务的服务器资源耗尽进而无法继续提供服务的攻击手段。一般情况下，攻击者通过大量请求与连接使服务器处于饱和状态">
+
+    
+    <link rel="alternative" href="/atom.xml" title="陈洋|晨阳" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="stylesheet" href="/css/style.css" type="text/css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="陈洋|晨阳">陈洋|晨阳</a></h1>
+				<h2 class="blog-motto"></h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:chenyang.me">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2015/10/12/【翻译】使用Nginx、Nginx Plus抵御DDOS攻击/" title="【翻译】使用Nginx、Nginx Plus抵御DDOS攻击" itemprop="url">【翻译】使用Nginx、Nginx Plus抵御DDOS攻击</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="chenyang" target="_blank" itemprop="author">chenyang</a>
+		
+  <p class="article-time">
+    <time datetime="2015-10-12T07:56:12.000Z" itemprop="datePublished"> 发表于 2015-10-12</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#使用Nginx、Nginx_Plus抵御DDOS攻击"><span class="toc-number">1.</span> <span class="toc-text">使用Nginx、Nginx Plus抵御DDOS攻击</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#应用层DDOS攻击的特征"><span class="toc-number">1.1.</span> <span class="toc-text">应用层DDOS攻击的特征</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#使用Nginx、Nginx_Plus抵抗DDOS攻击"><span class="toc-number">1.2.</span> <span class="toc-text">使用Nginx、Nginx Plus抵抗DDOS攻击</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#限制请求速度"><span class="toc-number">1.2.1.</span> <span class="toc-text">限制请求速度</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#限制连接数量"><span class="toc-number">1.2.2.</span> <span class="toc-text">限制连接数量</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#关闭慢连接"><span class="toc-number">1.2.3.</span> <span class="toc-text">关闭慢连接</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#设置IP黑名单"><span class="toc-number">1.2.4.</span> <span class="toc-text">设置IP黑名单</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#设置IP白名单"><span class="toc-number">1.2.5.</span> <span class="toc-text">设置IP白名单</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#使用缓存进行流量削峰"><span class="toc-number">1.2.6.</span> <span class="toc-text">使用缓存进行流量削峰</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#屏蔽特定的请求"><span class="toc-number">1.2.7.</span> <span class="toc-text">屏蔽特定的请求</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#限制到后端服务器的连接数"><span class="toc-number">1.2.8.</span> <span class="toc-text">限制到后端服务器的连接数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#处理特定类型的攻击"><span class="toc-number">1.2.9.</span> <span class="toc-text">处理特定类型的攻击</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#优化Nginx性能"><span class="toc-number">1.2.10.</span> <span class="toc-text">优化Nginx性能</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#识别DDOS攻击"><span class="toc-number">1.3.</span> <span class="toc-text">识别DDOS攻击</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-number">1.4.</span> <span class="toc-text">总结</span></a></li></ol></li></ol>
+		
+		</div>
+		
+		<h1 id="使用Nginx、Nginx_Plus抵御DDOS攻击">使用Nginx、Nginx Plus抵御DDOS攻击</h1><blockquote>
+<p>看到这篇文章觉得还不错，心血来潮就翻译一下，第一次尝试，请拍砖。<br>原文地址为：<a href="https://www.nginx.com/blog/mitigating-ddos-attacks-with-nginx-and-nginx-plus/" target="_blank" rel="external">Mitigating DDoS Attacks with NGINX and NGINX Plus</a></p>
+</blockquote>
+<p>DDOS是一种通过大流量的请求对目标进行轰炸式访问，导致提供服务的服务器资源耗尽进而无法继续提供服务的攻击手段。<br>一般情况下，攻击者通过大量请求与连接使服务器处于饱和状态，以至于无法接受新的请求或变得很慢。</p>
+<h2 id="应用层DDOS攻击的特征">应用层DDOS攻击的特征</h2><p>应用层（七层/HTTP层）DDOS攻击通常由木马程序发起，其可以通过设计更好的利用目标系统的脆弱点。例如，对于无法处理大量并发请求的系统，仅仅通过建立大量的连接，并周期性的发出少量数据包来保持会话就可以耗尽系统的资源，使其无法接受新的连接请求达到DDOS的目的。其他还有采用发送大量连接请求<br>发送大数据包的请求进行攻击的形式。因为攻击是由木马程序发起，攻击者可以在很短时间内快速建立大量的连接，并发出大量的请求。</p>
+<p>以下是一些DDOS的特证，我们可以据此特征来抵抗DDOS（包括但不限于）：</p>
+<ul>
+<li>攻击经常来源于一些相对固定的IP或IP段，每个IP都有远大于真实用户的连接数和请求数。<blockquote>
+<p>备注：这并不表明这种请求都是代表着DDOS攻击。在很多使用NAT的网络架构中，很多的客户端使用网关的IP地址访问公网资源。但是，即便如此，这样的请求数和连接数也会远少于DDOS攻击。</p>
+</blockquote>
+</li>
+<li>因为攻击是由木马发出且目的是使服务器超负荷，请求的频率会远远超过正常人的请求。</li>
+<li>User-Agent通常是一个非标准的值</li>
+<li>Referer有时是一个容易联想到攻击的值</li>
+</ul>
+<h2 id="使用Nginx、Nginx_Plus抵抗DDOS攻击">使用Nginx、Nginx Plus抵抗DDOS攻击</h2><p>结合上面提到的DDOS攻击的特征，Nginx、Nginx Plus有很多的特性可以用来有效的防御DDOS攻击，可以从调整入口访问流量和控制反向代理到后端服务器的流量两个方面来达到抵御DDOS攻击的目的。</p>
+<h3 id="限制请求速度">限制请求速度</h3><p>设置Nginx、Nginx Plus的连接请求在一个真实用户请求的合理范围内。比如，如果你觉得一个正常用户每两秒可以请求一次登录页面，你就可以设置Nginx每两秒钟接收一个客户端IP的请求（大约等同于每分钟30个请求）。<br><figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">limit_req_zone <span class="label">$binary_remote_addr</span> zone=<span class="keyword">one</span>:10m rate=30r/<span class="keyword">m</span>;</span><br><span class="line"></span><br><span class="line">server &#123;</span><br><span class="line">    ...</span><br><span class="line">    location /login.html &#123;</span><br><span class="line">        limit_req zone=<span class="keyword">one</span>;</span><br><span class="line">    ...</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p><code>limit_req_zone</code>命令设置了一个叫one的共享内存区来存储请求状态的特定键值，在上面的例子中是客户端IP($binary_remote_addr)。location块中的<code>limit_req</code>通过引用one共享内存区来实现限制访问/login.html的目的。</p>
+<h3 id="限制连接数量">限制连接数量</h3><p>设置Nginx、Nginx Plus的连接数在一个真实用户请求的合理范围内。比如，你可以设置每个客户端IP连接/store不可以超过10个。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">limit</span>_conn_zone <span class="variable">$binary_remote_addr</span> zone=addr:<span class="number">10</span>m;</span><br><span class="line"></span><br><span class="line">server &#123;</span><br><span class="line">    ...</span><br><span class="line">    location /store/ &#123;</span><br><span class="line">        <span class="built_in">limit</span>_conn addr <span class="number">10</span>;</span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p><code>limit_conn_zone</code>命令设置了一个叫addr的共享内存区来存储特定键值的状态，在上面的例子中是客户端IP（ $binary_remote_addr）。location块中<code>limit_conn</code>通过引用addr共享内存区来限制到/store/的最大连接数为10。</p>
+<h3 id="关闭慢连接">关闭慢连接</h3><p>有一些DDOS攻击，比如Slowlris，是通过建立大量的连接并周期性的发送一些数据包保持会话来达到攻击目的，这种周期通常会低于正常的请求。这种情况我们可以通过关闭慢连接来抵御攻击。<br><code>client_body_timeout</code>命令用来定义读取客户端请求的超时时间，<code>client_header_timeout</code>命令用来定于读取客户端请求头的超时时间。这两个参数的默认值都是60s，我们可以通过下面的命令将他们设置为5s：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">server &#123;</span><br><span class="line">    <span class="keyword">client_body_t</span>imeout <span class="number">5</span>s;</span><br><span class="line">    <span class="keyword">client_header_t</span>imeout <span class="number">5</span>s;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h3 id="设置IP黑名单">设置IP黑名单</h3><p>如果确定攻击来源于某些IP地址，我们可以将其加入黑名单，Nginx就不会再接受他们的请求。比如，你已经确定攻击来自于从123.123.123.1到123.123.123.16的一段IP地址，你可以这样设置：<br><figure class="highlight dns"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">location / &#123;</span><br><span class="line">    deny <span class="number">123.123.123.0</span>/28<span class="comment">;</span></span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>或者你确定攻击来源于123.123.123.3、123.123.123.5、123.123.123.7几个IP，可以这样设置：<br><figure class="highlight dns"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">location / &#123;</span><br><span class="line">    deny <span class="number">123.123.123.3</span><span class="comment">;</span></span><br><span class="line">    deny <span class="number">123.123.123.5</span><span class="comment">;</span></span><br><span class="line">    deny <span class="number">123.123.123.7</span><span class="comment">;</span></span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h3 id="设置IP白名单">设置IP白名单</h3><p>如果你的网站仅允许特定的IP或IP段访问，你可以结合使用allow和deny命令来限制仅允许你指定的IP地址访问你的网站。如下，你可以设置仅允许192.168.1.0段的内网用户访问：<br><figure class="highlight dns"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">location / &#123;</span><br><span class="line">    allow <span class="number">192.168.1.0</span>/24<span class="comment">;</span></span><br><span class="line">    deny all<span class="comment">;</span></span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>deny命令会拒绝除了allow指定的IP段之外的所有其他IP的访问请求。</p>
+<h3 id="使用缓存进行流量削峰">使用缓存进行流量削峰</h3><p>通过打开Nginx的缓存功能并设置特定的缓存参数，可以削减来自攻击的流量，同时也可以减轻对后端服务器的请求压力。以下是一些有用的设置：</p>
+<ul>
+<li><code>proxy_cache_use_stale</code>的updating参数告诉Nginx什么时候该更新所缓存的对象。只需要到后端的一个更新请求，在缓存有效期间客户端对该对象的请求都无需访问后端服务器。当通过对一个文件的频繁请求来实施攻击时，缓存功能可极大的降低到后端服务器的请求。</li>
+<li><code>proxy_cache_key</code>命令定义的键值通常包含一些内嵌的变量（默认的键值$scheme$proxy_host$request_uri包含了三个变量）。如果键值包含<code>$query_string</code>变量，当攻击的请求字符串是随机的时候就会给Nginx代理过重的缓存负担，因此我们建议一般情况下不要包含<code>$query_string</code>变量。<h3 id="屏蔽特定的请求">屏蔽特定的请求</h3>可以设置Nginx、Nginx Plus屏蔽一些类型的请求：</li>
+<li>针对特定URL的请求</li>
+<li>针对不是常见的User-Agent的请求</li>
+<li>针对Referer头中包含可以联想到攻击的值的请求</li>
+<li>针对其他请求头中包含可以联想到攻击的值的请求<br>比如，如果你判定攻击是针对一个特定的URL：/foo.php，我们就可以屏蔽到这个页面的请求：<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">location</span> /foo.php &#123;</span><br><span class="line">    <span class="title">deny</span> all;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>或者你判定攻击请求的User-Agent中包含foo或bar，我们也可以屏蔽这些请求：<br><figure class="highlight lasso"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">location <span class="subst">/</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="variable">$http_user_agent</span> ~<span class="subst">*</span> foo<span class="subst">|</span>bar) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">403</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="attribute">...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>http_name变量引用一个请求头，上述例子中是User-Agent头。可以针对其他的http头使用类似的方法来识别攻击。</p>
+<h3 id="限制到后端服务器的连接数">限制到后端服务器的连接数</h3><p>一个Nginx、Nginx Plus实例可以处理比后端服务器多的多的并发请求。在Nginx Plus中，你可以限制到每一个后端服务器的连接数，比如可以设置Nginx Plus与website upstream中的每个后端服务器建立的连接数不得超过200个：<br><figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">upstream</span> website &#123;</span><br><span class="line">    <span class="title">server</span> <span class="number">192.168.100.1:80</span> max_conns=<span class="number">200</span>;</span><br><span class="line">    <span class="title">server</span> <span class="number">192.168.100.2:80</span> max_conns=<span class="number">200</span>;</span><br><span class="line">    <span class="title">queue</span> <span class="number">10</span> timeout=<span class="number">30s</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p><code>max_conns</code>参数可以针对每一个后端服务器设置Nginx Plus可以与之建立的最大连接数。<code>queue</code>命令设置了当每个后端服务器都达到最大连接数后的队列大小，<code>timeout</code>参数指定了请求在队列中的保留时间。</p>
+<h3 id="处理特定类型的攻击">处理特定类型的攻击</h3><p>有一种攻击是发送包含特别大的值的请求头，引起服务器端缓冲区溢出。Nginx、Nginx Plus针对这种攻击类型的防御，可以参考<a href="http://nginx.com/blog/nginx-protect-cve-2015-1635/?_ga=1.14368116.2137319792.1439284699" target="_blank" rel="external">Using NGINX and NGINX Plus to Protect Against CVE-2015-1635</a></p>
+<h3 id="优化Nginx性能">优化Nginx性能</h3><p>DDOS攻击通常会带来高的负载压力，可以通过一些调优参数，提高Nginx、Nginx Plus处理性能，硬抗DDOS攻击，详细参考：<a href="http://nginx.com/blog/tuning-nginx/?_ga=1.48422373.2137319792.1439284699" target="_blank" rel="external">Tuning NGINX for Performance</a></p>
+<h2 id="识别DDOS攻击">识别DDOS攻击</h2><p>到目前为止，我们都是集中在如何是用Nginx、Nginx Plus来减轻DDOS攻击带来的影响。如何才能让Nginx、Nginx Plus帮助我们识别DDOS攻击呢？<code>Nginx Plus Status module</code>提供了到后端服务器流量的详细统计，可以用来识别异常的流量。Nginx Plus提供一个当前服务状态的仪表盘页面，同时也可以在自定义系统或其他第三方系统中通过API的方式获取这些统计信息，并根据历史趋势分析识别非正常的流量进而发出告警。</p>
+<h2 id="总结">总结</h2><p>Nginx和Nginx Plus可以作为抵御DDOS攻击的一个有力手段，而且Nginx Plus中提供了一些附加的特性来更好的抵御DDOS攻击并且当攻击发生时及时的识别到。</p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/运维/">运维</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/DDOS/">DDOS</a><a href="/tags/Nginx/">Nginx</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://chenyang.me/2015/10/12/【翻译】使用Nginx、Nginx Plus抵御DDOS攻击/" data-title="【翻译】使用Nginx、Nginx Plus抵御DDOS攻击 | 陈洋|晨阳" data-tsina="null" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+
+<div class="next">
+<a href="/2015/09/10/Docker中部署Zookeeper集群/"  title="Docker中部署Zookeeper集群">
+ <strong>下一篇：</strong><br/> 
+ <span>Docker中部署Zookeeper集群
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="2015/10/12/【翻译】使用Nginx、Nginx Plus抵御DDOS攻击/" data-title="【翻译】使用Nginx、Nginx Plus抵御DDOS攻击" data-url="http://chenyang.me/2015/10/12/【翻译】使用Nginx、Nginx Plus抵御DDOS攻击/"></div>
+</section>
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#使用Nginx、Nginx_Plus抵御DDOS攻击"><span class="toc-number">1.</span> <span class="toc-text">使用Nginx、Nginx Plus抵御DDOS攻击</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#应用层DDOS攻击的特征"><span class="toc-number">1.1.</span> <span class="toc-text">应用层DDOS攻击的特征</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#使用Nginx、Nginx_Plus抵抗DDOS攻击"><span class="toc-number">1.2.</span> <span class="toc-text">使用Nginx、Nginx Plus抵抗DDOS攻击</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#限制请求速度"><span class="toc-number">1.2.1.</span> <span class="toc-text">限制请求速度</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#限制连接数量"><span class="toc-number">1.2.2.</span> <span class="toc-text">限制连接数量</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#关闭慢连接"><span class="toc-number">1.2.3.</span> <span class="toc-text">关闭慢连接</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#设置IP黑名单"><span class="toc-number">1.2.4.</span> <span class="toc-text">设置IP黑名单</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#设置IP白名单"><span class="toc-number">1.2.5.</span> <span class="toc-text">设置IP白名单</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#使用缓存进行流量削峰"><span class="toc-number">1.2.6.</span> <span class="toc-text">使用缓存进行流量削峰</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#屏蔽特定的请求"><span class="toc-number">1.2.7.</span> <span class="toc-text">屏蔽特定的请求</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#限制到后端服务器的连接数"><span class="toc-number">1.2.8.</span> <span class="toc-text">限制到后端服务器的连接数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#处理特定类型的攻击"><span class="toc-number">1.2.9.</span> <span class="toc-text">处理特定类型的攻击</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#优化Nginx性能"><span class="toc-number">1.2.10.</span> <span class="toc-text">优化Nginx性能</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#识别DDOS攻击"><span class="toc-number">1.3.</span> <span class="toc-text">识别DDOS攻击</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-number">1.4.</span> <span class="toc-text">总结</span></a></li></ol></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/运维/" title="运维">运维<sup>7</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/docker/" title="docker">docker<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/DDOS/" title="DDOS">DDOS<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/DigitalOcean/" title="DigitalOcean">DigitalOcean<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/LEMP/" title="LEMP">LEMP<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/shutdown/" title="shutdown">shutdown<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/批处理/" title="批处理">批处理<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/maven/" title="maven">maven<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Nginx/" title="Nginx">Nginx<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mac/" title="mac">mac<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ssh/" title="ssh">ssh<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/nexus/" title="nexus">nexus<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/zookeeper/" title="zookeeper">zookeeper<sup>1</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+    </ul>
+</div>
+
+  
+
+
+  <div class="rsspart">
+	<a href="/atom.xml" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	
+	<section class="info">
+		<p> Hello ,I&#39;m ChenYang from beijing. <br/>
+			This is my blog,believe it or not.</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2015 
+		
+		<a href="/about" target="_blank" title="chenyang">chenyang</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"chyang"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>
