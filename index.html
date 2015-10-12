@@ -81,13 +81,13 @@
 		<a href="/about" title="chenyang" target="_blank" itemprop="author">chenyang</a>
 		
   <p class="article-time">
-    <time datetime="2015-10-12T07:56:12.000Z" itemprop="datePublished"> 发表于 2015-10-12</time>
+    <time datetime="2015-10-12T08:00:19.000Z" itemprop="datePublished"> 发表于 2015-10-12</time>
     
   </p>
 </header>
     <div class="article-content">
         
-        <h1 id="使用Nginx、Nginx_Plus抵御DDOS攻击">使用Nginx、Nginx Plus抵御DDOS攻击</h1><blockquote>
+        <blockquote>
 <p>看到这篇文章觉得还不错，心血来潮就翻译一下，第一次尝试，请拍砖。<br>原文地址为：<a href="https://www.nginx.com/blog/mitigating-ddos-attacks-with-nginx-and-nginx-plus/" target="_blank" rel="external">Mitigating DDoS Attacks with NGINX and NGINX Plus</a></p>
 </blockquote>
 <p>DDOS是一种通过大流量的请求对目标进行轰炸式访问，导致提供服务的服务器资源耗尽进而无法继续提供服务的攻击手段。<br>一般情况下，攻击者通过大量请求与连接使服务器处于饱和状态，以至于无法接受新的请求或变得很慢。</p>
@@ -115,7 +115,10 @@
 <h3 id="使用缓存进行流量削峰">使用缓存进行流量削峰</h3><p>通过打开Nginx的缓存功能并设置特定的缓存参数，可以削减来自攻击的流量，同时也可以减轻对后端服务器的请求压力。以下是一些有用的设置：</p>
 <ul>
 <li><code>proxy_cache_use_stale</code>的updating参数告诉Nginx什么时候该更新所缓存的对象。只需要到后端的一个更新请求，在缓存有效期间客户端对该对象的请求都无需访问后端服务器。当通过对一个文件的频繁请求来实施攻击时，缓存功能可极大的降低到后端服务器的请求。</li>
-<li><code>proxy_cache_key</code>命令定义的键值通常包含一些内嵌的变量（默认的键值$scheme$proxy_host$request_uri包含了三个变量）。如果键值包含<code>$query_string</code>变量，当攻击的请求字符串是随机的时候就会给Nginx代理过重的缓存负担，因此我们建议一般情况下不要包含<code>$query_string</code>变量。<h3 id="屏蔽特定的请求">屏蔽特定的请求</h3>可以设置Nginx、Nginx Plus屏蔽一些类型的请求：</li>
+<li><code>proxy_cache_key</code>命令定义的键值通常包含一些内嵌的变量（默认的键值$scheme$proxy_host$request_uri包含了三个变量）。如果键值包含<code>$query_string</code>变量，当攻击的请求字符串是随机的时候就会给Nginx代理过重的缓存负担，因此我们建议一般情况下不要包含<code>$query_string</code>变量。</li>
+</ul>
+<h3 id="屏蔽特定的请求">屏蔽特定的请求</h3><p>可以设置Nginx、Nginx Plus屏蔽一些类型的请求：</p>
+<ul>
 <li>针对特定URL的请求</li>
 <li>针对不是常见的User-Agent的请求</li>
 <li>针对Referer头中包含可以联想到攻击的值的请求</li>
