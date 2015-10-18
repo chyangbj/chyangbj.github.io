@@ -74,6 +74,183 @@
         <header class="article-info clearfix">
   <h1 itemprop="name">
     
+      <a href="/2015/10/18/IP命令简介/" title="IP命令简介" itemprop="url">IP命令简介</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="chenyang" target="_blank" itemprop="author">chenyang</a>
+		
+  <p class="article-time">
+    <time datetime="2015-10-18T13:34:29.000Z" itemprop="datePublished"> 发表于 2015-10-18</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <blockquote>
+<p>这是一个很强大的命令，用来替代<code>ifconfig</code>,<code>netstat</code>,<code>route</code>等，因此打算汇总下，方便记忆。<br>本想详细写一下，但发现并不是很复杂，简单记录下。<br>参考文章：<br>iproute2项目Github：<a href="https://github.com/shemminger/iproute2" target="_blank" rel="external">https://github.com/shemminger/iproute2</a><br>参考文档：<a href="http://www.policyrouting.org/iproute2.doc.html" target="_blank" rel="external">http://www.policyrouting.org/iproute2.doc.html</a></p>
+</blockquote>
+<p>大多数的Linux发行版里已经预装了iproute2，可以直接使用。如果没有可以从Github上clone、编译安装。</p>
+<h2 id="IP命令集">IP命令集</h2><p>命令格式：<code>ip [ OPTIONS ] OBJECT [ COMMAND [ ARGUMENTS ]]</code></p>
+<h3 id="选项（OPTIONS）">选项（OPTIONS）</h3><ul>
+<li>-V, -Version  ——- 打印版本信息</li>
+<li>-s, -stats, -statistics ——- 输出更多信息</li>
+<li>-f, -family {inet, inet6, link} ——- 指定使用的协议族</li>
+<li>-4 —- -family inet的简写</li>
+<li>-6 —- -family inet6的简写</li>
+<li>-0 —- -family link的简写</li>
+<li>-o, -oneline —- 将输出在一行输出，用\隔开每一行</li>
+<li>-r, -resolve —- 使用DNS解析<h3 id="对象（OBJECT）">对象（OBJECT）</h3></li>
+<li>link —- 管理网络设备，包含物理设备及虚拟设备</li>
+<li>address —- 管理设备上的IPv4、IPv6地址</li>
+<li>neighbour —- 管理ARP或NDISC</li>
+<li>route —- 管理路由表</li>
+<li>rule —- 管理路由策略</li>
+<li>maddress —- 管理多播地址</li>
+<li>mroute —- 管理多播路由</li>
+<li>tunnel —- 管理IP隧道<blockquote>
+<ul>
+<li>netns —- 管理网络命名空间，在CentOS7中预装，在CentOS6中需要升级iproute<h3 id="命令（COMMAND）">命令（COMMAND）</h3>各个对象支持的命令不一致，几个常用的如下：</li>
+</ul>
+</blockquote>
+</li>
+<li>show ，查看，可以缩写为sh,list,lst,ls,l</li>
+<li>add ,添加，可缩写为a</li>
+<li>delete，删除，可缩写为del，d</li>
+<li>flush，清除，可缩写为f<h3 id="ARGUMENTS">ARGUMENTS</h3>不同的对象、命令支持的ARGUMENTS不一致，主要包含两个部分</li>
+<li>flags</li>
+<li>parameters<h2 id="ip_link命令实例">ip link命令实例</h2><h3 id="set命令">set命令</h3>设置设备的属性，可缩写为s</li>
+<li><p>启用（禁用）设备:up|down</p>
+<figure class="highlight lasso"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ip <span class="keyword">link</span> <span class="built_in">set</span> dev eth0 up</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>设置网卡的MTU值</p>
+<figure class="highlight lasso"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ip <span class="keyword">link</span> <span class="built_in">set</span> dev eth0 mtu <span class="number">1500</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="show命令">show命令</h3><p>查看设备的属性，可配合选项-s使用以输出更多新新<br><figure class="highlight puppet"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="literal">ip</span> -s <span class="literal">link</span> show dev etho</span><br></pre></td></tr></table></figure></p>
+<h2 id="ip_address命令实例">ip address命令实例</h2><h3 id="show命令-1">show命令</h3><ul>
+<li>查看ip地址<figure class="highlight q"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ip addr <span class="built_in">show</span></span><br><span class="line">ip addr <span class="built_in">show</span> <span class="built_in">dev</span> eth0</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="add命令">add命令</h3><p>有以下Arguments：</p>
+<ul>
+<li>dev name —-这是我们添加地址的设备的名称</li>
+<li>local address（默认值） - 接口的IP地址<blockquote>
+<p>地址的格式取决于所使用协议。IPv4使用点分割的四组数字、IPv6的使用由冒号分隔的四位十六进制的序列。该地址可以跟着一个斜杠和一个十进制数，使用CIDR表示法来设定网络前缀（子网掩码）。如果没有指定CIDR网络掩码，系统会指定地址（/32掩码）。  </p>
+</blockquote>
+</li>
+<li>peer address —- 点到点接口的远端接口地址。同样该地址可以后跟斜杠和十进制数来确定网络掩码。当peer和local同时需要指定掩码时，只能分配给peer。</li>
+<li>broadcast address —- 接口的广播地址。<blockquote>
+<p>可以使用特殊符号“+”和“ - ”，而不指定广播地址。在这种情况下，广播地址由或设置所有接口主机位来自于一个（+）或通过设置所有的接口主机位到零（ - ）。目前在IPv4中的网络实现中使用（+）的设置即可。</p>
+</blockquote>
+</li>
+<li>lable name —-每个地址可以被标上标签字符串。<blockquote>
+<p>为了保持与Linux的2.0网络别名兼容，这个字符串必须与设备的名称一致，或者必须以设备名后跟一个冒号前缀。 （为eth0：杜）</p>
+</blockquote>
+</li>
+<li><p>scope SCOPE_VALUE —- 地址的有效范围。<br>预定义的范围值是：</p>
+<ul>
+<li>global —-地址是全局有效。</li>
+<li>site —-（仅IPv6）本地站点地址，仅对站点内部有效。</li>
+<li>link —-地址连接本地，仅在这个设备上有效</li>
+<li>host —-地址仅在这台主机上有效</li>
+</ul>
+</li>
+<li><p>设置一个IP</p>
+<figure class="highlight armasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="label">ip</span> <span class="keyword">addr </span><span class="keyword">add </span><span class="number">192</span>.<span class="number">168</span>.<span class="number">1</span>.<span class="number">100</span>/<span class="number">24</span> dev eth0</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>给回环网卡lo设置标准广播地址的一个IP，有效范围为本机</p>
+<figure class="highlight armasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="label">ip</span> <span class="keyword">addr </span><span class="keyword">add </span><span class="number">127</span>.<span class="number">0</span>.<span class="number">0</span>.<span class="number">1</span>/<span class="number">8</span> dev lo <span class="keyword">brd </span>+ scope host</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>给eth0设置一个标准广播的24位掩码的地址</p>
+<figure class="highlight armasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="label">ip</span> <span class="keyword">addr </span><span class="keyword">add </span><span class="number">10</span>.<span class="number">0</span>.<span class="number">0</span>.<span class="number">1</span>/<span class="number">24</span> <span class="keyword">brd </span>+ dev eth0</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="delete命令">delete命令</h3><ul>
+<li>删除回环lo上的地址<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">ip</span> addr del <span class="number">127.0.0.1</span>/<span class="number">8</span> dev lo</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="fulsh命令">fulsh命令</h3><ul>
+<li>清空所有以太网卡的IPv4地址<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ip -<span class="number">4</span> addr flush <span class="tag">label</span> <span class="string">"eth*"</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h2 id="ip_route命令实例">ip route命令实例</h2><p>ip route命令用来管理路由表。</p>
+<h3 id="show命令-2">show命令</h3><ul>
+<li>查看路由，有两种方式<figure class="highlight puppet"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="literal">ip</span> route show</span><br><span class="line"><span class="literal">ip</span> route</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="add命令-1">add命令</h3><p>添加路由</p>
+<ul>
+<li><p>添加10.0.0.0/24的路由到193.233.7.65</p>
+<figure class="highlight dns"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ip route add <span class="number">10.0.0/24</span> via <span class="number">193.233.7.65</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>添加路由到网络接口</p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">ip</span> route add <span class="number">192.168.0.0</span>/<span class="number">24</span> dev eth0</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="change命令">change命令</h3><p>修改路由</p>
+<ul>
+<li>修改路由为端口<figure class="highlight dns"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ip ro chg <span class="number">10.0.0/24</span> via <span class="number">193.233.7.65</span> dev dummy</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="delete命令-1">delete命令</h3><p>删除路由</p>
+<h2 id="其他命令">其他命令</h2><ul>
+<li><p>查看ARP</p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">ip</span> neighbor show</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>查看策略路由</p>
+<figure class="highlight inform7"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ip <span class="keyword">rule</span> show</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+
+        
+        
+        <p class="article-more-link">
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/运维/">运维</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/IP/">IP</a><a href="/tags/iproute2/">iproute2</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2015/10/18/IP命令简介/#comments" class="ds-thread-count comments-count-link" data-thread-key="2015/10/18/IP命令简介/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+  
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
       <a href="/2015/10/12/【翻译】使用Nginx、Nginx Plus抵御DDOS攻击/" title="【翻译】使用Nginx、Nginx Plus抵御DDOS攻击" itemprop="url">【翻译】使用Nginx、Nginx Plus抵御DDOS攻击</a>
   </h1>
   <p class="article-author">By
@@ -266,138 +443,6 @@
 
 
 
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2015/09/09/CentOS 6.x上为Docker容器配置物理网段的静态IP/" title="CentOS 6.x上为Docker容器配置物理网段的静态IP" itemprop="url">CentOS 6.x上为Docker容器配置物理网段的静态IP</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="chenyang" target="_blank" itemprop="author">chenyang</a>
-		
-  <p class="article-time">
-    <time datetime="2015-09-09T04:21:04.000Z" itemprop="datePublished"> 发表于 2015-09-09</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <h1 id="CentOS_6-x上为Docker容器配置物理网段的静态IP">CentOS 6.x上为Docker容器配置物理网段的静态IP</h1><h2 id="设置宿主机的桥接网卡">设置宿主机的桥接网卡</h2><ul>
-<li><p>安装brctl</p>
-<figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum <span class="keyword">install</span> bridge-util</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>配置桥接接口</p>
-<figure class="highlight armasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">brctl </span><span class="keyword">addbr </span><span class="keyword">br0</span><br><span class="line"></span><span class="keyword">brctl </span><span class="keyword">addif </span><span class="keyword">br0 </span>em1</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>修改ifcfg文件<br>这是br0的配置文件ifcfg-br0：</p>
-<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="setting">DEVICE=<span class="value">br0</span></span></span><br><span class="line"><span class="setting">TYPE=<span class="value">Bridge</span></span></span><br><span class="line"><span class="setting">UUID=<span class="value"><span class="number">99</span>a50e2f-<span class="number">821</span>f-<span class="number">4</span>f1a-a8b1-<span class="number">7</span>cbae4be0cbe</span></span></span><br><span class="line"><span class="setting">ONBOOT=<span class="value"><span class="keyword">yes</span></span></span></span><br><span class="line"><span class="setting">NM_CONTROLLED=<span class="value"><span class="keyword">yes</span></span></span></span><br><span class="line"><span class="setting">BOOTPROTO=<span class="value">none</span></span></span><br><span class="line"><span class="setting">HWADDR=<span class="value"><span class="number">78</span>:<span class="number">2</span>B:CB:<span class="number">43</span>:B8:<span class="number">8</span>E</span></span></span><br><span class="line"><span class="setting">IPADDR=<span class="value"><span class="number">192.168</span>.<span class="number">8.100</span></span></span></span><br><span class="line"><span class="setting">PREFIX=<span class="value"><span class="number">24</span></span></span></span><br><span class="line"><span class="setting">DEFROUTE=<span class="value"><span class="keyword">yes</span></span></span></span><br><span class="line"><span class="setting">IPV4_FAILURE_FATAL=<span class="value"><span class="keyword">yes</span></span></span></span><br><span class="line"><span class="setting">IPV6INIT=<span class="value"><span class="keyword">no</span></span></span></span><br><span class="line"><span class="setting">NAME=<span class="value"><span class="string">"System br0"</span></span></span></span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<p>这是em1的配置文件ifcfg-em1：<br><figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="setting">DEVICE=<span class="value">em1</span></span></span><br><span class="line"><span class="setting">TYPE=<span class="value">Ethernet</span></span></span><br><span class="line"><span class="setting">UUID=<span class="value"><span class="number">99</span>a50e2f-<span class="number">821</span>f-<span class="number">4</span>f1a-a8b1-<span class="number">7</span>cbae4be0cbe</span></span></span><br><span class="line"><span class="setting">ONBOOT=<span class="value"><span class="keyword">yes</span></span></span></span><br><span class="line"><span class="setting">NM_CONTROLLED=<span class="value"><span class="keyword">yes</span></span></span></span><br><span class="line"><span class="setting">BOOTPROTO=<span class="value">none</span></span></span><br><span class="line"><span class="setting">HWADDR=<span class="value"><span class="number">78</span>:<span class="number">2</span>B:CB:<span class="number">43</span>:B8:<span class="number">8</span>E</span></span></span><br><span class="line"><span class="setting">DEFROUTE=<span class="value"><span class="keyword">yes</span></span></span></span><br><span class="line"><span class="setting">IPV4_FAILURE_FATAL=<span class="value"><span class="keyword">yes</span></span></span></span><br><span class="line"><span class="setting">IPV6INIT=<span class="value"><span class="keyword">no</span></span></span></span><br><span class="line"><span class="setting">NAME=<span class="value"><span class="string">"System em1"</span></span></span></span><br><span class="line"><span class="setting">BRIDGE=<span class="value">br0</span></span></span><br></pre></td></tr></table></figure></p>
-<ul>
-<li>重启网络<figure class="highlight puppet"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">service</span> network <span class="literal">restart</span></span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<h2 id="配置Docker使用br0">配置Docker使用br0</h2><ul>
-<li><p>删掉docker0</p>
-<figure class="highlight puppet"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">service</span> docker <span class="literal">stop</span></span><br><span class="line"><span class="literal">ip</span> <span class="literal">link</span> set dev docker<span class="number">0</span> down</span><br><span class="line">brctl delbr docker<span class="number">0</span></span><br><span class="line">iptables -t nat -<span class="constant">F</span> <span class="constant">P</span>OSTROUTING</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>修改Docker变量使用br0</p>
-<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">vim <span class="regexp">/etc/</span>sysconfig/docker</span><br><span class="line">other_args=<span class="string">"-b=br0"</span></span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<blockquote>
-<p>不同的系统变量不一致，官方文档是基于ubuntu的</p>
-</blockquote>
-<ul>
-<li><p>启动Docker</p>
-<figure class="highlight puppet"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">service</span> docker <span class="literal">start</span></span><br></pre></td></tr></table></figure>
-</li>
-<li><p>查看iptables是否正常</p>
-<figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">iptables -t nat -<span class="keyword">L</span> -<span class="keyword">n</span></span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<blockquote>
-<p>Chain POSTROUTING (policy ACCEPT)<br>target     prot opt source               destination<br>MASQUERADE  all  —  192.168.5.0/24      0.0.0.0/0</p>
-</blockquote>
-<h2 id="启动Docker容器并设置固定IP">启动Docker容器并设置固定IP</h2><ul>
-<li><p>启动容器  </p>
-<blockquote>
-<p>启动容器时一定要添加—net=none参数，否则会自动从桥接网卡br0取一个未占用IP地址，很可能是x.x.x.1网关</p>
-</blockquote>
-<figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="keyword">run</span> -it --<span class="keyword">rm</span> -<span class="keyword">h</span> test000 --<span class="keyword">net</span>=none centos:6 /bin/bash</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>配置IP，步骤比较复杂，参考网络上的脚本略作修改，在宿主机上执行如下脚本</p>
-<blockquote>
-<p>原文：<a href="http://www.xiaomastack.com/2015/02/06/docker-static-ip/" target="_blank" rel="external">http://www.xiaomastack.com/2015/02/06/docker-static-ip/</a></p>
-</blockquote>
-</li>
-</ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#/bin/bash</span></span><br><span class="line"><span class="keyword">if</span> [ -z <span class="variable">$1</span> ] || [ -z <span class="variable">$2</span> ] || [ -z <span class="variable">$3</span> ] || [ -z <span class="variable">$4</span> ];</span><br><span class="line"><span class="keyword">then</span></span><br><span class="line">        <span class="built_in">echo</span> <span class="string">"*****Input the necessary parameters: CONTAINERID IP MASK GATEWAY"</span></span><br><span class="line">        <span class="built_in">echo</span> <span class="string">"*****Call the script like: sh manual_con_static_ip.sh  b0e18b6a4432 192.168.5.123 24 192.168.5.1"</span></span><br><span class="line">        <span class="built_in">exit</span></span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line"></span><br><span class="line">CONTAINERID=<span class="variable">$1</span></span><br><span class="line">SETIP=<span class="variable">$2</span></span><br><span class="line">SETMASK=<span class="variable">$3</span></span><br><span class="line">GATEWAY=<span class="variable">$4</span></span><br><span class="line"></span><br><span class="line">pid=`docker inspect <span class="operator">-f</span> <span class="string">'&#123;&#123;.State.Pid&#125;&#125;'</span> <span class="variable">$CONTAINERID</span>`</span><br><span class="line"><span class="comment">#判断宿主机网卡是否存在</span></span><br><span class="line">ifconfig docker<span class="variable">$pid</span> &gt; /dev/null <span class="number">2</span>&gt;&amp;<span class="number">1</span></span><br><span class="line"><span class="keyword">if</span> [ $? <span class="operator">-eq</span> <span class="number">0</span> ]; <span class="keyword">then</span></span><br><span class="line">    <span class="built_in">read</span> -p <span class="string">"docker<span class="variable">$pid</span> exist,do you want delelte it? y/n "</span> del</span><br><span class="line">    <span class="keyword">if</span> [[ <span class="variable">$del</span> == <span class="string">'y'</span> ]]; <span class="keyword">then</span></span><br><span class="line">    ip link del docker<span class="variable">$pid</span></span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    <span class="built_in">exit</span></span><br><span class="line">    <span class="keyword">fi</span></span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"></span><br><span class="line">mkdir -p /var/run/netns</span><br><span class="line">find -L /var/run/netns -type l -delete</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> [ <span class="operator">-f</span> /var/run/netns/<span class="variable">$pid</span> ]; <span class="keyword">then</span></span><br><span class="line">    rm <span class="operator">-f</span> /var/run/netns/<span class="variable">$pid</span></span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line">ln <span class="operator">-s</span> /proc/<span class="variable">$pid</span>/ns/net /var/run/netns/<span class="variable">$pid</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line">ip link add docker<span class="variable">$pid</span> <span class="built_in">type</span> veth peer name bridge0</span><br><span class="line">brctl addif br0 docker<span class="variable">$pid</span></span><br><span class="line">ip link <span class="built_in">set</span> docker<span class="variable">$pid</span> up</span><br><span class="line">ip link <span class="built_in">set</span> bridge0 netns <span class="variable">$pid</span></span><br><span class="line"><span class="comment">#先删除容器内已存在的eth0</span></span><br><span class="line">ip netns <span class="built_in">exec</span> <span class="variable">$pid</span> ip link del eth0 &gt; /dev/null <span class="number">2</span>&gt;&amp;<span class="number">1</span></span><br><span class="line"><span class="comment">#设置容器新的网卡eth0</span></span><br><span class="line">ip netns <span class="built_in">exec</span> <span class="variable">$pid</span> ip link <span class="built_in">set</span> dev bridge0 name eth0</span><br><span class="line">ip netns <span class="built_in">exec</span> <span class="variable">$pid</span> ip link <span class="built_in">set</span> eth0 up</span><br><span class="line">ip netns <span class="built_in">exec</span> <span class="variable">$pid</span> ip addr add <span class="variable">$SETIP</span>/<span class="variable">$SETMASK</span> dev eth0</span><br><span class="line">ip netns <span class="built_in">exec</span> <span class="variable">$pid</span> ip route add default via <span class="variable">$GATEWAY</span></span><br></pre></td></tr></table></figure>
-<h2 id="关闭容器">关闭容器</h2><p>关闭容器后如果不再使用，要删掉添加的网卡及网络namespace，简单的脚本如下：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#/bin/bash</span></span><br><span class="line"><span class="keyword">if</span> [ -z <span class="variable">$1</span> ];</span><br><span class="line"><span class="keyword">then</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">"*****Input then ecessary parameters: CONTAINERID****"</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">"*****Call the script like: sh shutdowndocker.sh e8eae14aa992"</span></span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line"><span class="comment">#获取到容器的PID</span></span><br><span class="line">pid=`docker inspect <span class="operator">-f</span> <span class="string">'&#123;&#123;.State.Pid&#125;&#125;'</span> <span class="variable">$1</span>`</span><br><span class="line"><span class="comment">#停用并删掉容器</span></span><br><span class="line">docker stop <span class="variable">$1</span></span><br><span class="line">docker rm <span class="variable">$1</span></span><br><span class="line"><span class="comment">#删除容器的网络命名空间及虚拟网卡</span></span><br><span class="line">ip netns delete <span class="variable">$pid</span></span><br></pre></td></tr></table></figure></p>
-<h2 id="遇到的问题">遇到的问题</h2><ul>
-<li>可能会遇到<code>Object &quot;netns&quot; is unknown, try &quot;ip help&quot;.</code>的报错。  </li>
-</ul>
-<ol>
-<li><p>在CentOS6.5以前，内核不支持网络namespace，需要升级内核和iproute。CentOS6.5以后内核已支持网络namespace，只需要升级iproute即可。</p>
-<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum install -y <span class="string">http:</span><span class="comment">//rdo.fedorapeople.org/rdo-release.rpm</span></span><br></pre></td></tr></table></figure>
-</li>
-<li><p>默认的源中的地址已经无效，会报404，修改地址即可</p>
-<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">cat /etc/yum<span class="class">.repos</span><span class="class">.d</span>/rdo-release<span class="class">.repo</span></span><br><span class="line">[openstack-kilo]</span><br><span class="line">name=OpenStack Kilo Repository</span><br><span class="line">baseurl=https:<span class="comment">//repos.fedorapeople.org/repos/openstack/EOL/openstack-icehouse/epel-6/</span></span><br><span class="line">skip_if_unavailable=<span class="number">0</span></span><br><span class="line">enabled=<span class="number">1</span></span><br><span class="line">gpgcheck=<span class="number">0</span></span><br><span class="line">gpgkey=file:<span class="comment">///etc/pki/rpm-gpg/RPM-GPG-KEY-RDO-kilo</span></span><br></pre></td></tr></table></figure>
-</li>
-<li><p>安装iproute</p>
-<figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum <span class="keyword">install</span> -y iproute</span><br></pre></td></tr></table></figure>
-</li>
-</ol>
-<ul>
-<li>还可能遇到<code>RTNETLINK answers: No such process</code>的报错<br>我这里在执行<code>ip netns exec $pid ip route add default via $GATEWAY</code>遇到的是设置容器的IP地址是没有设置掩码，默认设置为了32位，所以无法指定默认网关</li>
-</ul>
-
-        
-        
-        <p class="article-more-link">
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/运维/">运维</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/docker/">docker</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2015/09/09/CentOS 6.x上为Docker容器配置物理网段的静态IP/#comments" class="ds-thread-count comments-count-link" data-thread-key="2015/09/09/CentOS 6.x上为Docker容器配置物理网段的静态IP/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-  
-
-
-
 
   <nav id="page-nav" class="clearfix">
     <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><a class="extend next" rel="next" href="/page/2/">Next<span></span></a>
@@ -416,7 +461,7 @@
 		<ul>
 		
 		  
-			<li><a href="/categories/运维/" title="运维">运维<sup>7</sup></a></li>
+			<li><a href="/categories/运维/" title="运维">运维<sup>8</sup></a></li>
 		  
 		
 		</ul>
@@ -433,7 +478,7 @@
 			
 		
 			
-				<li><a href="/tags/DDOS/" title="DDOS">DDOS<sup>1</sup></a></li>
+				<li><a href="/tags/Nginx/" title="Nginx">Nginx<sup>1</sup></a></li>
 			
 		
 			
@@ -453,11 +498,11 @@
 			
 		
 			
-				<li><a href="/tags/maven/" title="maven">maven<sup>1</sup></a></li>
+				<li><a href="/tags/DDOS/" title="DDOS">DDOS<sup>1</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/Nginx/" title="Nginx">Nginx<sup>1</sup></a></li>
+				<li><a href="/tags/maven/" title="maven">maven<sup>1</sup></a></li>
 			
 		
 			
@@ -466,6 +511,14 @@
 		
 			
 				<li><a href="/tags/ssh/" title="ssh">ssh<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/IP/" title="IP">IP<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/iproute2/" title="iproute2">iproute2<sup>1</sup></a></li>
 			
 		
 			

@@ -74,6 +74,138 @@
         <header class="article-info clearfix">
   <h1 itemprop="name">
     
+      <a href="/2015/09/09/CentOS 6.x上为Docker容器配置物理网段的静态IP/" title="CentOS 6.x上为Docker容器配置物理网段的静态IP" itemprop="url">CentOS 6.x上为Docker容器配置物理网段的静态IP</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="chenyang" target="_blank" itemprop="author">chenyang</a>
+		
+  <p class="article-time">
+    <time datetime="2015-09-09T04:21:04.000Z" itemprop="datePublished"> 发表于 2015-09-09</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <h1 id="CentOS_6-x上为Docker容器配置物理网段的静态IP">CentOS 6.x上为Docker容器配置物理网段的静态IP</h1><h2 id="设置宿主机的桥接网卡">设置宿主机的桥接网卡</h2><ul>
+<li><p>安装brctl</p>
+<figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum <span class="keyword">install</span> bridge-util</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>配置桥接接口</p>
+<figure class="highlight armasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">brctl </span><span class="keyword">addbr </span><span class="keyword">br0</span><br><span class="line"></span><span class="keyword">brctl </span><span class="keyword">addif </span><span class="keyword">br0 </span>em1</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>修改ifcfg文件<br>这是br0的配置文件ifcfg-br0：</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="setting">DEVICE=<span class="value">br0</span></span></span><br><span class="line"><span class="setting">TYPE=<span class="value">Bridge</span></span></span><br><span class="line"><span class="setting">UUID=<span class="value"><span class="number">99</span>a50e2f-<span class="number">821</span>f-<span class="number">4</span>f1a-a8b1-<span class="number">7</span>cbae4be0cbe</span></span></span><br><span class="line"><span class="setting">ONBOOT=<span class="value"><span class="keyword">yes</span></span></span></span><br><span class="line"><span class="setting">NM_CONTROLLED=<span class="value"><span class="keyword">yes</span></span></span></span><br><span class="line"><span class="setting">BOOTPROTO=<span class="value">none</span></span></span><br><span class="line"><span class="setting">HWADDR=<span class="value"><span class="number">78</span>:<span class="number">2</span>B:CB:<span class="number">43</span>:B8:<span class="number">8</span>E</span></span></span><br><span class="line"><span class="setting">IPADDR=<span class="value"><span class="number">192.168</span>.<span class="number">8.100</span></span></span></span><br><span class="line"><span class="setting">PREFIX=<span class="value"><span class="number">24</span></span></span></span><br><span class="line"><span class="setting">DEFROUTE=<span class="value"><span class="keyword">yes</span></span></span></span><br><span class="line"><span class="setting">IPV4_FAILURE_FATAL=<span class="value"><span class="keyword">yes</span></span></span></span><br><span class="line"><span class="setting">IPV6INIT=<span class="value"><span class="keyword">no</span></span></span></span><br><span class="line"><span class="setting">NAME=<span class="value"><span class="string">"System br0"</span></span></span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>这是em1的配置文件ifcfg-em1：<br><figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="setting">DEVICE=<span class="value">em1</span></span></span><br><span class="line"><span class="setting">TYPE=<span class="value">Ethernet</span></span></span><br><span class="line"><span class="setting">UUID=<span class="value"><span class="number">99</span>a50e2f-<span class="number">821</span>f-<span class="number">4</span>f1a-a8b1-<span class="number">7</span>cbae4be0cbe</span></span></span><br><span class="line"><span class="setting">ONBOOT=<span class="value"><span class="keyword">yes</span></span></span></span><br><span class="line"><span class="setting">NM_CONTROLLED=<span class="value"><span class="keyword">yes</span></span></span></span><br><span class="line"><span class="setting">BOOTPROTO=<span class="value">none</span></span></span><br><span class="line"><span class="setting">HWADDR=<span class="value"><span class="number">78</span>:<span class="number">2</span>B:CB:<span class="number">43</span>:B8:<span class="number">8</span>E</span></span></span><br><span class="line"><span class="setting">DEFROUTE=<span class="value"><span class="keyword">yes</span></span></span></span><br><span class="line"><span class="setting">IPV4_FAILURE_FATAL=<span class="value"><span class="keyword">yes</span></span></span></span><br><span class="line"><span class="setting">IPV6INIT=<span class="value"><span class="keyword">no</span></span></span></span><br><span class="line"><span class="setting">NAME=<span class="value"><span class="string">"System em1"</span></span></span></span><br><span class="line"><span class="setting">BRIDGE=<span class="value">br0</span></span></span><br></pre></td></tr></table></figure></p>
+<ul>
+<li>重启网络<figure class="highlight puppet"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">service</span> network <span class="literal">restart</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h2 id="配置Docker使用br0">配置Docker使用br0</h2><ul>
+<li><p>删掉docker0</p>
+<figure class="highlight puppet"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">service</span> docker <span class="literal">stop</span></span><br><span class="line"><span class="literal">ip</span> <span class="literal">link</span> set dev docker<span class="number">0</span> down</span><br><span class="line">brctl delbr docker<span class="number">0</span></span><br><span class="line">iptables -t nat -<span class="constant">F</span> <span class="constant">P</span>OSTROUTING</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>修改Docker变量使用br0</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">vim <span class="regexp">/etc/</span>sysconfig/docker</span><br><span class="line">other_args=<span class="string">"-b=br0"</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<blockquote>
+<p>不同的系统变量不一致，官方文档是基于ubuntu的</p>
+</blockquote>
+<ul>
+<li><p>启动Docker</p>
+<figure class="highlight puppet"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">service</span> docker <span class="literal">start</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>查看iptables是否正常</p>
+<figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">iptables -t nat -<span class="keyword">L</span> -<span class="keyword">n</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<blockquote>
+<p>Chain POSTROUTING (policy ACCEPT)<br>target     prot opt source               destination<br>MASQUERADE  all  —  192.168.5.0/24      0.0.0.0/0</p>
+</blockquote>
+<h2 id="启动Docker容器并设置固定IP">启动Docker容器并设置固定IP</h2><ul>
+<li><p>启动容器  </p>
+<blockquote>
+<p>启动容器时一定要添加—net=none参数，否则会自动从桥接网卡br0取一个未占用IP地址，很可能是x.x.x.1网关</p>
+</blockquote>
+<figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="keyword">run</span> -it --<span class="keyword">rm</span> -<span class="keyword">h</span> test000 --<span class="keyword">net</span>=none centos:6 /bin/bash</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>配置IP，步骤比较复杂，参考网络上的脚本略作修改，在宿主机上执行如下脚本</p>
+<blockquote>
+<p>原文：<a href="http://www.xiaomastack.com/2015/02/06/docker-static-ip/" target="_blank" rel="external">http://www.xiaomastack.com/2015/02/06/docker-static-ip/</a></p>
+</blockquote>
+</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#/bin/bash</span></span><br><span class="line"><span class="keyword">if</span> [ -z <span class="variable">$1</span> ] || [ -z <span class="variable">$2</span> ] || [ -z <span class="variable">$3</span> ] || [ -z <span class="variable">$4</span> ];</span><br><span class="line"><span class="keyword">then</span></span><br><span class="line">        <span class="built_in">echo</span> <span class="string">"*****Input the necessary parameters: CONTAINERID IP MASK GATEWAY"</span></span><br><span class="line">        <span class="built_in">echo</span> <span class="string">"*****Call the script like: sh manual_con_static_ip.sh  b0e18b6a4432 192.168.5.123 24 192.168.5.1"</span></span><br><span class="line">        <span class="built_in">exit</span></span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line"></span><br><span class="line">CONTAINERID=<span class="variable">$1</span></span><br><span class="line">SETIP=<span class="variable">$2</span></span><br><span class="line">SETMASK=<span class="variable">$3</span></span><br><span class="line">GATEWAY=<span class="variable">$4</span></span><br><span class="line"></span><br><span class="line">pid=`docker inspect <span class="operator">-f</span> <span class="string">'&#123;&#123;.State.Pid&#125;&#125;'</span> <span class="variable">$CONTAINERID</span>`</span><br><span class="line"><span class="comment">#判断宿主机网卡是否存在</span></span><br><span class="line">ifconfig docker<span class="variable">$pid</span> &gt; /dev/null <span class="number">2</span>&gt;&amp;<span class="number">1</span></span><br><span class="line"><span class="keyword">if</span> [ $? <span class="operator">-eq</span> <span class="number">0</span> ]; <span class="keyword">then</span></span><br><span class="line">    <span class="built_in">read</span> -p <span class="string">"docker<span class="variable">$pid</span> exist,do you want delelte it? y/n "</span> del</span><br><span class="line">    <span class="keyword">if</span> [[ <span class="variable">$del</span> == <span class="string">'y'</span> ]]; <span class="keyword">then</span></span><br><span class="line">    ip link del docker<span class="variable">$pid</span></span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    <span class="built_in">exit</span></span><br><span class="line">    <span class="keyword">fi</span></span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"></span><br><span class="line">mkdir -p /var/run/netns</span><br><span class="line">find -L /var/run/netns -type l -delete</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> [ <span class="operator">-f</span> /var/run/netns/<span class="variable">$pid</span> ]; <span class="keyword">then</span></span><br><span class="line">    rm <span class="operator">-f</span> /var/run/netns/<span class="variable">$pid</span></span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line">ln <span class="operator">-s</span> /proc/<span class="variable">$pid</span>/ns/net /var/run/netns/<span class="variable">$pid</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line">ip link add docker<span class="variable">$pid</span> <span class="built_in">type</span> veth peer name bridge0</span><br><span class="line">brctl addif br0 docker<span class="variable">$pid</span></span><br><span class="line">ip link <span class="built_in">set</span> docker<span class="variable">$pid</span> up</span><br><span class="line">ip link <span class="built_in">set</span> bridge0 netns <span class="variable">$pid</span></span><br><span class="line"><span class="comment">#先删除容器内已存在的eth0</span></span><br><span class="line">ip netns <span class="built_in">exec</span> <span class="variable">$pid</span> ip link del eth0 &gt; /dev/null <span class="number">2</span>&gt;&amp;<span class="number">1</span></span><br><span class="line"><span class="comment">#设置容器新的网卡eth0</span></span><br><span class="line">ip netns <span class="built_in">exec</span> <span class="variable">$pid</span> ip link <span class="built_in">set</span> dev bridge0 name eth0</span><br><span class="line">ip netns <span class="built_in">exec</span> <span class="variable">$pid</span> ip link <span class="built_in">set</span> eth0 up</span><br><span class="line">ip netns <span class="built_in">exec</span> <span class="variable">$pid</span> ip addr add <span class="variable">$SETIP</span>/<span class="variable">$SETMASK</span> dev eth0</span><br><span class="line">ip netns <span class="built_in">exec</span> <span class="variable">$pid</span> ip route add default via <span class="variable">$GATEWAY</span></span><br></pre></td></tr></table></figure>
+<h2 id="关闭容器">关闭容器</h2><p>关闭容器后如果不再使用，要删掉添加的网卡及网络namespace，简单的脚本如下：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#/bin/bash</span></span><br><span class="line"><span class="keyword">if</span> [ -z <span class="variable">$1</span> ];</span><br><span class="line"><span class="keyword">then</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">"*****Input then ecessary parameters: CONTAINERID****"</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">"*****Call the script like: sh shutdowndocker.sh e8eae14aa992"</span></span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line"><span class="comment">#获取到容器的PID</span></span><br><span class="line">pid=`docker inspect <span class="operator">-f</span> <span class="string">'&#123;&#123;.State.Pid&#125;&#125;'</span> <span class="variable">$1</span>`</span><br><span class="line"><span class="comment">#停用并删掉容器</span></span><br><span class="line">docker stop <span class="variable">$1</span></span><br><span class="line">docker rm <span class="variable">$1</span></span><br><span class="line"><span class="comment">#删除容器的网络命名空间及虚拟网卡</span></span><br><span class="line">ip netns delete <span class="variable">$pid</span></span><br></pre></td></tr></table></figure></p>
+<h2 id="遇到的问题">遇到的问题</h2><ul>
+<li>可能会遇到<code>Object &quot;netns&quot; is unknown, try &quot;ip help&quot;.</code>的报错。  </li>
+</ul>
+<ol>
+<li><p>在CentOS6.5以前，内核不支持网络namespace，需要升级内核和iproute。CentOS6.5以后内核已支持网络namespace，只需要升级iproute即可。</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum install -y <span class="string">http:</span><span class="comment">//rdo.fedorapeople.org/rdo-release.rpm</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>默认的源中的地址已经无效，会报404，修改地址即可</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">cat /etc/yum<span class="class">.repos</span><span class="class">.d</span>/rdo-release<span class="class">.repo</span></span><br><span class="line">[openstack-kilo]</span><br><span class="line">name=OpenStack Kilo Repository</span><br><span class="line">baseurl=https:<span class="comment">//repos.fedorapeople.org/repos/openstack/EOL/openstack-icehouse/epel-6/</span></span><br><span class="line">skip_if_unavailable=<span class="number">0</span></span><br><span class="line">enabled=<span class="number">1</span></span><br><span class="line">gpgcheck=<span class="number">0</span></span><br><span class="line">gpgkey=file:<span class="comment">///etc/pki/rpm-gpg/RPM-GPG-KEY-RDO-kilo</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>安装iproute</p>
+<figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum <span class="keyword">install</span> -y iproute</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<ul>
+<li>还可能遇到<code>RTNETLINK answers: No such process</code>的报错<br>我这里在执行<code>ip netns exec $pid ip route add default via $GATEWAY</code>遇到的是设置容器的IP地址是没有设置掩码，默认设置为了32位，所以无法指定默认网关</li>
+</ul>
+
+        
+        
+        <p class="article-more-link">
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/运维/">运维</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/docker/">docker</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2015/09/09/CentOS 6.x上为Docker容器配置物理网段的静态IP/#comments" class="ds-thread-count comments-count-link" data-thread-key="2015/09/09/CentOS 6.x上为Docker容器配置物理网段的静态IP/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+  
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
       <a href="/2015/07/28/基于Nexus的Maven私库部署注意事项/" title="基于Nexus的Maven私库部署注意事项" itemprop="url">基于Nexus的Maven私库部署注意事项</a>
   </h1>
   <p class="article-author">By
@@ -273,124 +405,6 @@
 
 
 
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2014/02/14/在DigitalOcean 512M内存VPS上部署 LEMP/" title="在DigitalOcean 512M内存VPS上部署 LEMP" itemprop="url">在DigitalOcean 512M内存VPS上部署 LEMP</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="chenyang" target="_blank" itemprop="author">chenyang</a>
-		
-  <p class="article-time">
-    <time datetime="2014-02-14T04:03:07.000Z" itemprop="datePublished"> 发表于 2014-02-14</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <h1 id="在DigitalOcean_512M内存VPS上部署_LEMP">在DigitalOcean 512M内存VPS上部署 LEMP</h1><p>之前用的 Amazon EC2这几天就到期了，发现 Digital Ocean 的 VPS 比较便宜，看了下评价也还不错，就花了5美元，并使用10美元的优惠码，先建起来一个把博客迁移过来了，我的 DO 推广链接是：<a href="https://www.digitalocean.com/?refcode=26027af1ccfe" title="https://www.digitalocean.com/?refcode=26027af1ccfe" target="_blank" rel="external">https://www.digitalocean.com/?refcode=26027af1ccfe</a>，欢迎试用</p>
-<p>整体感觉还可以，相比 Linode 略慢，感觉稳定性和 Linode 也差点，但 Linode 确实比较贵呀，20美元/月呢。昨晚配置时突然就连不上了，ssh 和网页控制台都不行，重启无效，索性关机了，今早一看恢复了，很无奈。。。</p>
-<p>下面是安装的经过，也是一个学习的过程</p>
-<h2 id="Linux_系统初始化配置">Linux 系统初始化配置</h2><h2 id="安装_Nginx">安装 Nginx</h2><h3 id="安装依赖组件">安装依赖组件</h3><figure class="highlight brainfuck"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">yum</span> <span class="literal">-</span><span class="comment">y</span> <span class="comment">install</span> <span class="comment">gcc</span> <span class="comment">gcc</span><span class="literal">-</span><span class="comment">c</span><span class="literal">+</span><span class="literal">+</span> <span class="comment">zlib</span><span class="literal">-</span><span class="comment">devel</span> <span class="comment">pcre</span><span class="literal">-</span><span class="comment">devel</span> <span class="comment">openssl</span><span class="literal">-</span><span class="comment">devel</span></span><br></pre></td></tr></table></figure>
-<h3 id="下载并进行编译安装">下载并进行编译安装</h3><figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">wget <span class="string">http:</span><span class="comment">//nginx.org/download/nginx-1.4.5.tar.gz  </span></span><br><span class="line">tar -xzvf nginx-<span class="number">1.4</span>.5.tar.gz  </span><br><span class="line">cd nginx-<span class="number">1.4</span>.5  </span><br><span class="line">.<span class="regexp">/configure —prefix=/</span>usr<span class="regexp">/local/</span>nginx —with-http_ssl_module  </span><br><span class="line">make  </span><br><span class="line">make install</span><br></pre></td></tr></table></figure>
-<p>注：这里有个误解，网上很多 nginx 编译安装的文档也都是这样：下载源码包，解压，移到安装路径，如/usr/local/nginx，然后再到此目录进行编译，如此就会有如下的报错“cp: <code>conf/koi-win&#39; and</code>/usr/local/nginx/conf/koi-win’ are the same file”，网上的解决方案大多是将 nginx.conf 指定到其他位置，如此虽能解决但对于强迫症的我却很不爽。仔细推敲发现这样编译确实有问题，正常的编译过程是将源码文件复制到prefix目标文件夹，但如果在源码目录里编译肯定会文件冲突，也就会有上面的报错了。</p>
-<p>解决方法也很简单，如我的编译方法，随便位置解压后进入目录编译，编译时指定 prefix 就可以了，如此编译好的程序也很干净，貌似仅有 sbin、conf、logs 三个目录。</p>
-<h2 id="安装_php-fpm">安装 php-fpm</h2><ul>
-<li><p>安装依赖组件  </p>
-<figure class="highlight livescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">yum -y install libmcrypt-devel mhash-devel libxslt-devel <span class="string">\</span></span><br><span class="line">libjpeg libjpeg-devel libpng libpng-devel freetype freetype-devel libxml2 libxml2-devel <span class="string">\</span></span><br><span class="line">zlib zlib-devel glibc glibc-devel glib2 glib2-devel bzip2 bzip2-devel <span class="string">\</span>  </span><br><span class="line">ncurses ncurses-devel curl curl-devel e2fsprogs e2fsprogs-devel <span class="string">\</span></span><br><span class="line">krb5 krb5-devel libidn libidn-devel openssl openssl-devel</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>下载解压并编译，同样不需要将源码拷贝到安装目录再编译  </p>
-<figure class="highlight brainfuck"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">wget</span> <span class="comment">http://am1</span><span class="string">.</span><span class="comment">php</span><span class="string">.</span><span class="comment">net/distributions/php</span><span class="literal">-</span><span class="comment">5</span><span class="string">.</span><span class="comment">5</span><span class="string">.</span><span class="comment">9</span><span class="string">.</span><span class="comment">tar</span><span class="string">.</span><span class="comment">gz</span>  </span><br><span class="line"><span class="comment">tar</span> <span class="literal">-</span><span class="comment">xzvf</span> <span class="comment">php</span><span class="literal">-</span><span class="comment">5</span><span class="string">.</span><span class="comment">5</span><span class="string">.</span><span class="comment">9</span><span class="string">.</span><span class="comment">tar</span><span class="string">.</span><span class="comment">gz</span>  </span><br><span class="line"><span class="string">.</span><span class="comment">/configure</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">prefix=/usr/local/php</span>  <span class="literal">-</span><span class="literal">-</span><span class="comment">enable</span><span class="literal">-</span><span class="comment">fpm</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">with</span><span class="literal">-</span><span class="comment">mcrypt</span> <span class="comment">\</span></span><br><span class="line"><span class="literal">-</span><span class="literal">-</span><span class="comment">enable</span><span class="literal">-</span><span class="comment">mbstring</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">disable</span><span class="literal">-</span><span class="comment">pdo</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">with</span><span class="literal">-</span><span class="comment">curl</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">disable</span><span class="literal">-</span><span class="comment">debug</span>  <span class="literal">-</span><span class="literal">-</span><span class="comment">disable</span><span class="literal">-</span><span class="comment">rpath</span> <span class="comment">\</span></span><br><span class="line"><span class="literal">-</span><span class="literal">-</span><span class="comment">enable</span><span class="literal">-</span><span class="comment">inline</span><span class="literal">-</span><span class="comment">optimization</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">with</span><span class="literal">-</span><span class="comment">bz2</span>  <span class="literal">-</span><span class="literal">-</span><span class="comment">with</span><span class="literal">-</span><span class="comment">zlib</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">enable</span><span class="literal">-</span><span class="comment">sockets</span> <span class="comment">\</span></span><br><span class="line"><span class="literal">-</span><span class="literal">-</span><span class="comment">enable</span><span class="literal">-</span><span class="comment">sysvsem</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">enable</span><span class="literal">-</span><span class="comment">sysvshm</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">enable</span><span class="literal">-</span><span class="comment">pcntl</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">enable</span><span class="literal">-</span><span class="comment">mbregex</span> <span class="comment">\</span></span><br><span class="line"><span class="literal">-</span><span class="literal">-</span><span class="comment">with</span><span class="literal">-</span><span class="comment">mhash</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">enable</span><span class="literal">-</span><span class="comment">zip</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">with</span><span class="literal">-</span><span class="comment">pcre</span><span class="literal">-</span><span class="comment">regex</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">with</span><span class="literal">-</span><span class="comment">mysql</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">with</span><span class="literal">-</span><span class="comment">mysqli</span> <span class="comment">\</span></span><br><span class="line"><span class="literal">-</span><span class="literal">-</span><span class="comment">with</span><span class="literal">-</span><span class="comment">gd</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">with</span><span class="literal">-</span><span class="comment">jpeg</span><span class="literal">-</span><span class="comment">dir</span>  </span><br><span class="line"><span class="comment">make</span>  </span><br><span class="line"><span class="comment">make</span> <span class="comment">install</span></span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<p>注：对于低于1G 内存的服务器来说make 时会有报错，make: <em>*</em> [ext/fileinfo/libmagic/apprentice.lo] Error 1，在编译时加上如下参数即可：  </p>
-<blockquote>
-<p>–disable-fileinfo</p>
-</blockquote>
-<h2 id="安装MySQL">安装MySQL</h2><ul>
-<li><p>MySQL 采用cmake 进行编译，所以第一步先安装 cmake</p>
-<figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum -y <span class="keyword">install</span> cmake</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>创建 MySQL 用户组及用户</p>
-<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">groupadd</span> mysql  </span><br><span class="line">useradd -r -g mysql mysql</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>下载社区版源码包并编译安装 MySQL</p>
-<figure class="highlight haml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">wget http://dev.mysql.com/get/Downloads/MySQL-5.6/mysql-5.6.16.tar.gz  </span><br><span class="line">tar -xzvf mysql-5.6.16.tar.gz  </span><br><span class="line">cd mysql-5.6.16  </span><br><span class="line">cmake -DCMAKE_INSTALL_PREFIX=/usr/local/mysql \</span><br><span class="line">-<span class="ruby"><span class="constant">DMYSQL_UNIX_ADDR</span>=<span class="regexp">/tmp/mysql</span>.sock \</span><br><span class="line"></span>-<span class="ruby"><span class="constant">DDEFAULT_CHARSET</span>=utf8 \</span><br><span class="line"></span>-<span class="ruby"><span class="constant">DDEFAULT_COLLATION</span>=utf8_general_ci \</span><br><span class="line"></span>-<span class="ruby"><span class="constant">DWITH_MYISAM_STORAGE_ENGINE</span>=<span class="number">1</span> \</span><br><span class="line"></span>-<span class="ruby"><span class="constant">DWITH_INNOBASE_STORAGE_ENGINE</span>=<span class="number">1</span> \</span><br><span class="line"></span>-<span class="ruby"><span class="constant">DWITH_MEMORY_STORAGE_ENGINE</span>=<span class="number">1</span> \</span><br><span class="line"></span>-<span class="ruby"><span class="constant">DWITH_READLINE</span>=<span class="number">1</span> \</span><br><span class="line"></span>-<span class="ruby"><span class="constant">DENABLED_LOCAL_INFILE</span>=<span class="number">1</span> \</span><br><span class="line"></span>-<span class="ruby"><span class="constant">DMYSQL_DATADIR</span>=<span class="regexp">/usr/local</span><span class="regexp">/mysql/data</span> \</span><br><span class="line"></span>-<span class="ruby"><span class="constant">DMYSQL_USER</span>=mysql \</span><br><span class="line"></span>-<span class="ruby"><span class="constant">DMYSQL_TCP_PORT</span>=<span class="number">3306</span>  </span><br><span class="line"></span>make  </span><br><span class="line">make install</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>设置 MySQL 目录权限</p>
-<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">cd <span class="regexp">/usr/</span>local/mysql  </span><br><span class="line">chown -R <span class="string">root:</span>mysql .  </span><br><span class="line">chown -R <span class="string">mysql:</span>mysql data</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>创建 MySQL 配置文件</p>
-<figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">cd</span> /usr/local/mysql  </span><br><span class="line"><span class="keyword">cp</span> support-<span class="keyword">files</span>/my-medium.<span class="keyword">cnf</span> /etc/my.<span class="keyword">cnf</span></span><br></pre></td></tr></table></figure>
-</li>
-<li><p>创建系统数据库的表</p>
-<figure class="highlight applescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cd /usr/<span class="keyword">local</span>/mysql  </span><br><span class="line">scripts/mysql_install_db <span class="comment">--user=mysql</span></span><br></pre></td></tr></table></figure>
-</li>
-<li><p>设置环境变量</p>
-<figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">vim</span> /etc/<span class="keyword">profile</span></span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<blockquote>
-<p>修改为PATH=$PATH:$HOME/bin:/usr/local/mysql/bin:/usr/local/mysql/lib<br>source /etc/profile  </p>
-</blockquote>
-<ul>
-<li><p>将 MySQL 启动服务添加为系统服务，并设置开机启动</p>
-<figure class="highlight livecodeserver"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">cp support-<span class="built_in">files</span>/mysql.server /etc/init.d/mysqld  </span><br><span class="line">chmod +x /etc/init.d/mysqld  </span><br><span class="line">chkconfig <span class="comment">--add mysqld  </span></span><br><span class="line">chkconfig mysqld <span class="command"><span class="keyword">on</span></span></span><br></pre></td></tr></table></figure>
-</li>
-<li><p>启动 MySQL</p>
-<figure class="highlight puppet"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">service</span> mysqld <span class="literal">start</span></span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<blockquote>
-<p>注：我的启动时有报错“Starting MySQL… ERROR! The server quit without updating PID file (/usr/local/mysql/data/chenyang.pid).”<br>检查权限没问题，后来查看/usr/local/mysql/data/chenyang.err，发现总是内存分配上出错，偶尔能启动，内存瞬间就占满了，定位应该是默认配置占用内存较高（内存占用75—83%），而我的 VPS 仅有512M 内存，就查看 mysql 官方文档，调整/etc/my.cnf 参数，更改缓存打开表的设置后一切正常，内存占用17-18%之间，调整的几个参数如下:<br>innodb_buffer_pool_size = 16M<br>innodb_log_file_size = 16M<br>max_connections = 32<br>key_buffer = 16M<br>max_allowed_packet = 1M<br>thread_stack = 128K<br>#table_cache = 16<br>#主要是下面这个参数，5.6版本以后默认是2000<br>table_open_cache = 512</p>
-</blockquote>
-
-        
-        
-        <p class="article-more-link">
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/运维/">运维</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/DigitalOcean/">DigitalOcean</a><a href="/tags/LEMP/">LEMP</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2014/02/14/在DigitalOcean 512M内存VPS上部署 LEMP/#comments" class="ds-thread-count comments-count-link" data-thread-key="2014/02/14/在DigitalOcean 512M内存VPS上部署 LEMP/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-  
-
-
-
 
   <nav id="page-nav" class="clearfix">
     <a class="extend prev" rel="prev" href="/"><span></span>Prev</a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="extend next" rel="next" href="/page/3/">Next<span></span></a>
@@ -409,7 +423,7 @@
 		<ul>
 		
 		  
-			<li><a href="/categories/运维/" title="运维">运维<sup>7</sup></a></li>
+			<li><a href="/categories/运维/" title="运维">运维<sup>8</sup></a></li>
 		  
 		
 		</ul>
@@ -426,7 +440,7 @@
 			
 		
 			
-				<li><a href="/tags/DDOS/" title="DDOS">DDOS<sup>1</sup></a></li>
+				<li><a href="/tags/Nginx/" title="Nginx">Nginx<sup>1</sup></a></li>
 			
 		
 			
@@ -446,11 +460,11 @@
 			
 		
 			
-				<li><a href="/tags/maven/" title="maven">maven<sup>1</sup></a></li>
+				<li><a href="/tags/DDOS/" title="DDOS">DDOS<sup>1</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/Nginx/" title="Nginx">Nginx<sup>1</sup></a></li>
+				<li><a href="/tags/maven/" title="maven">maven<sup>1</sup></a></li>
 			
 		
 			
@@ -459,6 +473,14 @@
 		
 			
 				<li><a href="/tags/ssh/" title="ssh">ssh<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/IP/" title="IP">IP<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/iproute2/" title="iproute2">iproute2<sup>1</sup></a></li>
 			
 		
 			

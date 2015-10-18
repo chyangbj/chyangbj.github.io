@@ -1,0 +1,609 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>IP命令简介 | 陈洋|晨阳</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="chenyang">
+    
+
+    
+    <meta name="description" content="这是一个很强大的命令，用来替代ifconfig,netstat,route等，因此打算汇总下，方便记忆。本想详细写一下，但发现并不是很复杂，简单记录下。参考文章：iproute2项目Github：https://github.com/shemminger/iproute2参考文档：http://www.policyrouting.org/iproute2.doc.html
+
+大多数的Linux发行">
+<meta property="og:type" content="article">
+<meta property="og:title" content="IP命令简介">
+<meta property="og:url" content="http://chenyang.me/2015/10/18/IP命令简介/index.html">
+<meta property="og:site_name" content="陈洋|晨阳">
+<meta property="og:description" content="这是一个很强大的命令，用来替代ifconfig,netstat,route等，因此打算汇总下，方便记忆。本想详细写一下，但发现并不是很复杂，简单记录下。参考文章：iproute2项目Github：https://github.com/shemminger/iproute2参考文档：http://www.policyrouting.org/iproute2.doc.html
+
+大多数的Linux发行">
+<meta property="og:updated_time" content="2015-10-18T13:34:29.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="IP命令简介">
+<meta name="twitter:description" content="这是一个很强大的命令，用来替代ifconfig,netstat,route等，因此打算汇总下，方便记忆。本想详细写一下，但发现并不是很复杂，简单记录下。参考文章：iproute2项目Github：https://github.com/shemminger/iproute2参考文档：http://www.policyrouting.org/iproute2.doc.html
+
+大多数的Linux发行">
+
+    
+    <link rel="alternative" href="/atom.xml" title="陈洋|晨阳" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="stylesheet" href="/css/style.css" type="text/css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="陈洋|晨阳">陈洋|晨阳</a></h1>
+				<h2 class="blog-motto"></h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:chenyang.me">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2015/10/18/IP命令简介/" title="IP命令简介" itemprop="url">IP命令简介</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="chenyang" target="_blank" itemprop="author">chenyang</a>
+		
+  <p class="article-time">
+    <time datetime="2015-10-18T13:34:29.000Z" itemprop="datePublished"> 发表于 2015-10-18</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#IP命令集"><span class="toc-number">1.</span> <span class="toc-text">IP命令集</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#选项（OPTIONS）"><span class="toc-number">1.1.</span> <span class="toc-text">选项（OPTIONS）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#对象（OBJECT）"><span class="toc-number">1.2.</span> <span class="toc-text">对象（OBJECT）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#命令（COMMAND）"><span class="toc-number">1.3.</span> <span class="toc-text">命令（COMMAND）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ARGUMENTS"><span class="toc-number">1.4.</span> <span class="toc-text">ARGUMENTS</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ip_link命令实例"><span class="toc-number">2.</span> <span class="toc-text">ip link命令实例</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#set命令"><span class="toc-number">2.1.</span> <span class="toc-text">set命令</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#show命令"><span class="toc-number">2.2.</span> <span class="toc-text">show命令</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ip_address命令实例"><span class="toc-number">3.</span> <span class="toc-text">ip address命令实例</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#show命令-1"><span class="toc-number">3.1.</span> <span class="toc-text">show命令</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#add命令"><span class="toc-number">3.2.</span> <span class="toc-text">add命令</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#delete命令"><span class="toc-number">3.3.</span> <span class="toc-text">delete命令</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#fulsh命令"><span class="toc-number">3.4.</span> <span class="toc-text">fulsh命令</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ip_route命令实例"><span class="toc-number">4.</span> <span class="toc-text">ip route命令实例</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#show命令-2"><span class="toc-number">4.1.</span> <span class="toc-text">show命令</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#add命令-1"><span class="toc-number">4.2.</span> <span class="toc-text">add命令</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#change命令"><span class="toc-number">4.3.</span> <span class="toc-text">change命令</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#delete命令-1"><span class="toc-number">4.4.</span> <span class="toc-text">delete命令</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#其他命令"><span class="toc-number">5.</span> <span class="toc-text">其他命令</span></a></li></ol>
+		
+		</div>
+		
+		<blockquote>
+<p>这是一个很强大的命令，用来替代<code>ifconfig</code>,<code>netstat</code>,<code>route</code>等，因此打算汇总下，方便记忆。<br>本想详细写一下，但发现并不是很复杂，简单记录下。<br>参考文章：<br>iproute2项目Github：<a href="https://github.com/shemminger/iproute2" target="_blank" rel="external">https://github.com/shemminger/iproute2</a><br>参考文档：<a href="http://www.policyrouting.org/iproute2.doc.html" target="_blank" rel="external">http://www.policyrouting.org/iproute2.doc.html</a></p>
+</blockquote>
+<p>大多数的Linux发行版里已经预装了iproute2，可以直接使用。如果没有可以从Github上clone、编译安装。</p>
+<h2 id="IP命令集">IP命令集</h2><p>命令格式：<code>ip [ OPTIONS ] OBJECT [ COMMAND [ ARGUMENTS ]]</code></p>
+<h3 id="选项（OPTIONS）">选项（OPTIONS）</h3><ul>
+<li>-V, -Version  ——- 打印版本信息</li>
+<li>-s, -stats, -statistics ——- 输出更多信息</li>
+<li>-f, -family {inet, inet6, link} ——- 指定使用的协议族</li>
+<li>-4 —- -family inet的简写</li>
+<li>-6 —- -family inet6的简写</li>
+<li>-0 —- -family link的简写</li>
+<li>-o, -oneline —- 将输出在一行输出，用\隔开每一行</li>
+<li>-r, -resolve —- 使用DNS解析<h3 id="对象（OBJECT）">对象（OBJECT）</h3></li>
+<li>link —- 管理网络设备，包含物理设备及虚拟设备</li>
+<li>address —- 管理设备上的IPv4、IPv6地址</li>
+<li>neighbour —- 管理ARP或NDISC</li>
+<li>route —- 管理路由表</li>
+<li>rule —- 管理路由策略</li>
+<li>maddress —- 管理多播地址</li>
+<li>mroute —- 管理多播路由</li>
+<li>tunnel —- 管理IP隧道<blockquote>
+<ul>
+<li>netns —- 管理网络命名空间，在CentOS7中预装，在CentOS6中需要升级iproute<h3 id="命令（COMMAND）">命令（COMMAND）</h3>各个对象支持的命令不一致，几个常用的如下：</li>
+</ul>
+</blockquote>
+</li>
+<li>show ，查看，可以缩写为sh,list,lst,ls,l</li>
+<li>add ,添加，可缩写为a</li>
+<li>delete，删除，可缩写为del，d</li>
+<li>flush，清除，可缩写为f<h3 id="ARGUMENTS">ARGUMENTS</h3>不同的对象、命令支持的ARGUMENTS不一致，主要包含两个部分</li>
+<li>flags</li>
+<li>parameters<h2 id="ip_link命令实例">ip link命令实例</h2><h3 id="set命令">set命令</h3>设置设备的属性，可缩写为s</li>
+<li><p>启用（禁用）设备:up|down</p>
+<figure class="highlight lasso"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ip <span class="keyword">link</span> <span class="built_in">set</span> dev eth0 up</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>设置网卡的MTU值</p>
+<figure class="highlight lasso"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ip <span class="keyword">link</span> <span class="built_in">set</span> dev eth0 mtu <span class="number">1500</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="show命令">show命令</h3><p>查看设备的属性，可配合选项-s使用以输出更多新新<br><figure class="highlight puppet"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="literal">ip</span> -s <span class="literal">link</span> show dev etho</span><br></pre></td></tr></table></figure></p>
+<h2 id="ip_address命令实例">ip address命令实例</h2><h3 id="show命令-1">show命令</h3><ul>
+<li>查看ip地址<figure class="highlight q"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ip addr <span class="built_in">show</span></span><br><span class="line">ip addr <span class="built_in">show</span> <span class="built_in">dev</span> eth0</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="add命令">add命令</h3><p>有以下Arguments：</p>
+<ul>
+<li>dev name —-这是我们添加地址的设备的名称</li>
+<li>local address（默认值） - 接口的IP地址<blockquote>
+<p>地址的格式取决于所使用协议。IPv4使用点分割的四组数字、IPv6的使用由冒号分隔的四位十六进制的序列。该地址可以跟着一个斜杠和一个十进制数，使用CIDR表示法来设定网络前缀（子网掩码）。如果没有指定CIDR网络掩码，系统会指定地址（/32掩码）。  </p>
+</blockquote>
+</li>
+<li>peer address —- 点到点接口的远端接口地址。同样该地址可以后跟斜杠和十进制数来确定网络掩码。当peer和local同时需要指定掩码时，只能分配给peer。</li>
+<li>broadcast address —- 接口的广播地址。<blockquote>
+<p>可以使用特殊符号“+”和“ - ”，而不指定广播地址。在这种情况下，广播地址由或设置所有接口主机位来自于一个（+）或通过设置所有的接口主机位到零（ - ）。目前在IPv4中的网络实现中使用（+）的设置即可。</p>
+</blockquote>
+</li>
+<li>lable name —-每个地址可以被标上标签字符串。<blockquote>
+<p>为了保持与Linux的2.0网络别名兼容，这个字符串必须与设备的名称一致，或者必须以设备名后跟一个冒号前缀。 （为eth0：杜）</p>
+</blockquote>
+</li>
+<li><p>scope SCOPE_VALUE —- 地址的有效范围。<br>预定义的范围值是：</p>
+<ul>
+<li>global —-地址是全局有效。</li>
+<li>site —-（仅IPv6）本地站点地址，仅对站点内部有效。</li>
+<li>link —-地址连接本地，仅在这个设备上有效</li>
+<li>host —-地址仅在这台主机上有效</li>
+</ul>
+</li>
+<li><p>设置一个IP</p>
+<figure class="highlight armasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="label">ip</span> <span class="keyword">addr </span><span class="keyword">add </span><span class="number">192</span>.<span class="number">168</span>.<span class="number">1</span>.<span class="number">100</span>/<span class="number">24</span> dev eth0</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>给回环网卡lo设置标准广播地址的一个IP，有效范围为本机</p>
+<figure class="highlight armasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="label">ip</span> <span class="keyword">addr </span><span class="keyword">add </span><span class="number">127</span>.<span class="number">0</span>.<span class="number">0</span>.<span class="number">1</span>/<span class="number">8</span> dev lo <span class="keyword">brd </span>+ scope host</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>给eth0设置一个标准广播的24位掩码的地址</p>
+<figure class="highlight armasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="label">ip</span> <span class="keyword">addr </span><span class="keyword">add </span><span class="number">10</span>.<span class="number">0</span>.<span class="number">0</span>.<span class="number">1</span>/<span class="number">24</span> <span class="keyword">brd </span>+ dev eth0</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="delete命令">delete命令</h3><ul>
+<li>删除回环lo上的地址<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">ip</span> addr del <span class="number">127.0.0.1</span>/<span class="number">8</span> dev lo</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="fulsh命令">fulsh命令</h3><ul>
+<li>清空所有以太网卡的IPv4地址<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ip -<span class="number">4</span> addr flush <span class="tag">label</span> <span class="string">"eth*"</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h2 id="ip_route命令实例">ip route命令实例</h2><p>ip route命令用来管理路由表。</p>
+<h3 id="show命令-2">show命令</h3><ul>
+<li>查看路由，有两种方式<figure class="highlight puppet"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="literal">ip</span> route show</span><br><span class="line"><span class="literal">ip</span> route</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="add命令-1">add命令</h3><p>添加路由</p>
+<ul>
+<li><p>添加10.0.0.0/24的路由到193.233.7.65</p>
+<figure class="highlight dns"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ip route add <span class="number">10.0.0/24</span> via <span class="number">193.233.7.65</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>添加路由到网络接口</p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">ip</span> route add <span class="number">192.168.0.0</span>/<span class="number">24</span> dev eth0</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="change命令">change命令</h3><p>修改路由</p>
+<ul>
+<li>修改路由为端口<figure class="highlight dns"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ip ro chg <span class="number">10.0.0/24</span> via <span class="number">193.233.7.65</span> dev dummy</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="delete命令-1">delete命令</h3><p>删除路由</p>
+<h2 id="其他命令">其他命令</h2><ul>
+<li><p>查看ARP</p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">ip</span> neighbor show</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>查看策略路由</p>
+<figure class="highlight inform7"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ip <span class="keyword">rule</span> show</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/运维/">运维</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/IP/">IP</a><a href="/tags/iproute2/">iproute2</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://chenyang.me/2015/10/18/IP命令简介/" data-title="IP命令简介 | 陈洋|晨阳" data-tsina="null" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+
+<div class="next">
+<a href="/2015/10/12/【翻译】使用Nginx、Nginx Plus抵御DDOS攻击/"  title="【翻译】使用Nginx、Nginx Plus抵御DDOS攻击">
+ <strong>下一篇：</strong><br/> 
+ <span>【翻译】使用Nginx、Nginx Plus抵御DDOS攻击
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="2015/10/18/IP命令简介/" data-title="IP命令简介" data-url="http://chenyang.me/2015/10/18/IP命令简介/"></div>
+</section>
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#IP命令集"><span class="toc-number">1.</span> <span class="toc-text">IP命令集</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#选项（OPTIONS）"><span class="toc-number">1.1.</span> <span class="toc-text">选项（OPTIONS）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#对象（OBJECT）"><span class="toc-number">1.2.</span> <span class="toc-text">对象（OBJECT）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#命令（COMMAND）"><span class="toc-number">1.3.</span> <span class="toc-text">命令（COMMAND）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ARGUMENTS"><span class="toc-number">1.4.</span> <span class="toc-text">ARGUMENTS</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ip_link命令实例"><span class="toc-number">2.</span> <span class="toc-text">ip link命令实例</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#set命令"><span class="toc-number">2.1.</span> <span class="toc-text">set命令</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#show命令"><span class="toc-number">2.2.</span> <span class="toc-text">show命令</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ip_address命令实例"><span class="toc-number">3.</span> <span class="toc-text">ip address命令实例</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#show命令-1"><span class="toc-number">3.1.</span> <span class="toc-text">show命令</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#add命令"><span class="toc-number">3.2.</span> <span class="toc-text">add命令</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#delete命令"><span class="toc-number">3.3.</span> <span class="toc-text">delete命令</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#fulsh命令"><span class="toc-number">3.4.</span> <span class="toc-text">fulsh命令</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ip_route命令实例"><span class="toc-number">4.</span> <span class="toc-text">ip route命令实例</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#show命令-2"><span class="toc-number">4.1.</span> <span class="toc-text">show命令</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#add命令-1"><span class="toc-number">4.2.</span> <span class="toc-text">add命令</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#change命令"><span class="toc-number">4.3.</span> <span class="toc-text">change命令</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#delete命令-1"><span class="toc-number">4.4.</span> <span class="toc-text">delete命令</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#其他命令"><span class="toc-number">5.</span> <span class="toc-text">其他命令</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/运维/" title="运维">运维<sup>8</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/docker/" title="docker">docker<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Nginx/" title="Nginx">Nginx<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/DigitalOcean/" title="DigitalOcean">DigitalOcean<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/LEMP/" title="LEMP">LEMP<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/shutdown/" title="shutdown">shutdown<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/批处理/" title="批处理">批处理<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/DDOS/" title="DDOS">DDOS<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/maven/" title="maven">maven<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mac/" title="mac">mac<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ssh/" title="ssh">ssh<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/IP/" title="IP">IP<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/iproute2/" title="iproute2">iproute2<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/nexus/" title="nexus">nexus<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/zookeeper/" title="zookeeper">zookeeper<sup>1</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+    </ul>
+</div>
+
+  
+
+
+  <div class="rsspart">
+	<a href="/atom.xml" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	
+	<section class="info">
+		<p> Hello ,I&#39;m ChenYang from beijing. <br/>
+			This is my blog,believe it or not.</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2015 
+		
+		<a href="/about" target="_blank" title="chenyang">chenyang</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"chyang"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>
