@@ -4,22 +4,29 @@
 <head>
   <meta charset="UTF-8">
   
-    <title>陈洋|晨阳</title>
+    <title>【译】创建Nginx Rewrite规则 | 陈洋|晨阳</title>
     <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
     
     <meta name="author" content="chenyang">
     
 
     
-    <meta name="description">
-<meta property="og:type" content="website">
-<meta property="og:title" content="陈洋|晨阳">
-<meta property="og:url" content="http://chenyang.me/index.html">
+    <meta name="description" content="翻译了一篇之后有点上瘾哈，看到这一篇感觉也不错，Rewrite规则在Nginx的使用中经常用到，文中也提到了很多具体的例子，就顺手翻译下。原文地址：https://www.nginx.com/blog/creating-nginx-rewrite-rules/
+
+本文我们将讨论如何创建Nginx的rewrite规则（规则对于Nginx社区版和Nginx Plus版通用）。Rewrite规则修改客户">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【译】创建Nginx Rewrite规则">
+<meta property="og:url" content="http://chenyang.me/2015/10/24/【译】创建Nginx Rewrite规则/index.html">
 <meta property="og:site_name" content="陈洋|晨阳">
-<meta property="og:description">
+<meta property="og:description" content="翻译了一篇之后有点上瘾哈，看到这一篇感觉也不错，Rewrite规则在Nginx的使用中经常用到，文中也提到了很多具体的例子，就顺手翻译下。原文地址：https://www.nginx.com/blog/creating-nginx-rewrite-rules/
+
+本文我们将讨论如何创建Nginx的rewrite规则（规则对于Nginx社区版和Nginx Plus版通用）。Rewrite规则修改客户">
+<meta property="og:updated_time" content="2015-10-24T15:58:36.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="陈洋|晨阳">
-<meta name="twitter:description">
+<meta name="twitter:title" content="【译】创建Nginx Rewrite规则">
+<meta name="twitter:description" content="翻译了一篇之后有点上瘾哈，看到这一篇感觉也不错，Rewrite规则在Nginx的使用中经常用到，文中也提到了很多具体的例子，就顺手翻译下。原文地址：https://www.nginx.com/blog/creating-nginx-rewrite-rules/
+
+本文我们将讨论如何创建Nginx的rewrite规则（规则对于Nginx社区版和Nginx Plus版通用）。Rewrite规则修改客户">
 
     
     <link rel="alternative" href="/atom.xml" title="陈洋|晨阳" type="application/atom+xml">
@@ -66,12 +73,10 @@
 </div>
     </header>
     <div id="container">
-      <div id="main">
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
   <h1 itemprop="name">
     
       <a href="/2015/10/24/【译】创建Nginx Rewrite规则/" title="【译】创建Nginx Rewrite规则" itemprop="url">【译】创建Nginx Rewrite规则</a>
@@ -85,9 +90,16 @@
     
   </p>
 </header>
-    <div class="article-content">
-        
-        <blockquote>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#对比return、rewrite和try_files命令"><span class="toc-number">1.</span> <span class="toc-text">对比return、rewrite和try_files命令</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#return命令"><span class="toc-number">1.1.</span> <span class="toc-text">return命令</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#rewrite命令"><span class="toc-number">1.2.</span> <span class="toc-text">rewrite命令</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#try_files命令"><span class="toc-number">1.3.</span> <span class="toc-text">try_files命令</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#实例：域名标准化"><span class="toc-number">2.</span> <span class="toc-text">实例：域名标准化</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#重定向一个旧域名到新域名"><span class="toc-number">2.1.</span> <span class="toc-text">重定向一个旧域名到新域名</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#添加和删除www前缀"><span class="toc-number">2.2.</span> <span class="toc-text">添加和删除www前缀</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#重定向所有的流量到一个正确的域名"><span class="toc-number">2.3.</span> <span class="toc-text">重定向所有的流量到一个正确的域名</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#实例：强制所有的请求使用HTTPS（TLS/SSL加密）"><span class="toc-number">3.</span> <span class="toc-text">实例：强制所有的请求使用HTTPS（TLS/SSL加密）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#实例：为Wordpress网站启用漂亮的固定链接"><span class="toc-number">4.</span> <span class="toc-text">实例：为Wordpress网站启用漂亮的固定链接</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#实例：丢掉不支持的文件后缀的请求"><span class="toc-number">5.</span> <span class="toc-text">实例：丢掉不支持的文件后缀的请求</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#实例：自定义重新路由"><span class="toc-number">6.</span> <span class="toc-text">实例：自定义重新路由</span></a></li></ol>
+		
+		</div>
+		
+		<blockquote>
 <p>翻译了一篇之后有点上瘾哈，看到这一篇感觉也不错，Rewrite规则在Nginx的使用中经常用到，文中也提到了很多具体的例子，就顺手翻译下。<br>原文地址：<a href="https://www.nginx.com/blog/creating-nginx-rewrite-rules/" target="_blank" rel="external">https://www.nginx.com/blog/creating-nginx-rewrite-rules/</a></p>
 </blockquote>
 <p>本文我们将讨论如何创建Nginx的rewrite规则（规则对于Nginx社区版和Nginx Plus版通用）。Rewrite规则修改客户请求的部分或全部URL，通常为了下述两个目的中的一个：</p>
@@ -137,14 +149,9 @@
 <blockquote>
 <p>文章比想象中长多了，有错误或不严谨之处请帮忙指出，谢谢。</p>
 </blockquote>
-
-        
-        
-        <p class="article-more-link">
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
+  
+	</div>
+		<footer class="article-footer clearfix">
 <div class="article-catetags">
 
 <div class="article-categories">
@@ -162,325 +169,47 @@
 
 
 
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://chenyang.me/2015/10/24/【译】创建Nginx Rewrite规则/" data-title="【译】创建Nginx Rewrite规则 | 陈洋|晨阳" data-tsina="null" class="share clearfix">
+	  </div>
+	
+	</div>
 
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2015/10/24/【译】创建Nginx Rewrite规则/#comments" class="ds-thread-count comments-count-link" data-thread-key="2015/10/24/【译】创建Nginx Rewrite规则/" data-count-type="comments">&nbsp;</a>
-	
-</div>
 
 </footer>
 
-
-    </article>
-
-
-  
-
-
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2015/10/18/IP命令简介/" title="IP命令简介" itemprop="url">IP命令简介</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="chenyang" target="_blank" itemprop="author">chenyang</a>
-		
-  <p class="article-time">
-    <time datetime="2015-10-18T13:44:16.000Z" itemprop="datePublished"> 发表于 2015-10-18</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <blockquote>
-<p>这是一个很强大的命令，用来替代<code>ifconfig</code>,<code>netstat</code>,<code>route</code>等，因此打算汇总下，方便记忆。<br>本想详细写一下，但发现并不是很复杂，简单记录下。<br>参考文章：<br>iproute2项目Github：<a href="https://github.com/shemminger/iproute2" target="_blank" rel="external">https://github.com/shemminger/iproute2</a><br>参考文档：<a href="http://www.policyrouting.org/iproute2.doc.html" target="_blank" rel="external">http://www.policyrouting.org/iproute2.doc.html</a></p>
-</blockquote>
-<p>大多数的Linux发行版里已经预装了iproute2，可以直接使用。如果没有可以从Github上clone、编译安装。</p>
-<h2 id="IP命令集">IP命令集</h2><p>命令格式：<code>ip [ OPTIONS ] OBJECT [ COMMAND [ ARGUMENTS ]]</code></p>
-<h3 id="选项（OPTIONS）">选项（OPTIONS）</h3><ul>
-<li>-V, -Version  ——- 打印版本信息</li>
-<li>-s, -stats, -statistics ——- 输出更多信息</li>
-<li>-f, -family {inet, inet6, link} ——- 指定使用的协议族</li>
-<li>-4 —- -family inet的简写</li>
-<li>-6 —- -family inet6的简写</li>
-<li>-0 —- -family link的简写</li>
-<li>-o, -oneline —- 将输出在一行输出，用\隔开每一行</li>
-<li>-r, -resolve —- 使用DNS解析  <h3 id="对象（OBJECT）">对象（OBJECT）</h3></li>
-<li>link —- 管理网络设备，包含物理设备及虚拟设备</li>
-<li>address —- 管理设备上的IPv4、IPv6地址</li>
-<li>neighbour —- 管理ARP或NDISC</li>
-<li>route —- 管理路由表</li>
-<li>rule —- 管理路由策略</li>
-<li>maddress —- 管理多播地址</li>
-<li>mroute —- 管理多播路由</li>
-<li>tunnel —- 管理IP隧道<blockquote>
-<ul>
-<li>netns —- 管理网络命名空间，在CentOS7中预装，在CentOS6中需要升级iproute  </li>
-</ul>
-</blockquote>
-</li>
-</ul>
-<h3 id="命令（COMMAND）">命令（COMMAND）</h3><p>各个对象支持的命令不一致，几个常用的如下：</p>
-<ul>
-<li>show ，查看，可以缩写为sh,list,lst,ls,l</li>
-<li>add ,添加，可缩写为a</li>
-<li>delete，删除，可缩写为del，d</li>
-<li>flush，清除，可缩写为f  </li>
-</ul>
-<h3 id="ARGUMENTS">ARGUMENTS</h3><p>不同的对象、命令支持的ARGUMENTS不一致，主要包含两个部分</p>
-<ul>
-<li>flags</li>
-<li>parameters  </li>
-</ul>
-<h2 id="ip_link命令实例">ip link命令实例</h2><h3 id="set命令">set命令</h3><p>设置设备的属性，可缩写为s</p>
-<ul>
-<li><p>启用（禁用）设备:up|down</p>
-<figure class="highlight lasso"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ip <span class="keyword">link</span> <span class="built_in">set</span> dev eth0 up</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>设置网卡的MTU值</p>
-<figure class="highlight lasso"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ip <span class="keyword">link</span> <span class="built_in">set</span> dev eth0 mtu <span class="number">1500</span></span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<h3 id="show命令">show命令</h3><p>查看设备的属性，可配合选项-s使用以输出更多新新<br><figure class="highlight puppet"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="literal">ip</span> -s <span class="literal">link</span> show dev etho</span><br></pre></td></tr></table></figure></p>
-<h2 id="ip_address命令实例">ip address命令实例</h2><h3 id="show命令-1">show命令</h3><ul>
-<li>查看ip地址<figure class="highlight q"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ip addr <span class="built_in">show</span></span><br><span class="line">ip addr <span class="built_in">show</span> <span class="built_in">dev</span> eth0</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<h3 id="add命令">add命令</h3><p>有以下Arguments：</p>
-<ul>
-<li>dev name —-这是我们添加地址的设备的名称</li>
-<li>local address（默认值） - 接口的IP地址<blockquote>
-<p>地址的格式取决于所使用协议。IPv4使用点分割的四组数字、IPv6的使用由冒号分隔的四位十六进制的序列。该地址可以跟着一个斜杠和一个十进制数，使用CIDR表示法来设定网络前缀（子网掩码）。如果没有指定CIDR网络掩码，系统会指定地址（/32掩码）。  </p>
-</blockquote>
-</li>
-<li>peer address —- 点到点接口的远端接口地址。同样该地址可以后跟斜杠和十进制数来确定网络掩码。当peer和local同时需要指定掩码时，只能分配给peer。</li>
-<li>broadcast address —- 接口的广播地址。<blockquote>
-<p>可以使用特殊符号“+”和“ - ”，而不指定广播地址。在这种情况下，广播地址由或设置所有接口主机位来自于一个（+）或通过设置所有的接口主机位到零（ - ）。目前在IPv4中的网络实现中使用（+）的设置即可。</p>
-</blockquote>
-</li>
-<li>lable name —-每个地址可以被标上标签字符串。<blockquote>
-<p>为了保持与Linux的2.0网络别名兼容，这个字符串必须与设备的名称一致，或者必须以设备名后跟一个冒号前缀。 （为eth0：杜）</p>
-</blockquote>
-</li>
-<li><p>scope SCOPE_VALUE —- 地址的有效范围。<br>预定义的范围值是：</p>
-<ul>
-<li>global —-地址是全局有效。</li>
-<li>site —-（仅IPv6）本地站点地址，仅对站点内部有效。</li>
-<li>link —-地址连接本地，仅在这个设备上有效</li>
-<li>host —-地址仅在这台主机上有效</li>
-</ul>
-</li>
-<li><p>设置一个IP</p>
-<figure class="highlight armasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="label">ip</span> <span class="keyword">addr </span><span class="keyword">add </span><span class="number">192</span>.<span class="number">168</span>.<span class="number">1</span>.<span class="number">100</span>/<span class="number">24</span> dev eth0</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>给回环网卡lo设置标准广播地址的一个IP，有效范围为本机</p>
-<figure class="highlight armasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="label">ip</span> <span class="keyword">addr </span><span class="keyword">add </span><span class="number">127</span>.<span class="number">0</span>.<span class="number">0</span>.<span class="number">1</span>/<span class="number">8</span> dev lo <span class="keyword">brd </span>+ scope host</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>给eth0设置一个标准广播的24位掩码的地址</p>
-<figure class="highlight armasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="label">ip</span> <span class="keyword">addr </span><span class="keyword">add </span><span class="number">10</span>.<span class="number">0</span>.<span class="number">0</span>.<span class="number">1</span>/<span class="number">24</span> <span class="keyword">brd </span>+ dev eth0</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<h3 id="delete命令">delete命令</h3><ul>
-<li>删除回环lo上的地址<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">ip</span> addr del <span class="number">127.0.0.1</span>/<span class="number">8</span> dev lo</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<h3 id="fulsh命令">fulsh命令</h3><ul>
-<li>清空所有以太网卡的IPv4地址<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ip -<span class="number">4</span> addr flush <span class="tag">label</span> <span class="string">"eth*"</span></span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<h2 id="ip_route命令实例">ip route命令实例</h2><p>ip route命令用来管理路由表。</p>
-<h3 id="show命令-2">show命令</h3><ul>
-<li>查看路由，有两种方式<figure class="highlight puppet"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="literal">ip</span> route show</span><br><span class="line"><span class="literal">ip</span> route</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<h3 id="add命令-1">add命令</h3><p>添加路由</p>
-<ul>
-<li><p>添加10.0.0.0/24的路由到193.233.7.65</p>
-<figure class="highlight dns"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ip route add <span class="number">10.0.0/24</span> via <span class="number">193.233.7.65</span></span><br></pre></td></tr></table></figure>
-</li>
-<li><p>添加路由到网络接口</p>
-<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">ip</span> route add <span class="number">192.168.0.0</span>/<span class="number">24</span> dev eth0</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<h3 id="change命令">change命令</h3><p>修改路由</p>
-<ul>
-<li>修改路由为端口<figure class="highlight dns"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ip ro chg <span class="number">10.0.0/24</span> via <span class="number">193.233.7.65</span> dev dummy</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<h3 id="delete命令-1">delete命令</h3><p>删除路由</p>
-<h2 id="其他命令">其他命令</h2><ul>
-<li><p>查看ARP</p>
-<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">ip</span> neighbor show</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>查看策略路由</p>
-<figure class="highlight inform7"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ip <span class="keyword">rule</span> show</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-
-        
-        
-        <p class="article-more-link">
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/运维/">运维</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/IP/">IP</a><a href="/tags/iproute2/">iproute2</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
+   	       
+	</article>
 	
-	  	<span></span>
-		<a href="/2015/10/18/IP命令简介/#comments" class="ds-thread-count comments-count-link" data-thread-key="2015/10/18/IP命令简介/" data-count-type="comments">&nbsp;</a>
+<nav class="article-nav clearfix">
+ 
+
+<div class="next">
+<a href="/2015/10/18/IP命令简介/"  title="IP命令简介">
+ <strong>下一篇：</strong><br/> 
+ <span>IP命令简介
+</span>
+</a>
+</div>
+
+</nav>
+
 	
-</div>
-
-</footer>
-
-
-    </article>
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="2015/10/24/【译】创建Nginx Rewrite规则/" data-title="【译】创建Nginx Rewrite规则" data-url="http://chenyang.me/2015/10/24/【译】创建Nginx Rewrite规则/"></div>
+</section>
 
 
-  
-
-
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2015/10/12/【翻译】使用Nginx、Nginx Plus抵御DDOS攻击/" title="【翻译】使用Nginx、Nginx Plus抵御DDOS攻击" itemprop="url">【翻译】使用Nginx、Nginx Plus抵御DDOS攻击</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="chenyang" target="_blank" itemprop="author">chenyang</a>
-		
-  <p class="article-time">
-    <time datetime="2015-10-12T08:00:19.000Z" itemprop="datePublished"> 发表于 2015-10-12</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <blockquote>
-<p>看到这篇文章觉得还不错，心血来潮就翻译一下，第一次尝试，请拍砖。<br>原文地址为：<a href="https://www.nginx.com/blog/mitigating-ddos-attacks-with-nginx-and-nginx-plus/" target="_blank" rel="external">Mitigating DDoS Attacks with NGINX and NGINX Plus</a></p>
-</blockquote>
-<p>DDOS是一种通过大流量的请求对目标进行轰炸式访问，导致提供服务的服务器资源耗尽进而无法继续提供服务的攻击手段。<br>一般情况下，攻击者通过大量请求与连接使服务器处于饱和状态，以至于无法接受新的请求或变得很慢。</p>
-<h2 id="应用层DDOS攻击的特征">应用层DDOS攻击的特征</h2><p>应用层（七层/HTTP层）DDOS攻击通常由木马程序发起，其可以通过设计更好的利用目标系统的脆弱点。例如，对于无法处理大量并发请求的系统，仅仅通过建立大量的连接，并周期性的发出少量数据包来保持会话就可以耗尽系统的资源，使其无法接受新的连接请求达到DDOS的目的。其他还有采用发送大量连接请求<br>发送大数据包的请求进行攻击的形式。因为攻击是由木马程序发起，攻击者可以在很短时间内快速建立大量的连接，并发出大量的请求。</p>
-<p>以下是一些DDOS的特证，我们可以据此特征来抵抗DDOS（包括但不限于）：</p>
-<ul>
-<li>攻击经常来源于一些相对固定的IP或IP段，每个IP都有远大于真实用户的连接数和请求数。<blockquote>
-<p>备注：这并不表明这种请求都是代表着DDOS攻击。在很多使用NAT的网络架构中，很多的客户端使用网关的IP地址访问公网资源。但是，即便如此，这样的请求数和连接数也会远少于DDOS攻击。</p>
-</blockquote>
-</li>
-<li>因为攻击是由木马发出且目的是使服务器超负荷，请求的频率会远远超过正常人的请求。</li>
-<li>User-Agent通常是一个非标准的值</li>
-<li>Referer有时是一个容易联想到攻击的值</li>
-</ul>
-<h2 id="使用Nginx、Nginx_Plus抵抗DDOS攻击">使用Nginx、Nginx Plus抵抗DDOS攻击</h2><p>结合上面提到的DDOS攻击的特征，Nginx、Nginx Plus有很多的特性可以用来有效的防御DDOS攻击，可以从调整入口访问流量和控制反向代理到后端服务器的流量两个方面来达到抵御DDOS攻击的目的。</p>
-<h3 id="限制请求速度">限制请求速度</h3><p>设置Nginx、Nginx Plus的连接请求在一个真实用户请求的合理范围内。比如，如果你觉得一个正常用户每两秒可以请求一次登录页面，你就可以设置Nginx每两秒钟接收一个客户端IP的请求（大约等同于每分钟30个请求）。<br><figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">limit_req_zone <span class="label">$binary_remote_addr</span> zone=<span class="keyword">one</span>:10m rate=30r/<span class="keyword">m</span>;</span><br><span class="line"></span><br><span class="line">server &#123;</span><br><span class="line">    ...</span><br><span class="line">    location /login.html &#123;</span><br><span class="line">        limit_req zone=<span class="keyword">one</span>;</span><br><span class="line">    ...</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p><code>limit_req_zone</code>命令设置了一个叫one的共享内存区来存储请求状态的特定键值，在上面的例子中是客户端IP($binary_remote_addr)。location块中的<code>limit_req</code>通过引用one共享内存区来实现限制访问/login.html的目的。</p>
-<h3 id="限制连接数量">限制连接数量</h3><p>设置Nginx、Nginx Plus的连接数在一个真实用户请求的合理范围内。比如，你可以设置每个客户端IP连接/store不可以超过10个。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">limit</span>_conn_zone <span class="variable">$binary_remote_addr</span> zone=addr:<span class="number">10</span>m;</span><br><span class="line"></span><br><span class="line">server &#123;</span><br><span class="line">    ...</span><br><span class="line">    location /store/ &#123;</span><br><span class="line">        <span class="built_in">limit</span>_conn addr <span class="number">10</span>;</span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p><code>limit_conn_zone</code>命令设置了一个叫addr的共享内存区来存储特定键值的状态，在上面的例子中是客户端IP（ $binary_remote_addr）。location块中<code>limit_conn</code>通过引用addr共享内存区来限制到/store/的最大连接数为10。</p>
-<h3 id="关闭慢连接">关闭慢连接</h3><p>有一些DDOS攻击，比如Slowlris，是通过建立大量的连接并周期性的发送一些数据包保持会话来达到攻击目的，这种周期通常会低于正常的请求。这种情况我们可以通过关闭慢连接来抵御攻击。<br><code>client_body_timeout</code>命令用来定义读取客户端请求的超时时间，<code>client_header_timeout</code>命令用来定于读取客户端请求头的超时时间。这两个参数的默认值都是60s，我们可以通过下面的命令将他们设置为5s：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">server &#123;</span><br><span class="line">    <span class="keyword">client_body_t</span>imeout <span class="number">5</span>s;</span><br><span class="line">    <span class="keyword">client_header_t</span>imeout <span class="number">5</span>s;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<h3 id="设置IP黑名单">设置IP黑名单</h3><p>如果确定攻击来源于某些IP地址，我们可以将其加入黑名单，Nginx就不会再接受他们的请求。比如，你已经确定攻击来自于从123.123.123.1到123.123.123.16的一段IP地址，你可以这样设置：<br><figure class="highlight dns"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">location / &#123;</span><br><span class="line">    deny <span class="number">123.123.123.0</span>/28<span class="comment">;</span></span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>或者你确定攻击来源于123.123.123.3、123.123.123.5、123.123.123.7几个IP，可以这样设置：<br><figure class="highlight dns"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">location / &#123;</span><br><span class="line">    deny <span class="number">123.123.123.3</span><span class="comment">;</span></span><br><span class="line">    deny <span class="number">123.123.123.5</span><span class="comment">;</span></span><br><span class="line">    deny <span class="number">123.123.123.7</span><span class="comment">;</span></span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<h3 id="设置IP白名单">设置IP白名单</h3><p>如果你的网站仅允许特定的IP或IP段访问，你可以结合使用allow和deny命令来限制仅允许你指定的IP地址访问你的网站。如下，你可以设置仅允许192.168.1.0段的内网用户访问：<br><figure class="highlight dns"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">location / &#123;</span><br><span class="line">    allow <span class="number">192.168.1.0</span>/24<span class="comment">;</span></span><br><span class="line">    deny all<span class="comment">;</span></span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>deny命令会拒绝除了allow指定的IP段之外的所有其他IP的访问请求。</p>
-<h3 id="使用缓存进行流量削峰">使用缓存进行流量削峰</h3><p>通过打开Nginx的缓存功能并设置特定的缓存参数，可以削减来自攻击的流量，同时也可以减轻对后端服务器的请求压力。以下是一些有用的设置：</p>
-<ul>
-<li><code>proxy_cache_use_stale</code>的updating参数告诉Nginx什么时候该更新所缓存的对象。只需要到后端的一个更新请求，在缓存有效期间客户端对该对象的请求都无需访问后端服务器。当通过对一个文件的频繁请求来实施攻击时，缓存功能可极大的降低到后端服务器的请求。</li>
-<li><code>proxy_cache_key</code>命令定义的键值通常包含一些内嵌的变量（默认的键值$scheme$proxy_host$request_uri包含了三个变量）。如果键值包含<code>$query_string</code>变量，当攻击的请求字符串是随机的时候就会给Nginx代理过重的缓存负担，因此我们建议一般情况下不要包含<code>$query_string</code>变量。</li>
-</ul>
-<h3 id="屏蔽特定的请求">屏蔽特定的请求</h3><p>可以设置Nginx、Nginx Plus屏蔽一些类型的请求：</p>
-<ul>
-<li>针对特定URL的请求</li>
-<li>针对不是常见的User-Agent的请求</li>
-<li>针对Referer头中包含可以联想到攻击的值的请求</li>
-<li>针对其他请求头中包含可以联想到攻击的值的请求<br>比如，如果你判定攻击是针对一个特定的URL：/foo.php，我们就可以屏蔽到这个页面的请求：<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">location</span> /foo.php &#123;</span><br><span class="line">    <span class="title">deny</span> all;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<p>或者你判定攻击请求的User-Agent中包含foo或bar，我们也可以屏蔽这些请求：<br><figure class="highlight lasso"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">location <span class="subst">/</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="variable">$http_user_agent</span> ~<span class="subst">*</span> foo<span class="subst">|</span>bar) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">403</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="attribute">...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>http_name变量引用一个请求头，上述例子中是User-Agent头。可以针对其他的http头使用类似的方法来识别攻击。</p>
-<h3 id="限制到后端服务器的连接数">限制到后端服务器的连接数</h3><p>一个Nginx、Nginx Plus实例可以处理比后端服务器多的多的并发请求。在Nginx Plus中，你可以限制到每一个后端服务器的连接数，比如可以设置Nginx Plus与website upstream中的每个后端服务器建立的连接数不得超过200个：<br><figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">upstream</span> website &#123;</span><br><span class="line">    <span class="title">server</span> <span class="number">192.168.100.1:80</span> max_conns=<span class="number">200</span>;</span><br><span class="line">    <span class="title">server</span> <span class="number">192.168.100.2:80</span> max_conns=<span class="number">200</span>;</span><br><span class="line">    <span class="title">queue</span> <span class="number">10</span> timeout=<span class="number">30s</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p><code>max_conns</code>参数可以针对每一个后端服务器设置Nginx Plus可以与之建立的最大连接数。<code>queue</code>命令设置了当每个后端服务器都达到最大连接数后的队列大小，<code>timeout</code>参数指定了请求在队列中的保留时间。</p>
-<h3 id="处理特定类型的攻击">处理特定类型的攻击</h3><p>有一种攻击是发送包含特别大的值的请求头，引起服务器端缓冲区溢出。Nginx、Nginx Plus针对这种攻击类型的防御，可以参考<a href="http://nginx.com/blog/nginx-protect-cve-2015-1635/?_ga=1.14368116.2137319792.1439284699" target="_blank" rel="external">Using NGINX and NGINX Plus to Protect Against CVE-2015-1635</a></p>
-<h3 id="优化Nginx性能">优化Nginx性能</h3><p>DDOS攻击通常会带来高的负载压力，可以通过一些调优参数，提高Nginx、Nginx Plus处理性能，硬抗DDOS攻击，详细参考：<a href="http://nginx.com/blog/tuning-nginx/?_ga=1.48422373.2137319792.1439284699" target="_blank" rel="external">Tuning NGINX for Performance</a></p>
-<h2 id="识别DDOS攻击">识别DDOS攻击</h2><p>到目前为止，我们都是集中在如何是用Nginx、Nginx Plus来减轻DDOS攻击带来的影响。如何才能让Nginx、Nginx Plus帮助我们识别DDOS攻击呢？<code>Nginx Plus Status module</code>提供了到后端服务器流量的详细统计，可以用来识别异常的流量。Nginx Plus提供一个当前服务状态的仪表盘页面，同时也可以在自定义系统或其他第三方系统中通过API的方式获取这些统计信息，并根据历史趋势分析识别非正常的流量进而发出告警。</p>
-<h2 id="总结">总结</h2><p>Nginx和Nginx Plus可以作为抵御DDOS攻击的一个有力手段，而且Nginx Plus中提供了一些附加的特性来更好的抵御DDOS攻击并且当攻击发生时及时的识别到。</p>
-
-        
-        
-        <p class="article-more-link">
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/运维/">运维</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/DDOS/">DDOS</a><a href="/tags/Nginx/">Nginx</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2015/10/12/【翻译】使用Nginx、Nginx Plus抵御DDOS攻击/#comments" class="ds-thread-count comments-count-link" data-thread-key="2015/10/12/【翻译】使用Nginx、Nginx Plus抵御DDOS攻击/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-  
-
-
-
-
-  <nav id="page-nav" class="clearfix">
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><a class="extend next" rel="next" href="/page/2/">Next<span></span></a>
-  </nav>
-
-</div>
+</div>  
       <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#对比return、rewrite和try_files命令"><span class="toc-number">1.</span> <span class="toc-text">对比return、rewrite和try_files命令</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#return命令"><span class="toc-number">1.1.</span> <span class="toc-text">return命令</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#rewrite命令"><span class="toc-number">1.2.</span> <span class="toc-text">rewrite命令</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#try_files命令"><span class="toc-number">1.3.</span> <span class="toc-text">try_files命令</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#实例：域名标准化"><span class="toc-number">2.</span> <span class="toc-text">实例：域名标准化</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#重定向一个旧域名到新域名"><span class="toc-number">2.1.</span> <span class="toc-text">重定向一个旧域名到新域名</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#添加和删除www前缀"><span class="toc-number">2.2.</span> <span class="toc-text">添加和删除www前缀</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#重定向所有的流量到一个正确的域名"><span class="toc-number">2.3.</span> <span class="toc-text">重定向所有的流量到一个正确的域名</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#实例：强制所有的请求使用HTTPS（TLS/SSL加密）"><span class="toc-number">3.</span> <span class="toc-text">实例：强制所有的请求使用HTTPS（TLS/SSL加密）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#实例：为Wordpress网站启用漂亮的固定链接"><span class="toc-number">4.</span> <span class="toc-text">实例：为Wordpress网站启用漂亮的固定链接</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#实例：丢掉不支持的文件后缀的请求"><span class="toc-number">5.</span> <span class="toc-text">实例：丢掉不支持的文件后缀的请求</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#实例：自定义重新路由"><span class="toc-number">6.</span> <span class="toc-text">实例：自定义重新路由</span></a></li></ol>
+ 
+  </div>
 
 <div id="asidepart">
 <div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
@@ -657,12 +386,89 @@ $(document).ready(function(){
       m.removeClass('moveMain');
       a.css('display', 'block').removeClass('fadeOut');
       o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
         
     }
   });
 });
 </script>
 
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
 
 
 
@@ -735,4 +541,4 @@ $(document).ready(function(){
 <!-- Tiny_search End -->
 
   </body>
- </html>
+</html>
