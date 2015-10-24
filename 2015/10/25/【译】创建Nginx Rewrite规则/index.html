@@ -16,12 +16,12 @@
 本文我们将讨论如何创建Nginx的rewrite规则（规则对于Nginx社区版和Nginx Plus版通用）。Rewrite规则修改客户">
 <meta property="og:type" content="article">
 <meta property="og:title" content="【译】创建Nginx Rewrite规则">
-<meta property="og:url" content="http://chenyang.me/2015/10/24/【译】创建Nginx Rewrite规则/index.html">
+<meta property="og:url" content="http://chenyang.me/2015/10/25/【译】创建Nginx Rewrite规则/index.html">
 <meta property="og:site_name" content="陈洋|晨阳">
 <meta property="og:description" content="翻译了一篇之后有点上瘾哈，看到这一篇感觉也不错，Rewrite规则在Nginx的使用中经常用到，文中也提到了很多具体的例子，就顺手翻译下。原文地址：https://www.nginx.com/blog/creating-nginx-rewrite-rules/
 
 本文我们将讨论如何创建Nginx的rewrite规则（规则对于Nginx社区版和Nginx Plus版通用）。Rewrite规则修改客户">
-<meta property="og:updated_time" content="2015-10-24T15:58:36.000Z">
+<meta property="og:updated_time" content="2015-10-24T16:10:53.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="【译】创建Nginx Rewrite规则">
 <meta name="twitter:description" content="翻译了一篇之后有点上瘾哈，看到这一篇感觉也不错，Rewrite规则在Nginx的使用中经常用到，文中也提到了很多具体的例子，就顺手翻译下。原文地址：https://www.nginx.com/blog/creating-nginx-rewrite-rules/
@@ -79,14 +79,14 @@
 		<header class="article-info clearfix">
   <h1 itemprop="name">
     
-      <a href="/2015/10/24/【译】创建Nginx Rewrite规则/" title="【译】创建Nginx Rewrite规则" itemprop="url">【译】创建Nginx Rewrite规则</a>
+      <a href="/2015/10/25/【译】创建Nginx Rewrite规则/" title="【译】创建Nginx Rewrite规则" itemprop="url">【译】创建Nginx Rewrite规则</a>
   </h1>
   <p class="article-author">By
        
 		<a href="/about" title="chenyang" target="_blank" itemprop="author">chenyang</a>
 		
   <p class="article-time">
-    <time datetime="2015-10-24T15:58:36.000Z" itemprop="datePublished"> 发表于 2015-10-24</time>
+    <time datetime="2015-10-24T16:10:53.000Z" itemprop="datePublished"> 发表于 2015-10-25</time>
     
   </p>
 </header>
@@ -116,7 +116,7 @@
 <p><code>listen</code>命令意味着此<code>server</code>块提供HTTP和HTTPS两种访问方式。<code>server_name</code>命令匹配客户端的URL请求中包含www.old-name.com的请求。<code>return</code>命令告诉Nginx停止处理请求并立即返回301（永久重定向）和新的URL给客户端。重写后的URL使用了两个Nginx变量来获取和替换初始请求中的值：<code>$scheme</code>是指请求的协议（HTTP或HTTPS），<code>$request_uri</code>指包含参数的全部URI。<br>你可以在3xx系列的HTTP状态码中指定重写后的URL：<br><figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">return (301 |<span class="string"> 302 </span>|<span class="string"> 303 </span>|<span class="string"> 307) url;</span></span><br></pre></td></tr></table></figure></p>
 <p>对于其他的HTTP状态码，你可以在响应的页面中自定义一个文本（标准的状态码文本信息依然会显示，比如『404 Not Found』）。文本中可包含Nginx变量。<br><figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">return (1xx |<span class="string"> 2xx </span>|<span class="string"> 4xx </span>|<span class="string"> 5xx) ["text"];</span></span><br></pre></td></tr></table></figure></p>
 <p>比如，这个命令就很适合在拒绝一个没有包含验证令牌的请求时给出一些提示：<br><figure class="highlight actionscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">return</span> <span class="number">401</span> <span class="string">"Access denied because token is expired or invalid"</span>;</span><br></pre></td></tr></table></figure></p>
-<p>也有一些语法的快捷方式可以使用，比如当使用302临时重定向时，可以去掉<code>302</code>状态码（即<code>return URL</code>默认采用302重定向）。具体可以查看Nginx参考文档中关于<code>[return](http://nginx.org/r/return?_ga=1.69277907.2137319792.1439284699)</code>的部分。</p>
+<p>也有一些语法的快捷方式可以使用，比如当使用302临时重定向时，可以去掉<code>302</code>状态码（即<code>return URL</code>默认采用302重定向）。具体可以查看Nginx参考文档中关于<code>return</code>的部分。</p>
 <blockquote>
 <p>有些情况下我们可能会期望返回比HTTP状态码文本信息更复杂更多彩的内容，这时可以考虑<code>error_page</code>。通过这个命令，我们可以针对每一种HTTP状态码返回完整的自定义HTML页面。</p>
 </blockquote>
@@ -171,7 +171,7 @@
 
 	<div class="article-share" id="share">
 	
-	  <div data-url="http://chenyang.me/2015/10/24/【译】创建Nginx Rewrite规则/" data-title="【译】创建Nginx Rewrite规则 | 陈洋|晨阳" data-tsina="null" class="share clearfix">
+	  <div data-url="http://chenyang.me/2015/10/25/【译】创建Nginx Rewrite规则/" data-title="【译】创建Nginx Rewrite规则 | 陈洋|晨阳" data-tsina="null" class="share clearfix">
 	  </div>
 	
 	</div>
@@ -197,7 +197,7 @@
 
 	
 <section id="comments" class="comment">
-	<div class="ds-thread" data-thread-key="2015/10/24/【译】创建Nginx Rewrite规则/" data-title="【译】创建Nginx Rewrite规则" data-url="http://chenyang.me/2015/10/24/【译】创建Nginx Rewrite规则/"></div>
+	<div class="ds-thread" data-thread-key="2015/10/25/【译】创建Nginx Rewrite规则/" data-title="【译】创建Nginx Rewrite规则" data-url="http://chenyang.me/2015/10/25/【译】创建Nginx Rewrite规则/"></div>
 </section>
 
 
