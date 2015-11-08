@@ -4,23 +4,33 @@
 <head>
   <meta charset="UTF-8">
   
-    <title>使用计划任务定时重启Server | 陈洋|晨阳</title>
+    <title>《超级整理术》读书笔记 | 陈洋|晨阳</title>
     <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
     
     <meta name="author" content="chenyang">
     
 
     
-    <meta name="description" content="使用计划任务定时重启Server想做个计划任务，定时重启一台服务器，但是批处理文件总是不能执行，之前遇到过解决了，但这次又忘了。记录下来，备忘。具体原因是我写的批处理名称是shutdown.bat，与shudown.exe命令同名，导致计划任务以为在执行shutdown.exe，但没有任何参数，故执行失败。将批处理任意改一个名字即可，如reboot.bat，myshutdown.bat等。批处理命">
+    <meta name="description" content="《超级整理术》读书笔记
+今天起，读完一本书要做一篇读书笔记（不值得写的可以不写）
+
+之前在『warfalcon』公众号上看过这本书的推荐，前几天在『大内密探』的一期Podcast也提到了这本书，趁着这次京东的200-100就买了。本书整体上是比较简单的，，很薄的一本书，还有挺多是重复的内容。下午花了半个多小时把这本书翻了一遍，然后花了近一个小时整理了一个本书大纲的思维导图。『超级整理术』的核心要点">
 <meta property="og:type" content="article">
-<meta property="og:title" content="使用计划任务定时重启Server">
-<meta property="og:url" content="http://chenyang.me/2012/08/20/使用计划任务定时重启Server/index.html">
+<meta property="og:title" content="《超级整理术》读书笔记">
+<meta property="og:url" content="http://chenyang.me/2015/11/08/《超级整理术》读书笔记/index.html">
 <meta property="og:site_name" content="陈洋|晨阳">
-<meta property="og:description" content="使用计划任务定时重启Server想做个计划任务，定时重启一台服务器，但是批处理文件总是不能执行，之前遇到过解决了，但这次又忘了。记录下来，备忘。具体原因是我写的批处理名称是shutdown.bat，与shudown.exe命令同名，导致计划任务以为在执行shutdown.exe，但没有任何参数，故执行失败。将批处理任意改一个名字即可，如reboot.bat，myshutdown.bat等。批处理命">
-<meta property="og:updated_time" content="2015-07-28T05:31:35.000Z">
+<meta property="og:description" content="《超级整理术》读书笔记
+今天起，读完一本书要做一篇读书笔记（不值得写的可以不写）
+
+之前在『warfalcon』公众号上看过这本书的推荐，前几天在『大内密探』的一期Podcast也提到了这本书，趁着这次京东的200-100就买了。本书整体上是比较简单的，，很薄的一本书，还有挺多是重复的内容。下午花了半个多小时把这本书翻了一遍，然后花了近一个小时整理了一个本书大纲的思维导图。『超级整理术』的核心要点">
+<meta property="og:image" content="http://chenyang.me/chaojizhenglishu.png">
+<meta property="og:updated_time" content="2015-11-08T12:43:31.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="使用计划任务定时重启Server">
-<meta name="twitter:description" content="使用计划任务定时重启Server想做个计划任务，定时重启一台服务器，但是批处理文件总是不能执行，之前遇到过解决了，但这次又忘了。记录下来，备忘。具体原因是我写的批处理名称是shutdown.bat，与shudown.exe命令同名，导致计划任务以为在执行shutdown.exe，但没有任何参数，故执行失败。将批处理任意改一个名字即可，如reboot.bat，myshutdown.bat等。批处理命">
+<meta name="twitter:title" content="《超级整理术》读书笔记">
+<meta name="twitter:description" content="《超级整理术》读书笔记
+今天起，读完一本书要做一篇读书笔记（不值得写的可以不写）
+
+之前在『warfalcon』公众号上看过这本书的推荐，前几天在『大内密探』的一期Podcast也提到了这本书，趁着这次京东的200-100就买了。本书整体上是比较简单的，，很薄的一本书，还有挺多是重复的内容。下午花了半个多小时把这本书翻了一遍，然后花了近一个小时整理了一个本书大纲的思维导图。『超级整理术』的核心要点">
 
     
     <link rel="alternative" href="/atom.xml" title="陈洋|晨阳" type="application/atom+xml">
@@ -73,14 +83,14 @@
 		<header class="article-info clearfix">
   <h1 itemprop="name">
     
-      <a href="/2012/08/20/使用计划任务定时重启Server/" title="使用计划任务定时重启Server" itemprop="url">使用计划任务定时重启Server</a>
+      <a href="/2015/11/08/《超级整理术》读书笔记/" title="《超级整理术》读书笔记" itemprop="url">《超级整理术》读书笔记</a>
   </h1>
   <p class="article-author">By
        
 		<a href="/about" title="chenyang" target="_blank" itemprop="author">chenyang</a>
 		
   <p class="article-time">
-    <time datetime="2012-08-20T06:11:26.000Z" itemprop="datePublished"> 发表于 2012-08-20</time>
+    <time datetime="2015-11-08T12:43:31.000Z" itemprop="datePublished"> 发表于 2015-11-08</time>
     
   </p>
 </header>
@@ -89,11 +99,29 @@
 		<div id="toc" class="toc-article">
 			<strong class="toc-title">文章目录</strong>
 		
-			<ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#使用计划任务定时重启Server"><span class="toc-number">1.</span> <span class="toc-text">使用计划任务定时重启Server</span></a></li></ol>
+			<ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#《超级整理术》读书笔记"><span class="toc-number">1.</span> <span class="toc-text">《超级整理术》读书笔记</span></a></li></ol>
 		
 		</div>
 		
-		<h1 id="使用计划任务定时重启Server">使用计划任务定时重启Server</h1><p>想做个计划任务，定时重启一台服务器，但是批处理文件总是不能执行，之前遇到过解决了，但这次又忘了。记录下来，备忘。<br>具体原因是我写的批处理名称是shutdown.bat，与shudown.exe命令同名，导致计划任务以为在执行shutdown.exe，但没有任何参数，故执行失败。<br>将批处理任意改一个名字即可，如reboot.bat，myshutdown.bat等。<br>批处理命令：<br><figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">shutdown <span class="regexp">/f /</span>r <span class="regexp">/t 10</span></span><br></pre></td></tr></table></figure></p>
+		<h1 id="《超级整理术》读书笔记">《超级整理术》读书笔记</h1><blockquote>
+<p>今天起，读完一本书要做一篇读书笔记（不值得写的可以不写）</p>
+</blockquote>
+<p>之前在『warfalcon』公众号上看过这本书的推荐，前几天在『大内密探』的一期Podcast也提到了这本书，趁着这次京东的200-100就买了。本书整体上是比较简单的，，很薄的一本书，还有挺多是重复的内容。下午花了半个多小时把这本书翻了一遍，然后花了近一个小时整理了一个本书大纲的思维导图。<br>『超级整理术』的核心要点有四个：</p>
+<ul>
+<li>制定规则，坚持执行</li>
+<li>『统一化』、『一元化』、『自动化』</li>
+<li>不过分整理</li>
+<li>有效利用时间  </li>
+</ul>
+<p>有了规则并坚持执行，就有了『统一化』；将文件、信息、任务、物品等等放在特定的位置，就有了『一元化』；通过工具、定时任务，来实现『自动化』。这样以来，就减少了我们额外的思考时间、查找时间，有了自动化也节省了时间。<br>挺多的时候，我其实是为了整理而整理，就是为了看着舒服，把东西都塞进箱子或是抽屉（有没有人想到『老友记』里莫妮卡的杂物间？？嘿嘿）<br>对于书中提到的『还原』、『丢弃』这两点比较认可，也一直在坚持做。用后放回原位其实用不了多少时间，却可以持续的保持整洁，也减少了后续再去统一整理的麻烦。『丢弃』的概念来自知乎的一个回答『改善生活品质最好的办法是定期扔东西』以及《断舍离》这本书。<br>对于文中提到的一些工具，由于中日的差异、以及时间的差异，我个人感觉有不少更好的工具可以替代（主要是iOS和Mac）：</p>
+<ul>
+<li>Todo工具：Any.do、Clear【收费，曾限免】、奇妙清单【iOS、Mac】、提醒事项和日历（系统自带）</li>
+<li>RSS订阅：Reeder【收费】、Feedly</li>
+<li>收集：印象笔记（配合悦读、剪藏）、Pocket、备忘录（系统自带）</li>
+<li>文件搜索：Alfred、Spotlight  </li>
+</ul>
+<p>没啥可写的了，具体可以看看思维导图，最后推荐两本书：《Get Things Done》、《断舍离》。  </p>
+<p><img src="chaojizhenglishu.png" alt="《超级整理术》思维导图" title="超级整理术"></p>
   
 	</div>
 		<footer class="article-footer clearfix">
@@ -101,13 +129,13 @@
 
 <div class="article-categories">
   <span></span>
-  <a class="article-category-link" href="/categories/运维/">运维</a>
+  <a class="article-category-link" href="/categories/阅读/">阅读</a>
 </div>
 
 
   <div class="article-tags">
   
-  <span></span> <a href="/tags/shutdown/">shutdown</a><a href="/tags/批处理/">批处理</a>
+  <span></span> <a href="/tags/读书笔记/">读书笔记</a><a href="/tags/超级整理术/">超级整理术</a>
   </div>
 
 </div>
@@ -116,7 +144,7 @@
 
 	<div class="article-share" id="share">
 	
-	  <div data-url="http://chenyang.me/2012/08/20/使用计划任务定时重启Server/" data-title="使用计划任务定时重启Server | 陈洋|晨阳" data-tsina="null" class="share clearfix">
+	  <div data-url="http://chenyang.me/2015/11/08/《超级整理术》读书笔记/" data-title="《超级整理术》读书笔记 | 陈洋|晨阳" data-tsina="null" class="share clearfix">
 	  </div>
 	
 	</div>
@@ -129,20 +157,20 @@
 	
 <nav class="article-nav clearfix">
  
- <div class="prev" >
- <a href="/2014/02/14/在DigitalOcean 512M内存VPS上部署 LEMP/" title="在DigitalOcean 512M内存VPS上部署 LEMP">
-  <strong>上一篇：</strong><br/>
-  <span>
-  在DigitalOcean 512M内存VPS上部署 LEMP</span>
+
+<div class="next">
+<a href="/2015/10/25/【译】创建Nginx Rewrite规则/"  title="【译】创建Nginx Rewrite规则">
+ <strong>下一篇：</strong><br/> 
+ <span>【译】创建Nginx Rewrite规则
+</span>
 </a>
 </div>
-
 
 </nav>
 
 	
 <section id="comments" class="comment">
-	<div class="ds-thread" data-thread-key="2012/08/20/使用计划任务定时重启Server/" data-title="使用计划任务定时重启Server" data-url="http://chenyang.me/2012/08/20/使用计划任务定时重启Server/"></div>
+	<div class="ds-thread" data-thread-key="2015/11/08/《超级整理术》读书笔记/" data-title="《超级整理术》读书笔记" data-url="http://chenyang.me/2015/11/08/《超级整理术》读书笔记/"></div>
 </section>
 
 
@@ -152,7 +180,7 @@
   <div id="toc" class="toc-aside">
   <strong class="toc-title">文章目录</strong>
  
- <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#使用计划任务定时重启Server"><span class="toc-number">1.</span> <span class="toc-text">使用计划任务定时重启Server</span></a></li></ol>
+ <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#《超级整理术》读书笔记"><span class="toc-number">1.</span> <span class="toc-text">《超级整理术》读书笔记</span></a></li></ol>
  
   </div>
 
