@@ -74,20 +74,82 @@
         <header class="article-info clearfix">
   <h1 itemprop="name">
     
-      <a href="/2012/08/20/使用计划任务定时重启Server/" title="使用计划任务定时重启Server" itemprop="url">使用计划任务定时重启Server</a>
+      <a href="/2015/07/28/基于Nexus的Maven私库部署注意事项/" title="基于Nexus的Maven私库部署注意事项" itemprop="url">基于Nexus的Maven私库部署注意事项</a>
   </h1>
   <p class="article-author">By
        
 		<a href="/about" title="chenyang" target="_blank" itemprop="author">chenyang</a>
 		
   <p class="article-time">
-    <time datetime="2012-08-20T06:11:26.000Z" itemprop="datePublished"> 发表于 2012-08-20</time>
+    <time datetime="2015-07-28T04:03:07.000Z" itemprop="datePublished"> 发表于 2015-07-28</time>
     
   </p>
 </header>
     <div class="article-content">
         
-        <h1 id="使用计划任务定时重启Server">使用计划任务定时重启Server</h1><p>想做个计划任务，定时重启一台服务器，但是批处理文件总是不能执行，之前遇到过解决了，但这次又忘了。记录下来，备忘。<br>具体原因是我写的批处理名称是shutdown.bat，与shudown.exe命令同名，导致计划任务以为在执行shutdown.exe，但没有任何参数，故执行失败。<br>将批处理任意改一个名字即可，如reboot.bat，myshutdown.bat等。<br>批处理命令：<br><figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">shutdown <span class="regexp">/f /</span>r <span class="regexp">/t 10</span></span><br></pre></td></tr></table></figure></p>
+        <h1 id="基于Nexus的Maven私库部署注意事项">基于Nexus的Maven私库部署注意事项</h1><p>最近基于Nexus部署一套Maven私库，简单记录下部署过程，另外记录下注意事项，备忘。</p>
+<h2 id="安装">安装</h2><ol>
+<li>安装JDK<br>需要Java7以上，这里使用Jave8，安装过程略</li>
+<li>使用Nexus OSS版本<br>下载地址为：<a href="http://www.sonatype.org/nexus/go/" target="_blank" rel="external">http://www.sonatype.org/nexus/go/</a></li>
+<li><p>安装  </p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">wget <span class="string">http:</span><span class="comment">//www.sonatype.org/downloads/nexus-latest-bundle.tar.gz  </span></span><br><span class="line">tar -xzvf nexus-<span class="number">2.11</span>.4-<span class="number">01</span>-bundle.tar.gz  </span><br><span class="line">cp nexus-<span class="number">2.11</span>.4-<span class="number">01</span> <span class="regexp">/usr/</span>local  </span><br><span class="line">ln -s nexus-<span class="number">2.11</span>.4-<span class="number">01</span> nexus  </span><br><span class="line">mkdir <span class="regexp">/usr/</span>local/sonatype-work</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>最好创建一个单独的用户，用来启动nexus  </p>
+<figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">useradd nexus  </span><br><span class="line">chown -R nexus.nexus <span class="regexp">/usr/</span>local<span class="regexp">/nexus /u</span>sr<span class="regexp">/local/</span>sonatype-work</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>添加Linux服务并设置自启动  </p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">cp <span class="regexp">/usr/</span>local<span class="regexp">/nexus/</span>bin<span class="regexp">/nexus /</span>etc<span class="regexp">/init.d/</span>nexus  </span><br><span class="line">chmod <span class="number">755</span> <span class="regexp">/etc/</span>init.d/nexus  </span><br><span class="line">chown root.root <span class="regexp">/etc/</span>init.d/nexus  </span><br><span class="line">chkconfig --add nexus &amp;&amp; chkconfig nexus on</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>启动Nexus  </p>
+<figure class="highlight puppet"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">service</span> nexus <span class="literal">start</span></span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<h2 id="配置">配置</h2><ol>
+<li>修改默认的路径<br>默认的地址为<a href="http://localhost:8081/nexus" target="_blank" rel="external">http://localhost:8081/nexus</a><br>可以修改配置文件，位置为/usr/local/nexus/conf/nexus.properties<br>默认为nexus-webapp-context-path=/nexus，修改为：nexus-webapp-context-path=/<br>如此，访问地址变更为<a href="http://localhost:8081" target="_blank" rel="external">http://localhost:8081</a></li>
+<li>使用nginx代理<br>在nginx配置一个server，监听80，代理到<a href="http://localhost:8081（略）" target="_blank" rel="external">http://localhost:8081（略）</a><br>如此，访问地址变更为：<a href="http://localhost" target="_blank" rel="external">http://localhost</a></li>
+<li><p>配置LDAP认证  </p>
+<ul>
+<li>这个比较坑，默认其实是不支持LDAP认证的，需先启用LDAP认证。<br>登录Nexus—Administration—Server—Security Settings，将『OSS LDAP Authentication Realm』添加到左侧，并移动到最上边，点击保存。<br><img src="http://7xkqij.com1.z0.glb.clouddn.com/QQ20150727-1.png" alt=""></li>
+<li>配置LDAP服务器，登录Nexus—Security—LDAP Configuration</li>
+<li>这里支持两种方式，一种是帐号的绑定，一种是Group的绑定，也可以两者都用</li>
+<li>Connetion选择LDAP并配置服务、绑定一个有读权限的LDAP用户。<br><img src="http://7xkqij.com1.z0.glb.clouddn.com/QQ20150727-4.png" alt=""></li>
+<li>User的绑定可用的配置方式为：<ul>
+<li>Base DN：ou=users</li>
+<li>User Subtree：选择</li>
+<li>Object Class：user</li>
+<li>User Filter：(&amp;(objectCategory=Person)(sAMAccountName=*))</li>
+<li>User ID Attribute：sAMAccountName</li>
+<li>Real Name Attribute：cn</li>
+<li>E-Mail Attribute：mail</li>
+<li>Password Attribute：</li>
+</ul>
+</li>
+<li>Group的绑定需要调试，经过查阅文档，可用的配置方式为<ul>
+<li>Group Type：Static Group</li>
+<li>Base DN:ou=Groups</li>
+<li>Group Subtree:选中</li>
+<li>Object Class：group</li>
+<li>Group ID Attrbute：cn</li>
+<li>Group Member Attribute：member:1.2.840.113556.1.4.1941:</li>
+<li>Group Member Format：${dn}<br><img src="http://7xkqij.com1.z0.glb.clouddn.com/QQ20150727-3.png" alt=""></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>权限配置</p>
+<ul>
+<li>可以单独在User里添加AD用户，并分配相应的角色、权限</li>
+<li>也可以在AD中创建不同的组，比如dev、master等，在Nexus—Security-Role中添加外部映射Group，并分配相应的权限。</li>
+</ul>
+</li>
+<li>注意一个比较坑的地方：<ul>
+<li>在官方文档中推荐了一个很好用的功能，『User Token Realm』。因为使用LDAP验证后，在Maven的settings.xml中需要明文保存用户名、密码，这样并不安全，而『User Token』就是允许我们在Nexus的个人Profile生成一个Token，将Token存放到settings.xml即可。</li>
+<li>这真的是一个很好的功能。但是！！！默认是没有这个的功能的，翻遍了官方文档也没找到如何添加这个Realm。</li>
+<li>偶然想起翻了一下Nexus OSS、Nexus Pro等版本的区别，赫然发现『User Token Realm』只是Pro版的功能！！！</li>
+<li>想用这个功能的购买Pro版吧。</li>
+</ul>
+</li>
+</ol>
 
         
         
@@ -106,7 +168,7 @@
 
   <div class="article-tags">
   
-  <span></span> <a href="/tags/shutdown/">shutdown</a><a href="/tags/批处理/">批处理</a>
+  <span></span> <a href="/tags/maven/">maven</a><a href="/tags/nexus/">nexus</a>
   </div>
 
 </div>
@@ -117,7 +179,205 @@
 <div class="comments-count">
 	
 	  	<span></span>
-		<a href="/2012/08/20/使用计划任务定时重启Server/#comments" class="ds-thread-count comments-count-link" data-thread-key="2012/08/20/使用计划任务定时重启Server/" data-count-type="comments">&nbsp;</a>
+		<a href="/2015/07/28/基于Nexus的Maven私库部署注意事项/#comments" class="ds-thread-count comments-count-link" data-thread-key="2015/07/28/基于Nexus的Maven私库部署注意事项/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+  
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2014/04/29/mac下使用ssh动态代理/" title="Mac下使用SSH动态代理" itemprop="url">Mac下使用SSH动态代理</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="chenyang" target="_blank" itemprop="author">chenyang</a>
+		
+  <p class="article-time">
+    <time datetime="2014-04-29T04:03:07.000Z" itemprop="datePublished"> 发表于 2014-04-29</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <h1 id="Mac下使用SSH动态代理">Mac下使用SSH动态代理</h1><p>最近IDC内部署了不少虚拟机，没有公网IP，之前使用ssh端口映射的方式，但没一个会话都需要映射一个端口，且ssh断开后，映射的侦听端口还在，总之，很不方便。用动态代理的方式就好多了，只需要侦听一个端口即可：</p>
+<ul>
+<li>在家目录.ssh下新建config文件，这其实是一个策略文件，172.16.10.*段的IP都会走这个代理</li>
+</ul>
+<blockquote>
+<p>Host 172.16.10.*</p>
+<p>   ProxyCommand /usr/bin/nc -x 127.0.0.1:1080 %h %p</p>
+</blockquote>
+<ul>
+<li>使用ssh命令创建侦听端口，其中-D 1080为指定本地侦听端口，可自定义；-p 22为远程跳板机的SSH端口，chenyang为用户，200.200.200.200为跳板机IP</li>
+</ul>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">ssh</span> -D <span class="number">1080</span> -qfnN -p <span class="number">2222</span> chenyang@<span class="number">200.200.200.200</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>接下来就可以直接ssh内网服务器了</li>
+</ul>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">ssh</span> -p <span class="number">2222</span> chenyang@<span class="number">172.16.10.10</span></span><br></pre></td></tr></table></figure>
+<h2 id="简化方式">简化方式</h2><p>BTW,还有一种简单的方式，将命令保存为alias，以后只需执行别名即可，如以下直接执行myproxy即可创建代理，执行my10即可SSH到远程服务器。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">alias</span> myproxy=<span class="string">'ssh -D 1080 -qfnN -p 2222 chenyang@200.200.200.200'</span></span><br><span class="line"><span class="built_in">alias</span> my10=<span class="string">'ssh -p 2222 chenyang@172.16.10.10'</span></span><br></pre></td></tr></table></figure>
+
+        
+        
+        <p class="article-more-link">
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/运维/">运维</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/mac/">mac</a><a href="/tags/ssh/">ssh</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2014/04/29/mac下使用ssh动态代理/#comments" class="ds-thread-count comments-count-link" data-thread-key="2014/04/29/mac下使用ssh动态代理/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+  
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2014/02/14/在DigitalOcean 512M内存VPS上部署 LEMP/" title="在DigitalOcean 512M内存VPS上部署 LEMP" itemprop="url">在DigitalOcean 512M内存VPS上部署 LEMP</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="chenyang" target="_blank" itemprop="author">chenyang</a>
+		
+  <p class="article-time">
+    <time datetime="2014-02-14T04:03:07.000Z" itemprop="datePublished"> 发表于 2014-02-14</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <h1 id="在DigitalOcean_512M内存VPS上部署_LEMP">在DigitalOcean 512M内存VPS上部署 LEMP</h1><p>之前用的 Amazon EC2这几天就到期了，发现 Digital Ocean 的 VPS 比较便宜，看了下评价也还不错，就花了5美元，并使用10美元的优惠码，先建起来一个把博客迁移过来了，我的 DO 推广链接是：<a href="https://www.digitalocean.com/?refcode=26027af1ccfe" title="https://www.digitalocean.com/?refcode=26027af1ccfe" target="_blank" rel="external">https://www.digitalocean.com/?refcode=26027af1ccfe</a>，欢迎试用</p>
+<p>整体感觉还可以，相比 Linode 略慢，感觉稳定性和 Linode 也差点，但 Linode 确实比较贵呀，20美元/月呢。昨晚配置时突然就连不上了，ssh 和网页控制台都不行，重启无效，索性关机了，今早一看恢复了，很无奈。。。</p>
+<p>下面是安装的经过，也是一个学习的过程</p>
+<h2 id="Linux_系统初始化配置">Linux 系统初始化配置</h2><h2 id="安装_Nginx">安装 Nginx</h2><h3 id="安装依赖组件">安装依赖组件</h3><figure class="highlight brainfuck"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">yum</span> <span class="literal">-</span><span class="comment">y</span> <span class="comment">install</span> <span class="comment">gcc</span> <span class="comment">gcc</span><span class="literal">-</span><span class="comment">c</span><span class="literal">+</span><span class="literal">+</span> <span class="comment">zlib</span><span class="literal">-</span><span class="comment">devel</span> <span class="comment">pcre</span><span class="literal">-</span><span class="comment">devel</span> <span class="comment">openssl</span><span class="literal">-</span><span class="comment">devel</span></span><br></pre></td></tr></table></figure>
+<h3 id="下载并进行编译安装">下载并进行编译安装</h3><figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">wget <span class="string">http:</span><span class="comment">//nginx.org/download/nginx-1.4.5.tar.gz  </span></span><br><span class="line">tar -xzvf nginx-<span class="number">1.4</span>.5.tar.gz  </span><br><span class="line">cd nginx-<span class="number">1.4</span>.5  </span><br><span class="line">.<span class="regexp">/configure —prefix=/</span>usr<span class="regexp">/local/</span>nginx —with-http_ssl_module  </span><br><span class="line">make  </span><br><span class="line">make install</span><br></pre></td></tr></table></figure>
+<p>注：这里有个误解，网上很多 nginx 编译安装的文档也都是这样：下载源码包，解压，移到安装路径，如/usr/local/nginx，然后再到此目录进行编译，如此就会有如下的报错“cp: <code>conf/koi-win&#39; and</code>/usr/local/nginx/conf/koi-win’ are the same file”，网上的解决方案大多是将 nginx.conf 指定到其他位置，如此虽能解决但对于强迫症的我却很不爽。仔细推敲发现这样编译确实有问题，正常的编译过程是将源码文件复制到prefix目标文件夹，但如果在源码目录里编译肯定会文件冲突，也就会有上面的报错了。</p>
+<p>解决方法也很简单，如我的编译方法，随便位置解压后进入目录编译，编译时指定 prefix 就可以了，如此编译好的程序也很干净，貌似仅有 sbin、conf、logs 三个目录。</p>
+<h2 id="安装_php-fpm">安装 php-fpm</h2><ul>
+<li><p>安装依赖组件  </p>
+<figure class="highlight livescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">yum -y install libmcrypt-devel mhash-devel libxslt-devel <span class="string">\</span></span><br><span class="line">libjpeg libjpeg-devel libpng libpng-devel freetype freetype-devel libxml2 libxml2-devel <span class="string">\</span></span><br><span class="line">zlib zlib-devel glibc glibc-devel glib2 glib2-devel bzip2 bzip2-devel <span class="string">\</span>  </span><br><span class="line">ncurses ncurses-devel curl curl-devel e2fsprogs e2fsprogs-devel <span class="string">\</span></span><br><span class="line">krb5 krb5-devel libidn libidn-devel openssl openssl-devel</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>下载解压并编译，同样不需要将源码拷贝到安装目录再编译  </p>
+<figure class="highlight brainfuck"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">wget</span> <span class="comment">http://am1</span><span class="string">.</span><span class="comment">php</span><span class="string">.</span><span class="comment">net/distributions/php</span><span class="literal">-</span><span class="comment">5</span><span class="string">.</span><span class="comment">5</span><span class="string">.</span><span class="comment">9</span><span class="string">.</span><span class="comment">tar</span><span class="string">.</span><span class="comment">gz</span>  </span><br><span class="line"><span class="comment">tar</span> <span class="literal">-</span><span class="comment">xzvf</span> <span class="comment">php</span><span class="literal">-</span><span class="comment">5</span><span class="string">.</span><span class="comment">5</span><span class="string">.</span><span class="comment">9</span><span class="string">.</span><span class="comment">tar</span><span class="string">.</span><span class="comment">gz</span>  </span><br><span class="line"><span class="string">.</span><span class="comment">/configure</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">prefix=/usr/local/php</span>  <span class="literal">-</span><span class="literal">-</span><span class="comment">enable</span><span class="literal">-</span><span class="comment">fpm</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">with</span><span class="literal">-</span><span class="comment">mcrypt</span> <span class="comment">\</span></span><br><span class="line"><span class="literal">-</span><span class="literal">-</span><span class="comment">enable</span><span class="literal">-</span><span class="comment">mbstring</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">disable</span><span class="literal">-</span><span class="comment">pdo</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">with</span><span class="literal">-</span><span class="comment">curl</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">disable</span><span class="literal">-</span><span class="comment">debug</span>  <span class="literal">-</span><span class="literal">-</span><span class="comment">disable</span><span class="literal">-</span><span class="comment">rpath</span> <span class="comment">\</span></span><br><span class="line"><span class="literal">-</span><span class="literal">-</span><span class="comment">enable</span><span class="literal">-</span><span class="comment">inline</span><span class="literal">-</span><span class="comment">optimization</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">with</span><span class="literal">-</span><span class="comment">bz2</span>  <span class="literal">-</span><span class="literal">-</span><span class="comment">with</span><span class="literal">-</span><span class="comment">zlib</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">enable</span><span class="literal">-</span><span class="comment">sockets</span> <span class="comment">\</span></span><br><span class="line"><span class="literal">-</span><span class="literal">-</span><span class="comment">enable</span><span class="literal">-</span><span class="comment">sysvsem</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">enable</span><span class="literal">-</span><span class="comment">sysvshm</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">enable</span><span class="literal">-</span><span class="comment">pcntl</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">enable</span><span class="literal">-</span><span class="comment">mbregex</span> <span class="comment">\</span></span><br><span class="line"><span class="literal">-</span><span class="literal">-</span><span class="comment">with</span><span class="literal">-</span><span class="comment">mhash</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">enable</span><span class="literal">-</span><span class="comment">zip</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">with</span><span class="literal">-</span><span class="comment">pcre</span><span class="literal">-</span><span class="comment">regex</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">with</span><span class="literal">-</span><span class="comment">mysql</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">with</span><span class="literal">-</span><span class="comment">mysqli</span> <span class="comment">\</span></span><br><span class="line"><span class="literal">-</span><span class="literal">-</span><span class="comment">with</span><span class="literal">-</span><span class="comment">gd</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">with</span><span class="literal">-</span><span class="comment">jpeg</span><span class="literal">-</span><span class="comment">dir</span>  </span><br><span class="line"><span class="comment">make</span>  </span><br><span class="line"><span class="comment">make</span> <span class="comment">install</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>注：对于低于1G 内存的服务器来说make 时会有报错，make: <em>*</em> [ext/fileinfo/libmagic/apprentice.lo] Error 1，在编译时加上如下参数即可：  </p>
+<blockquote>
+<p>–disable-fileinfo</p>
+</blockquote>
+<h2 id="安装MySQL">安装MySQL</h2><ul>
+<li><p>MySQL 采用cmake 进行编译，所以第一步先安装 cmake</p>
+<figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum -y <span class="keyword">install</span> cmake</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>创建 MySQL 用户组及用户</p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">groupadd</span> mysql  </span><br><span class="line">useradd -r -g mysql mysql</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>下载社区版源码包并编译安装 MySQL</p>
+<figure class="highlight haml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">wget http://dev.mysql.com/get/Downloads/MySQL-5.6/mysql-5.6.16.tar.gz  </span><br><span class="line">tar -xzvf mysql-5.6.16.tar.gz  </span><br><span class="line">cd mysql-5.6.16  </span><br><span class="line">cmake -DCMAKE_INSTALL_PREFIX=/usr/local/mysql \</span><br><span class="line">-<span class="ruby"><span class="constant">DMYSQL_UNIX_ADDR</span>=<span class="regexp">/tmp/mysql</span>.sock \</span><br><span class="line"></span>-<span class="ruby"><span class="constant">DDEFAULT_CHARSET</span>=utf8 \</span><br><span class="line"></span>-<span class="ruby"><span class="constant">DDEFAULT_COLLATION</span>=utf8_general_ci \</span><br><span class="line"></span>-<span class="ruby"><span class="constant">DWITH_MYISAM_STORAGE_ENGINE</span>=<span class="number">1</span> \</span><br><span class="line"></span>-<span class="ruby"><span class="constant">DWITH_INNOBASE_STORAGE_ENGINE</span>=<span class="number">1</span> \</span><br><span class="line"></span>-<span class="ruby"><span class="constant">DWITH_MEMORY_STORAGE_ENGINE</span>=<span class="number">1</span> \</span><br><span class="line"></span>-<span class="ruby"><span class="constant">DWITH_READLINE</span>=<span class="number">1</span> \</span><br><span class="line"></span>-<span class="ruby"><span class="constant">DENABLED_LOCAL_INFILE</span>=<span class="number">1</span> \</span><br><span class="line"></span>-<span class="ruby"><span class="constant">DMYSQL_DATADIR</span>=<span class="regexp">/usr/local</span><span class="regexp">/mysql/data</span> \</span><br><span class="line"></span>-<span class="ruby"><span class="constant">DMYSQL_USER</span>=mysql \</span><br><span class="line"></span>-<span class="ruby"><span class="constant">DMYSQL_TCP_PORT</span>=<span class="number">3306</span>  </span><br><span class="line"></span>make  </span><br><span class="line">make install</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>设置 MySQL 目录权限</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">cd <span class="regexp">/usr/</span>local/mysql  </span><br><span class="line">chown -R <span class="string">root:</span>mysql .  </span><br><span class="line">chown -R <span class="string">mysql:</span>mysql data</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>创建 MySQL 配置文件</p>
+<figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">cd</span> /usr/local/mysql  </span><br><span class="line"><span class="keyword">cp</span> support-<span class="keyword">files</span>/my-medium.<span class="keyword">cnf</span> /etc/my.<span class="keyword">cnf</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>创建系统数据库的表</p>
+<figure class="highlight applescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cd /usr/<span class="keyword">local</span>/mysql  </span><br><span class="line">scripts/mysql_install_db <span class="comment">--user=mysql</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>设置环境变量</p>
+<figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">vim</span> /etc/<span class="keyword">profile</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<blockquote>
+<p>修改为PATH=$PATH:$HOME/bin:/usr/local/mysql/bin:/usr/local/mysql/lib<br>source /etc/profile  </p>
+</blockquote>
+<ul>
+<li><p>将 MySQL 启动服务添加为系统服务，并设置开机启动</p>
+<figure class="highlight livecodeserver"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">cp support-<span class="built_in">files</span>/mysql.server /etc/init.d/mysqld  </span><br><span class="line">chmod +x /etc/init.d/mysqld  </span><br><span class="line">chkconfig <span class="comment">--add mysqld  </span></span><br><span class="line">chkconfig mysqld <span class="command"><span class="keyword">on</span></span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>启动 MySQL</p>
+<figure class="highlight puppet"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">service</span> mysqld <span class="literal">start</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<blockquote>
+<p>注：我的启动时有报错“Starting MySQL… ERROR! The server quit without updating PID file (/usr/local/mysql/data/chenyang.pid).”<br>检查权限没问题，后来查看/usr/local/mysql/data/chenyang.err，发现总是内存分配上出错，偶尔能启动，内存瞬间就占满了，定位应该是默认配置占用内存较高（内存占用75—83%），而我的 VPS 仅有512M 内存，就查看 mysql 官方文档，调整/etc/my.cnf 参数，更改缓存打开表的设置后一切正常，内存占用17-18%之间，调整的几个参数如下:<br>innodb_buffer_pool_size = 16M<br>innodb_log_file_size = 16M<br>max_connections = 32<br>key_buffer = 16M<br>max_allowed_packet = 1M<br>thread_stack = 128K<br>#table_cache = 16<br>#主要是下面这个参数，5.6版本以后默认是2000<br>table_open_cache = 512</p>
+</blockquote>
+
+        
+        
+        <p class="article-more-link">
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/运维/">运维</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/DigitalOcean/">DigitalOcean</a><a href="/tags/LEMP/">LEMP</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2014/02/14/在DigitalOcean 512M内存VPS上部署 LEMP/#comments" class="ds-thread-count comments-count-link" data-thread-key="2014/02/14/在DigitalOcean 512M内存VPS上部署 LEMP/" data-count-type="comments">&nbsp;</a>
 	
 </div>
 
@@ -133,7 +393,7 @@
 
 
   <nav id="page-nav" class="clearfix">
-    <a class="extend prev" rel="prev" href="/page/3/"><span></span>Prev</a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><span class="page-number current">4</span>
+    <a class="extend prev" rel="prev" href="/page/3/"><span></span>Prev</a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><span class="page-number current">4</span><a class="page-number" href="/page/5/">5</a><a class="extend next" rel="next" href="/page/5/">Next<span></span></a>
   </nav>
 
 </div>
@@ -149,7 +409,11 @@
 		<ul>
 		
 		  
-			<li><a href="/categories/运维/" title="运维">运维<sup>9</sup></a></li>
+			<li><a href="/categories/技术/" title="技术">技术<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/运维/" title="运维">运维<sup>11</sup></a></li>
 		  
 		
 		  
@@ -166,7 +430,7 @@
 		<ul class="clearfix">
 		
 			
-				<li><a href="/tags/Nginx/" title="Nginx">Nginx<sup>2</sup></a></li>
+				<li><a href="/tags/Nginx/" title="Nginx">Nginx<sup>3</sup></a></li>
 			
 		
 			
@@ -174,7 +438,7 @@
 			
 		
 			
-				<li><a href="/tags/读书笔记/" title="读书笔记">读书笔记<sup>1</sup></a></li>
+				<li><a href="/tags/IP/" title="IP">IP<sup>1</sup></a></li>
 			
 		
 			
@@ -198,7 +462,7 @@
 			
 		
 			
-				<li><a href="/tags/maven/" title="maven">maven<sup>1</sup></a></li>
+				<li><a href="/tags/读书笔记/" title="读书笔记">读书笔记<sup>1</sup></a></li>
 			
 		
 			
@@ -214,7 +478,7 @@
 			
 		
 			
-				<li><a href="/tags/IP/" title="IP">IP<sup>1</sup></a></li>
+				<li><a href="/tags/maven/" title="maven">maven<sup>1</sup></a></li>
 			
 		
 			
@@ -227,6 +491,22 @@
 		
 			
 				<li><a href="/tags/zookeeper/" title="zookeeper">zookeeper<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/SVN/" title="SVN">SVN<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Hooks/" title="Hooks">Hooks<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Python/" title="Python">Python<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/微服务/" title="微服务">微服务<sup>1</sup></a></li>
 			
 		
 		</ul>
@@ -274,7 +554,7 @@
 		
 
 		<p class="copyright">
-		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2015 
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2016 
 		
 		<a href="/about" target="_blank" title="chenyang">chenyang</a>
 		

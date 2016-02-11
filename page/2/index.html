@@ -74,65 +74,136 @@
         <header class="article-info clearfix">
   <h1 itemprop="name">
     
-      <a href="/2015/10/12/【翻译】使用Nginx、Nginx Plus抵御DDOS攻击/" title="【翻译】使用Nginx、Nginx Plus抵御DDOS攻击" itemprop="url">【翻译】使用Nginx、Nginx Plus抵御DDOS攻击</a>
+      <a href="/2015/12/11/VirtualSVN配置Hooks/" title="VirtualSVN配置Hooks" itemprop="url">VirtualSVN配置Hooks</a>
   </h1>
   <p class="article-author">By
        
 		<a href="/about" title="chenyang" target="_blank" itemprop="author">chenyang</a>
 		
   <p class="article-time">
-    <time datetime="2015-10-12T08:00:19.000Z" itemprop="datePublished"> 发表于 2015-10-12</time>
+    <time datetime="2015-12-11T01:23:38.000Z" itemprop="datePublished"> 发表于 2015-12-11</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <h1 id="test">test</h1><h2 id="test1">test1</h2><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">adad</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>你好吗</p>
+</blockquote>
+<p>安师大</p>
+
+        
+        
+        <p class="article-more-link">
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/运维/">运维</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Hooks/">Hooks</a><a href="/tags/Python/">Python</a><a href="/tags/SVN/">SVN</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2015/12/11/VirtualSVN配置Hooks/#comments" class="ds-thread-count comments-count-link" data-thread-key="2015/12/11/VirtualSVN配置Hooks/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+  
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2015/10/25/【译】创建Nginx Rewrite规则/" title="【译】创建Nginx Rewrite规则" itemprop="url">【译】创建Nginx Rewrite规则</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="chenyang" target="_blank" itemprop="author">chenyang</a>
+		
+  <p class="article-time">
+    <time datetime="2015-10-24T16:10:53.000Z" itemprop="datePublished"> 发表于 2015-10-25</time>
     
   </p>
 </header>
     <div class="article-content">
         
         <blockquote>
-<p>看到这篇文章觉得还不错，心血来潮就翻译一下，第一次尝试，请拍砖。<br>原文地址为：<a href="https://www.nginx.com/blog/mitigating-ddos-attacks-with-nginx-and-nginx-plus/" target="_blank" rel="external">Mitigating DDoS Attacks with NGINX and NGINX Plus</a></p>
+<p>翻译了一篇之后有点上瘾哈，看到这一篇感觉也不错，Rewrite规则在Nginx的使用中经常用到，文中也提到了很多具体的例子，就顺手翻译下。<br>原文地址：<a href="https://www.nginx.com/blog/creating-nginx-rewrite-rules/" target="_blank" rel="external">https://www.nginx.com/blog/creating-nginx-rewrite-rules/</a></p>
 </blockquote>
-<p>DDOS是一种通过大流量的请求对目标进行轰炸式访问，导致提供服务的服务器资源耗尽进而无法继续提供服务的攻击手段。<br>一般情况下，攻击者通过大量请求与连接使服务器处于饱和状态，以至于无法接受新的请求或变得很慢。</p>
-<h2 id="应用层DDOS攻击的特征">应用层DDOS攻击的特征</h2><p>应用层（七层/HTTP层）DDOS攻击通常由木马程序发起，其可以通过设计更好的利用目标系统的脆弱点。例如，对于无法处理大量并发请求的系统，仅仅通过建立大量的连接，并周期性的发出少量数据包来保持会话就可以耗尽系统的资源，使其无法接受新的连接请求达到DDOS的目的。其他还有采用发送大量连接请求<br>发送大数据包的请求进行攻击的形式。因为攻击是由木马程序发起，攻击者可以在很短时间内快速建立大量的连接，并发出大量的请求。</p>
-<p>以下是一些DDOS的特证，我们可以据此特征来抵抗DDOS（包括但不限于）：</p>
+<p>本文我们将讨论如何创建Nginx的rewrite规则（规则对于Nginx社区版和Nginx Plus版通用）。Rewrite规则修改客户请求的部分或全部URL，通常为了下述两个目的中的一个：</p>
 <ul>
-<li>攻击经常来源于一些相对固定的IP或IP段，每个IP都有远大于真实用户的连接数和请求数。<blockquote>
-<p>备注：这并不表明这种请求都是代表着DDOS攻击。在很多使用NAT的网络架构中，很多的客户端使用网关的IP地址访问公网资源。但是，即便如此，这样的请求数和连接数也会远少于DDOS攻击。</p>
+<li>为了告知客户端请求的资源已经处于新的位置。通常用于当你网站的域名发生变化时、当你希望用户使用规范的URL格式是（比如加或不加www前缀）、当你希望捕获拼写错误的域名并将之纠正到正确的域名上时（译者注：如www.taobso.com这样子的域名）。<code>return</code>和<code>rewrite</code>命令很适合满足这种目的。</li>
+<li>为了控制请求在Nginx中处理的流向。例如当请求的内容需要动态生成时将其转发到某个应用服务器。<code>try_files</code>通常用于处理这种情况。<blockquote>
+<p>注意：如果想要将已有的Apache HTTP Server的Rewrite规则转换为Nginx规则，请参考我们的另外一篇博客：<a href="https://www.nginx.com/blog/converting-apache-to-nginx-rewrite-rules/" target="_blank" rel="external">Converting Apache Rewrite Rules to NGINX Rewrite Rules</a></p>
 </blockquote>
 </li>
-<li>因为攻击是由木马发出且目的是使服务器超负荷，请求的频率会远远超过正常人的请求。</li>
-<li>User-Agent通常是一个非标准的值</li>
-<li>Referer有时是一个容易联想到攻击的值</li>
 </ul>
-<h2 id="使用Nginx、Nginx_Plus抵抗DDOS攻击">使用Nginx、Nginx Plus抵抗DDOS攻击</h2><p>结合上面提到的DDOS攻击的特征，Nginx、Nginx Plus有很多的特性可以用来有效的防御DDOS攻击，可以从调整入口访问流量和控制反向代理到后端服务器的流量两个方面来达到抵御DDOS攻击的目的。</p>
-<h3 id="限制请求速度">限制请求速度</h3><p>设置Nginx、Nginx Plus的连接请求在一个真实用户请求的合理范围内。比如，如果你觉得一个正常用户每两秒可以请求一次登录页面，你就可以设置Nginx每两秒钟接收一个客户端IP的请求（大约等同于每分钟30个请求）。<br><figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">limit_req_zone <span class="label">$binary_remote_addr</span> zone=<span class="keyword">one</span>:10m rate=30r/<span class="keyword">m</span>;</span><br><span class="line"></span><br><span class="line">server &#123;</span><br><span class="line">    ...</span><br><span class="line">    location /login.html &#123;</span><br><span class="line">        limit_req zone=<span class="keyword">one</span>;</span><br><span class="line">    ...</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p><code>limit_req_zone</code>命令设置了一个叫one的共享内存区来存储请求状态的特定键值，在上面的例子中是客户端IP($binary_remote_addr)。location块中的<code>limit_req</code>通过引用one共享内存区来实现限制访问/login.html的目的。</p>
-<h3 id="限制连接数量">限制连接数量</h3><p>设置Nginx、Nginx Plus的连接数在一个真实用户请求的合理范围内。比如，你可以设置每个客户端IP连接/store不可以超过10个。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">limit</span>_conn_zone <span class="variable">$binary_remote_addr</span> zone=addr:<span class="number">10</span>m;</span><br><span class="line"></span><br><span class="line">server &#123;</span><br><span class="line">    ...</span><br><span class="line">    location /store/ &#123;</span><br><span class="line">        <span class="built_in">limit</span>_conn addr <span class="number">10</span>;</span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p><code>limit_conn_zone</code>命令设置了一个叫addr的共享内存区来存储特定键值的状态，在上面的例子中是客户端IP（ $binary_remote_addr）。location块中<code>limit_conn</code>通过引用addr共享内存区来限制到/store/的最大连接数为10。</p>
-<h3 id="关闭慢连接">关闭慢连接</h3><p>有一些DDOS攻击，比如Slowlris，是通过建立大量的连接并周期性的发送一些数据包保持会话来达到攻击目的，这种周期通常会低于正常的请求。这种情况我们可以通过关闭慢连接来抵御攻击。<br><code>client_body_timeout</code>命令用来定义读取客户端请求的超时时间，<code>client_header_timeout</code>命令用来定于读取客户端请求头的超时时间。这两个参数的默认值都是60s，我们可以通过下面的命令将他们设置为5s：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">server &#123;</span><br><span class="line">    <span class="keyword">client_body_t</span>imeout <span class="number">5</span>s;</span><br><span class="line">    <span class="keyword">client_header_t</span>imeout <span class="number">5</span>s;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<h3 id="设置IP黑名单">设置IP黑名单</h3><p>如果确定攻击来源于某些IP地址，我们可以将其加入黑名单，Nginx就不会再接受他们的请求。比如，你已经确定攻击来自于从123.123.123.1到123.123.123.16的一段IP地址，你可以这样设置：<br><figure class="highlight dns"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">location / &#123;</span><br><span class="line">    deny <span class="number">123.123.123.0</span>/28<span class="comment">;</span></span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>或者你确定攻击来源于123.123.123.3、123.123.123.5、123.123.123.7几个IP，可以这样设置：<br><figure class="highlight dns"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">location / &#123;</span><br><span class="line">    deny <span class="number">123.123.123.3</span><span class="comment">;</span></span><br><span class="line">    deny <span class="number">123.123.123.5</span><span class="comment">;</span></span><br><span class="line">    deny <span class="number">123.123.123.7</span><span class="comment">;</span></span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<h3 id="设置IP白名单">设置IP白名单</h3><p>如果你的网站仅允许特定的IP或IP段访问，你可以结合使用allow和deny命令来限制仅允许你指定的IP地址访问你的网站。如下，你可以设置仅允许192.168.1.0段的内网用户访问：<br><figure class="highlight dns"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">location / &#123;</span><br><span class="line">    allow <span class="number">192.168.1.0</span>/24<span class="comment">;</span></span><br><span class="line">    deny all<span class="comment">;</span></span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>deny命令会拒绝除了allow指定的IP段之外的所有其他IP的访问请求。</p>
-<h3 id="使用缓存进行流量削峰">使用缓存进行流量削峰</h3><p>通过打开Nginx的缓存功能并设置特定的缓存参数，可以削减来自攻击的流量，同时也可以减轻对后端服务器的请求压力。以下是一些有用的设置：</p>
-<ul>
-<li><code>proxy_cache_use_stale</code>的updating参数告诉Nginx什么时候该更新所缓存的对象。只需要到后端的一个更新请求，在缓存有效期间客户端对该对象的请求都无需访问后端服务器。当通过对一个文件的频繁请求来实施攻击时，缓存功能可极大的降低到后端服务器的请求。</li>
-<li><code>proxy_cache_key</code>命令定义的键值通常包含一些内嵌的变量（默认的键值$scheme$proxy_host$request_uri包含了三个变量）。如果键值包含<code>$query_string</code>变量，当攻击的请求字符串是随机的时候就会给Nginx代理过重的缓存负担，因此我们建议一般情况下不要包含<code>$query_string</code>变量。</li>
-</ul>
-<h3 id="屏蔽特定的请求">屏蔽特定的请求</h3><p>可以设置Nginx、Nginx Plus屏蔽一些类型的请求：</p>
-<ul>
-<li>针对特定URL的请求</li>
-<li>针对不是常见的User-Agent的请求</li>
-<li>针对Referer头中包含可以联想到攻击的值的请求</li>
-<li>针对其他请求头中包含可以联想到攻击的值的请求<br>比如，如果你判定攻击是针对一个特定的URL：/foo.php，我们就可以屏蔽到这个页面的请求：<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">location</span> /foo.php &#123;</span><br><span class="line">    <span class="title">deny</span> all;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<p>或者你判定攻击请求的User-Agent中包含foo或bar，我们也可以屏蔽这些请求：<br><figure class="highlight lasso"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">location <span class="subst">/</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="variable">$http_user_agent</span> ~<span class="subst">*</span> foo<span class="subst">|</span>bar) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">403</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="attribute">...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>http_name变量引用一个请求头，上述例子中是User-Agent头。可以针对其他的http头使用类似的方法来识别攻击。</p>
-<h3 id="限制到后端服务器的连接数">限制到后端服务器的连接数</h3><p>一个Nginx、Nginx Plus实例可以处理比后端服务器多的多的并发请求。在Nginx Plus中，你可以限制到每一个后端服务器的连接数，比如可以设置Nginx Plus与website upstream中的每个后端服务器建立的连接数不得超过200个：<br><figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">upstream</span> website &#123;</span><br><span class="line">    <span class="title">server</span> <span class="number">192.168.100.1:80</span> max_conns=<span class="number">200</span>;</span><br><span class="line">    <span class="title">server</span> <span class="number">192.168.100.2:80</span> max_conns=<span class="number">200</span>;</span><br><span class="line">    <span class="title">queue</span> <span class="number">10</span> timeout=<span class="number">30s</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p><code>max_conns</code>参数可以针对每一个后端服务器设置Nginx Plus可以与之建立的最大连接数。<code>queue</code>命令设置了当每个后端服务器都达到最大连接数后的队列大小，<code>timeout</code>参数指定了请求在队列中的保留时间。</p>
-<h3 id="处理特定类型的攻击">处理特定类型的攻击</h3><p>有一种攻击是发送包含特别大的值的请求头，引起服务器端缓冲区溢出。Nginx、Nginx Plus针对这种攻击类型的防御，可以参考<a href="http://nginx.com/blog/nginx-protect-cve-2015-1635/?_ga=1.14368116.2137319792.1439284699" target="_blank" rel="external">Using NGINX and NGINX Plus to Protect Against CVE-2015-1635</a></p>
-<h3 id="优化Nginx性能">优化Nginx性能</h3><p>DDOS攻击通常会带来高的负载压力，可以通过一些调优参数，提高Nginx、Nginx Plus处理性能，硬抗DDOS攻击，详细参考：<a href="http://nginx.com/blog/tuning-nginx/?_ga=1.48422373.2137319792.1439284699" target="_blank" rel="external">Tuning NGINX for Performance</a></p>
-<h2 id="识别DDOS攻击">识别DDOS攻击</h2><p>到目前为止，我们都是集中在如何是用Nginx、Nginx Plus来减轻DDOS攻击带来的影响。如何才能让Nginx、Nginx Plus帮助我们识别DDOS攻击呢？<code>Nginx Plus Status module</code>提供了到后端服务器流量的详细统计，可以用来识别异常的流量。Nginx Plus提供一个当前服务状态的仪表盘页面，同时也可以在自定义系统或其他第三方系统中通过API的方式获取这些统计信息，并根据历史趋势分析识别非正常的流量进而发出告警。</p>
-<h2 id="总结">总结</h2><p>Nginx和Nginx Plus可以作为抵御DDOS攻击的一个有力手段，而且Nginx Plus中提供了一些附加的特性来更好的抵御DDOS攻击并且当攻击发生时及时的识别到。</p>
+<p>使用Nginx Rewrite规则需要了解HTTP状态码和正则表达式（Nginx使用Perl语法的正则），这里假设大家都已经了解。</p>
+<h2 id="对比return、rewrite和try_files命令">对比<code>return</code>、<code>rewrite</code>和<code>try_files</code>命令</h2><p>通常用于做Nginx地址重写的命令为<code>return</code>和<code>rewrite</code>这两个，<code>try_files</code>命令是一个将请求转发到后端应用服务器的好用的方式。让我们一起看一看这三个命令的作用和不同之处。</p>
+<h3 id="return命令"><code>return</code>命令</h3><p><code>return</code>命令相比<code>rewrite</code>来说更简单一些，因此我们也更推荐尽可能的使用<code>return</code>而不是<code>rewrite</code>(下文会讲到为什么和在什么时候用)。将<code>return</code>放在将要重写的URL所在的<code>server</code>或<code>location</code>的上下文中，它也定义了客户端未来请求资源使用的重写后正确的URL。<br>这里有一个很简单的例子，将客户请求重定向到一个新的域名：<br><figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">server</span> &#123;</span><br><span class="line">    <span class="title">listen</span> <span class="number">80</span>;</span><br><span class="line">    <span class="title">listen</span> <span class="number">443</span> ssl;</span><br><span class="line">    <span class="title">server_name</span> www.old-name.com;</span><br><span class="line">    <span class="title">return</span> <span class="number">301</span> <span class="variable">$scheme</span>://www.new-name.com<span class="variable">$request_uri</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p><code>listen</code>命令意味着此<code>server</code>块提供HTTP和HTTPS两种访问方式。<code>server_name</code>命令匹配客户端的URL请求中包含www.old-name.com的请求。<code>return</code>命令告诉Nginx停止处理请求并立即返回301（永久重定向）和新的URL给客户端。重写后的URL使用了两个Nginx变量来获取和替换初始请求中的值：<code>$scheme</code>是指请求的协议（HTTP或HTTPS），<code>$request_uri</code>指包含参数的全部URI。<br>你可以在3xx系列的HTTP状态码中指定重写后的URL：<br><figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">return (301 |<span class="string"> 302 </span>|<span class="string"> 303 </span>|<span class="string"> 307) url;</span></span><br></pre></td></tr></table></figure></p>
+<p>对于其他的HTTP状态码，你可以在响应的页面中自定义一个文本（标准的状态码文本信息依然会显示，比如『404 Not Found』）。文本中可包含Nginx变量。<br><figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">return (1xx |<span class="string"> 2xx </span>|<span class="string"> 4xx </span>|<span class="string"> 5xx) ["text"];</span></span><br></pre></td></tr></table></figure></p>
+<p>比如，这个命令就很适合在拒绝一个没有包含验证令牌的请求时给出一些提示：<br><figure class="highlight actionscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">return</span> <span class="number">401</span> <span class="string">"Access denied because token is expired or invalid"</span>;</span><br></pre></td></tr></table></figure></p>
+<p>也有一些语法的快捷方式可以使用，比如当使用302临时重定向时，可以去掉<code>302</code>状态码（即<code>return URL</code>默认采用302重定向）。具体可以查看Nginx参考文档中关于<code>return</code>的部分。</p>
+<blockquote>
+<p>有些情况下我们可能会期望返回比HTTP状态码文本信息更复杂更多彩的内容，这时可以考虑<code>error_page</code>。通过这个命令，我们可以针对每一种HTTP状态码返回完整的自定义HTML页面。</p>
+</blockquote>
+<p><code>return</code>命令使用比较简单，比较适合以下两种情况的重定向：对访问这个<code>server</code>或<code>location</code>的所有请求重定向后的URL是一致的；可以使用标准Nginx变量重写URL。<br>但是，当我们需要探测URL间更复杂的差别、捕获无法使用Nginx参数从原始URL获取的元素，或者改变、修改URL中的元素时，<code>return</code>命令就无法处理了，我们需要用到<code>rewrite</code>命令。</p>
+<h3 id="rewrite命令"><code>rewrite</code>命令</h3><p>与<code>return</code>一样，也是将<code>rewrite</code>命令放到需要重写的URL所在的<code>server</code>或<code>location</code>上下文中。两个命令有更多的不同之处，<code>rewrite</code>使用上要复杂的多，虽然它的语法很简单：<br><figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">rewrite</span> <span class="tag">regex</span> <span class="tag">URL</span> <span class="attr_selector">[flag]</span>;</span><br></pre></td></tr></table></figure></p>
+<p>第一个参数<code>regex</code>，意味着在匹配<code>server</code>、<code>location</code>之后Nginx重写URL之前需要先经过另外一个检查：URL需要匹配特定的正则表达式。这也意味着Nginx需要进行更多的处理（影响性能）。<br>另外一个不同之处是，<code>rewrite</code>命令只能返回301或302状态码，如果需要返回其他的状态码，需要在<code>rewrite</code>之后附加<code>return</code>命令（详见下面的例子）。<br>最后，<code>rewrite</code>不像<code>return</code>那样必须停止Nginx对请求的处理，也不一定必须返回客户端一个重定向URL。除非特别指明需要Nginx中止请求或者返回重定向，Nginx将查找<code>rewrite</code>模块中定义的命令（<code>break</code>、<code>if</code>、<code>return</code>和<code>set</code>）并按顺序执行。一旦重写后的URL匹配<code>rewrite</code>模块中的其他命令，Nginx也会对重写后的URL执行指定的动作（通常是再次重写）。<br>由于这些特性，使用<code>rewrite</code>命令就变的很复杂，我们需要小心的计划命令的执行顺序以达到期望的效果。如果出现设计不当的情况，比如重写后的URL匹配原始的<code>location</code>块，Nginx将陷入循环中，不断的重写直到默认的循环限制次数10次。请查看Nginx文档中关于<code>[rewrite](http://nginx.org/en/docs/http/ngx_http_rewrite_module.html?_ga=1.82048469.2137319792.1439284699)</code>模块的部分，来详细的了解<code>rewrite</code>命令。如之前所说，在<code>return</code>可以实现的情况下尽可能的使用<code>return</code>命令。<br>接下来是一个使用<code>rewrite</code>重写的例子，它匹配以/download开始并且在路径中包含/media或/audio，重写规则将他们替换成/mp3并添加了统一的文件后缀.mp3或.ra。<code>$1</code>和<code>$2</code>参数获取路径中不会改变的部分（译者注：详看正则表达式）。比如，/download/cdn-west/media/fil1 根据规则会被重写为 /download/cdn-west/mp3/file1.mp3。<br><figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">server &#123;</span><br><span class="line">    ...</span><br><span class="line">    rewrite ^(<span class="regexp">/download/</span>.*)/media/(.*)\..*<span class="variable">$ </span><span class="variable">$1</span>/mp3/<span class="variable">$2</span>.mp3 last;</span><br><span class="line">    rewrite ^(<span class="regexp">/download/</span>.*)/audio/(.*)\..*<span class="variable">$ </span><span class="variable">$1</span>/mp3/<span class="variable">$2</span>.ra  last;</span><br><span class="line">    <span class="keyword">return</span>  <span class="number">403</span>;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>我们之前提到过可以在<code>rewrite</code>命令后添加标识来控制处理流程。上例中的<code>last</code>标识就是一个：它告诉Nginx跳出当前<code>server</code>或<code>location</code>块中的其他匹配重写规则，并根据重写后的URL继续匹配其他的<code>location</code>。</p>
+<blockquote>
+<p>译者注：常用的还有<code>break</code>，它与<code>last</code>不同，也是跳出当前<code>server</code>或<code>location</code>的匹配，并不再匹配其他的规则或<code>location</code>，直接处理。</p>
+</blockquote>
+<p>上例中最后的<code>return</code>命令意味着当请求无法匹配上边两个重写规则后将返回403状态码。</p>
+<h3 id="try_files命令"><code>try_files</code>命令</h3><p>与前两个命令一样<code>try_files</code>也是放在<code>server</code>或<code>location</code>中使用。<code>try_files</code>的参数是一个包含一个或多个文件、目录的列表，并以URI结束：<br><figure class="highlight applescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">try_files <span class="type">file</span> … uri;</span><br></pre></td></tr></table></figure></p>
+<p>Nginx按顺序检查文件后缀和目录（通过配置中的<code>root</code>和<code>alias</code>来构建文件的完整路径），并返回第一个找到的文件。为了标识一个目录，需要在元素的后面加一个「/」。如果没有文件和目录匹配到，Nginx会执行一个内部重定向到最后一个元素中指定的URI。<br>为保证<code>try_files</code>正常工作，我们需要定义一个<code>location</code>以匹配其内部重定向的URI。最后一个元素有也可以是一个命名<code>location</code>(named location)，以前缀@标识。<br><code>try_files</code>命令一般使用<code>$uri</code>参数，URI相当于域名后边的URL部分。<br>在接下来这个例子中，当客户端的请求的文件不存在时Nginx将返回一个默认的GIF文件。比如客户端请求 <a href="http://www.domain.com/images/image1.gif，Nginx首先在根据`root`或`alias`命令构建的完整路径中查找image1.gif，如果不存在就继续查找image1.gif/，如果仍然不存在，就重定向到/images/default.gif。请求会完全匹配到第二个`location`命令，处理就会结束，然后Nginx返回这个文件并将起标记为缓存30秒。" target="_blank" rel="external">http://www.domain.com/images/image1.gif，Nginx首先在根据`root`或`alias`命令构建的完整路径中查找image1.gif，如果不存在就继续查找image1.gif/，如果仍然不存在，就重定向到/images/default.gif。请求会完全匹配到第二个`location`命令，处理就会结束，然后Nginx返回这个文件并将起标记为缓存30秒。</a><br><figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">location</span> /images/ &#123;</span><br><span class="line">    <span class="title">try_files</span> <span class="variable">$uri</span> <span class="variable">$uri</span>/ /images/default.gif;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="title">location</span> = /images/default.gif &#123;</span><br><span class="line">    <span class="title">expires</span> <span class="number">30s</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="实例：域名标准化">实例：域名标准化</h2><p>Nginx重写规则的一个非常常见的用法就是捕获废弃的、非标准的网站域名并将他们重定向到当前使用的域名上。接下来我们展示几个相关的具体实例。</p>
+<h3 id="重定向一个旧域名到新域名">重定向一个旧域名到新域名</h3><p>下例中Nginx将到旧域名www.old-name.com、old-name.com的请求永久重定向到新的域名www.new-name.com，同时使用了两个Nginx参数来获取初始请求中的值：<code>$scheme</code>是指初始请求使用的协议（HTTP或HTTPS），<code>$request_uri</code>是域名后边包含参数在内的完整URI。<br><figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">server</span> &#123;</span><br><span class="line">    <span class="title">listen</span> <span class="number">80</span>;</span><br><span class="line">    <span class="title">listen</span> <span class="number">443</span> ssl;</span><br><span class="line">    <span class="title">server_name</span> www.old-name.com old-name.com;</span><br><span class="line">    <span class="title">return</span> <span class="number">301</span> <span class="variable">$scheme</span>://www.new-name.com<span class="variable">$request_uri</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>由于<code>$request_uri</code>包含了域名后面的URL部分，因此这种重写只适合新旧域名的页面可以一一对应的情况（比如www.new-name.com/about与www.old-name.com/about相同）。如果已经重构了网站，去掉<code>return</code>命令中的<code>$request_uri</code>，将所有旧域名的请求重定向到主页会更安全一些<br><figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">server</span> &#123;</span><br><span class="line">    <span class="title">listen</span> <span class="number">80</span>;</span><br><span class="line">    <span class="title">listen</span> <span class="number">443</span> ssl;</span><br><span class="line">    <span class="title">server_name</span> www.old-name.com old-name.com;</span><br><span class="line">    <span class="title">return</span> <span class="number">301</span> <span class="variable">$scheme</span>://www.new-name.com;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>有一些博客上使用<code>rewrite</code>命令来处理这种情况，配置如下：<br><figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># NOT RECOMMENDED</span></span><br><span class="line">rewrite ^ <span class="variable">$scheme</span><span class="symbol">://www</span>.new-name.com<span class="variable">$request_uri</span> permanent;</span><br></pre></td></tr></table></figure></p>
+<p>这种方式相比<code>return</code>来说比较低效，因为<code>rewrite</code>命令即使非常简单的重写需要Nginx先处理正则匹配（^会匹配完整的初始URL）。同时，<code>return</code>命令也更便于人们理解：<code>return 301</code>相比<code>rewrite ... permanent</code>会更加清楚的显示Nginx返回301状态码。</p>
+<h3 id="添加和删除www前缀">添加和删除www前缀</h3><p>接下来的例子是添加和删除www前缀：<br><figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># add 'www'</span></span><br><span class="line"><span class="title">server</span> &#123;</span><br><span class="line">    <span class="title">listen</span> <span class="number">80</span>;</span><br><span class="line">    <span class="title">listen</span> <span class="number">443</span> ssl;</span><br><span class="line">    <span class="title">server_name</span> domain.com;</span><br><span class="line">    <span class="title">return</span> <span class="number">301</span> <span class="variable">$scheme</span>://www.domain.com<span class="variable">$request_uri</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># remove 'www'</span></span><br><span class="line"><span class="title">server</span> &#123;</span><br><span class="line">    <span class="title">listen</span> <span class="number">80</span>;</span><br><span class="line">    <span class="title">listen</span> <span class="number">443</span> ssl;</span><br><span class="line">    <span class="title">server_name</span> www.domain.com;</span><br><span class="line">    <span class="title">return</span> <span class="number">301</span> <span class="variable">$scheme</span>://domain.com<span class="variable">$request_uri</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>再说一次，<code>return</code>比<code>rewrite</code>更适合这种处理，如下例子，Nginx需要先处理^(.*)$这个正则，同时也声明了一个自定义变量<code>$1</code>，其实与<code>$request_uri</code>参数的作用一样。<br><figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># NOT RECOMMENDED</span></span><br><span class="line">rewrite ^(.*)<span class="variable">$ </span><span class="variable">$scheme</span><span class="symbol">://www</span>.domain.com<span class="variable">$1</span> permanent;</span><br></pre></td></tr></table></figure></p>
+<h3 id="重定向所有的流量到一个正确的域名">重定向所有的流量到一个正确的域名</h3><p>有一些特殊的情况，比如访问请求的域名拼写错误，无法匹配到到任何的<code>server</code>和<code>location</code>块，这时可以将所有的入站流量重定向到网站主页。此外需要配合的修改<code>server_name</code>命令为一个『_』，同时在<code>listen</code>命令上增加<code>default_server</code>参数。<br><figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">server</span> &#123;</span><br><span class="line">    <span class="title">listen</span> <span class="number">80</span> default_server;</span><br><span class="line">    <span class="title">listen</span> <span class="number">443</span> ssl default_server;</span><br><span class="line">    <span class="title">server_name</span> _;</span><br><span class="line">    <span class="title">return</span> <span class="number">301</span> <span class="variable">$scheme</span>://www.domain.com;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>我们使用<em>来避免不经意间匹配到真实的域名—假设不会有网站使用</em>来做域名。当请求无法匹配到配置文件中的<code>server</code>时，请求就会流向这里。我们默认去掉了<code>$request_uri</code>，将所有的请求都重定向到网站的主页，因为通常情况下错误域名请求的URI也是错误的。</p>
+<h2 id="实例：强制所有的请求使用HTTPS（TLS/SSL加密）">实例：强制所有的请求使用HTTPS（TLS/SSL加密）</h2><p>下例中的<code>server</code>将强制所有的访客使用加密连接访问我们的站点：<br><figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">server</span> &#123;</span><br><span class="line">    <span class="title">listen</span> <span class="number">80</span>;</span><br><span class="line">    <span class="title">server_name</span> www.domain.com;</span><br><span class="line">    <span class="title">return</span> <span class="number">301</span> <span class="url">https://www.domain.com<span class="variable">$request_uri</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>有一些博客使用Nginx的<code>if</code>检测并使用<code>rewrite</code>来实现这一目的，但这种方式会增加Nginx额外的处理，因为Nginx需要先处理<code>if</code>的结果并处理<code>rewrite</code>中的正则表达式，不建议使用这种方式。<br><figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># NOT RECOMMENDED</span></span><br><span class="line"><span class="title">if</span> (<span class="variable">$scheme</span> != <span class="string">"https"</span>) &#123;</span><br><span class="line">    <span class="title">rewrite</span><span class="regexp"> ^</span> <span class="url">https://www.mydomain.com<span class="variable">$uri</span></span> <span class="built_in">permanent</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="实例：为Wordpress网站启用漂亮的固定链接">实例：为Wordpress网站启用漂亮的固定链接</h2><p>在很多Wordpress网站中都使用Nginx作为应用分发的平台，下面这个例子中，<code>try_files</code>命令告诉Nginx按顺序检查<code>$uri</code>文件、<code>$uri/</code>目录是否存在，如果都不存在，就会将请求重定向到/index.php并在后边附加请求的参数。<br><figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">location</span> / &#123;</span><br><span class="line">    <span class="title">try_files</span> <span class="variable">$uri</span> <span class="variable">$uri</span>/ /index.php?<span class="variable">$args</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="实例：丢掉不支持的文件后缀的请求">实例：丢掉不支持的文件后缀的请求</h2><p>会有各种各样的原因，网站总会收到各种包含服务器不支持的文件后缀的请求。下面这个例子来自<a href="https://blog.engineyard.com/2011/useful-rewrites-for-nginx" target="_blank" rel="external">Engine Yard blog,</a>，应用服务器使用Ruby On Rails，所以其他应用服务器的文件格式（比如ASP、PHP、CGI等等）都无法支持，应该拒绝掉。在一个将所有非静态元素的请求都传递给应用的<code>server</code>块中，这个<code>location</code>命令会在请求到达Rails的请求队列之前将所有非Rails支持的文件格式的请求丢弃掉。<br><figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">location ~ \.(aspx|<span class="string">php</span>|<span class="string">jsp</span>|<span class="string">cgi)$ &#123;</span><br><span class="line">    return 410;</span><br><span class="line">&#125;</span></span><br></pre></td></tr></table></figure></p>
+<p>严格的说，410状态码用于请求资源的URL之前可用，但当前失效了，服务器也不知道它现在的位置。相比404状态码的优点是，410明确的告知客户端请求的资源永久不可用，客户端就不会再发送请求。<br>如果你想给客户端一些更明确的请求失败的原因，可以返回403状态码（禁止访问），并附加一个解释文本『服务器仅响应Ruby请求』。另外，<code>deny all</code>命令也会返回一个403状态码，但没有解释性文字。<br><figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">location ~ \.(aspx|<span class="string">php</span>|<span class="string">jsp</span>|<span class="string">cgi)$ &#123;</span><br><span class="line">    deny all;</span><br><span class="line">&#125;</span></span><br></pre></td></tr></table></figure></p>
+<p>返回403状态码隐含着文件实际是存在的意思，因此如果想尽可能少的给客户端信息以求获取安全的话，返回404状态码是一个更好的选择。缺点就是客户端会不断的重试请求，因为404并不会说明文件是临时失效还是永久失效。</p>
+<h2 id="实例：自定义重新路由">实例：自定义重新路由</h2><p>这个例子来自<a href="https://modxcloud.com/userguide/using-modx-cloud/tools-and-configuration/web-rules-rewrites-redirects-tweaks.html" target="_blank" rel="external">MODXCloud</a>，有一台服务器作为一系列URL的控制器。用户使用比较易读的方式请求资源，我们通过重写（非重定向）URL，使其可以通过控制器<code>listing.html</code>来处理。比如<a href="http://mysite.com/listings/123会被重写为http://mysite.com/listing.html?listing=123：" target="_blank" rel="external">http://mysite.com/listings/123会被重写为http://mysite.com/listing.html?listing=123：</a><br><figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">rewrite</span><span class="regexp"> ^/listings/(.*)$</span> /listing.html?listing=<span class="variable">$1</span> <span class="built_in">last</span>;</span><br></pre></td></tr></table></figure></p>
+<blockquote>
+<p>文章比想象中长多了，有错误或不严谨之处请帮忙指出，谢谢。</p>
+</blockquote>
 
         
         
@@ -151,7 +222,7 @@
 
   <div class="article-tags">
   
-  <span></span> <a href="/tags/DDOS/">DDOS</a><a href="/tags/Nginx/">Nginx</a>
+  <span></span> <a href="/tags/Nginx/">Nginx</a>
   </div>
 
 </div>
@@ -162,7 +233,7 @@
 <div class="comments-count">
 	
 	  	<span></span>
-		<a href="/2015/10/12/【翻译】使用Nginx、Nginx Plus抵御DDOS攻击/#comments" class="ds-thread-count comments-count-link" data-thread-key="2015/10/12/【翻译】使用Nginx、Nginx Plus抵御DDOS攻击/" data-count-type="comments">&nbsp;</a>
+		<a href="/2015/10/25/【译】创建Nginx Rewrite规则/#comments" class="ds-thread-count comments-count-link" data-thread-key="2015/10/25/【译】创建Nginx Rewrite规则/" data-count-type="comments">&nbsp;</a>
 	
 </div>
 
@@ -182,45 +253,141 @@
         <header class="article-info clearfix">
   <h1 itemprop="name">
     
-      <a href="/2015/09/10/Docker中部署Zookeeper集群/" title="Docker中部署Zookeeper集群" itemprop="url">Docker中部署Zookeeper集群</a>
+      <a href="/2015/10/18/IP命令简介/" title="IP命令简介" itemprop="url">IP命令简介</a>
   </h1>
   <p class="article-author">By
        
 		<a href="/about" title="chenyang" target="_blank" itemprop="author">chenyang</a>
 		
   <p class="article-time">
-    <time datetime="2015-09-10T04:48:06.000Z" itemprop="datePublished"> 发表于 2015-09-10</time>
+    <time datetime="2015-10-18T13:44:16.000Z" itemprop="datePublished"> 发表于 2015-10-18</time>
     
   </p>
 </header>
     <div class="article-content">
         
-        <h1 id="Docker中部署Zookeeper集群">Docker中部署Zookeeper集群</h1><p>上一篇汇总了Docker主机初始化及容器初始化脚本的一些内容，昨天下午在此基础上开始构建Zookeeper的镜像，今天上午结合昨天初始化容器的脚本，完成了一键启动3台Zookeeper集群的脚本，在这里记录下。</p>
-<h2 id="Dockerfile文件">Dockerfile文件</h2><ul>
-<li>jdk是用的内网自己搭建的repo，因此添加了一个repo，也可以使用公共的或编译安装，去掉那一行，修改下方<code>yum install -y jdk1.8.0_51</code>即可。</li>
-<li>centos:6.7是根据官方镜像更新、修改的<figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">FROM</span> centos:<span class="number">6.7</span></span><br><span class="line"><span class="built_in">MAINTAINER</span> me@chenyang.me</span><br><span class="line"><span class="built_in">USER</span> root</span><br><span class="line"></span><br><span class="line"><span class="built_in">ADD</span> <span class="bash">test.repo /etc/yum.repos.d/test.repo</span><br><span class="line"></span><span class="built_in">ADD</span> <span class="bash">zookeeper-<span class="number">3.4</span>.<span class="number">6</span> /usr/<span class="built_in">local</span>/zookeeper</span><br><span class="line"></span><span class="built_in">COPY</span> <span class="bash">hosts /etc/hosts</span><br><span class="line"></span><span class="built_in">RUN</span> <span class="bash">yum clean all &amp;&amp; yum install -y jdk1.<span class="number">8.0</span>_51 &amp;&amp; yum clean all &amp;&amp; mkdir -p /usr/<span class="built_in">local</span>/zookeeper/data</span><br><span class="line"></span><span class="built_in">WORKDIR</span> <span class="bash">/usr/<span class="built_in">local</span>/zookeeper</span><br><span class="line"></span></span><br><span class="line"><span class="built_in">ADD</span> <span class="bash">start.sh /start.sh</span><br><span class="line"></span><span class="built_in">RUN</span> <span class="bash">chmod +x /start.sh</span><br><span class="line"></span></span><br><span class="line"><span class="built_in">CMD</span> <span class="bash">[<span class="string">"/start.sh"</span>]</span><br><span class="line"></span></span><br><span class="line"><span class="built_in">EXPOSE</span> <span class="number">2181</span> <span class="number">2888</span> <span class="number">3888</span></span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<h2 id="编写启动脚本">编写启动脚本</h2><ul>
-<li>ZOO_ID是定义的一个参数，会从稍后的一键启动脚本中传入，start.sh会将它写到myid文件中<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="shebang">#!/bin/bash</span><br><span class="line"></span></span><br><span class="line"><span class="keyword">if</span> [ -z <span class="variable">$&#123;ZOO_ID&#125;</span> ] ; <span class="keyword">then</span></span><br><span class="line">  <span class="built_in">echo</span> <span class="string">'No ID specified, please specify one between 1 and 255'</span></span><br><span class="line">  <span class="built_in">exit</span> -<span class="number">1</span></span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> [ ! <span class="operator">-f</span> /conf/zoo.cfg ] ; <span class="keyword">then</span></span><br><span class="line">  <span class="built_in">echo</span> <span class="string">'Waiting for config file to appear...'</span></span><br><span class="line">  <span class="keyword">while</span> [ ! <span class="operator">-f</span> /usr/<span class="built_in">local</span>/zookeeper/conf/zoo.cfg ] ; <span class="keyword">do</span></span><br><span class="line">    sleep <span class="number">1</span></span><br><span class="line">  <span class="keyword">done</span></span><br><span class="line">  <span class="built_in">echo</span> <span class="string">'Config file found, starting server.'</span></span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line"></span><br><span class="line">mkdir -p /usr/<span class="built_in">local</span>/zookeeper/data</span><br><span class="line"></span><br><span class="line"><span class="built_in">echo</span> <span class="string">"<span class="variable">$&#123;ZOO_ID&#125;</span>"</span> &gt; /usr/<span class="built_in">local</span>/zookeeper/data/myid</span><br><span class="line"></span><br><span class="line">/usr/<span class="built_in">local</span>/zookeeper/bin/zkServer.sh start-foreground</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<h2 id="一键启动脚本">一键启动脚本</h2><ul>
-<li>在昨天的容器初始化脚本上做了一些修改，将一些参数在脚本中直接设定了，不再接受传入参数，具体说明如下：</li>
-</ul>
-<ol>
-<li>ZOO_ID如上所说，会传入start.sh脚本写入myid文件</li>
-<li>Zookeeper的配置文件是映射了宿主机的一个目录，三个容器共享一份配置文件</li>
-<li>因为无法直接修改容器内的/etc/hosts文件，这里使用—add-host传入</li>
-<li>zookeeper:0.2为根据上边Dockerfile构建的镜像及tag号<figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line">#/bin/bash</span><br><span class="line">IPs=(192.168.8.200 192.168.8.201 192.168.8.202)</span><br><span class="line">GATEWAY=192.168.8.1</span><br><span class="line">#开始循环，创建3个容器</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> &#123;1..3&#125; ; <span class="keyword">do</span></span><br><span class="line">CONTAINERID=`docker <span class="keyword">run</span> -<span class="keyword">d</span> -v /docker/zookeeper/<span class="keyword">conf</span>:/usr/<span class="keyword">local</span>/zookeeper/<span class="keyword">conf</span> -<span class="keyword">e</span> ZOO_ID=<span class="label">$&#123;i&#125;</span> -<span class="keyword">h</span> zk0<span class="label">$&#123;i&#125;</span> --name zk0<span class="label">$&#123;i&#125;</span> --<span class="keyword">net</span>=none \</span><br><span class="line">--add-host zk01.<span class="keyword">test</span>:<span class="label">$&#123;IPs</span>[0]&#125; --add-host zk02.<span class="keyword">test</span>:<span class="label">$&#123;IPs</span>[1]&#125; --add-host zk03.<span class="keyword">test</span>:<span class="label">$&#123;IPs</span>[2]&#125; zookeeper:0.2`</span><br><span class="line">SETIP=<span class="label">$&#123;IPs</span>[<span class="label">$i</span>-1]&#125;</span><br><span class="line"></span><br><span class="line">pid=`docker <span class="keyword">inspect</span> -f '&#123;&#123;.State.Pid&#125;&#125;' <span class="label">$CONTAINERID</span>`</span><br><span class="line">#判断宿主机网卡是否存在</span><br><span class="line">ifconfig docker<span class="label">$pid</span> &gt; /dev/null 2&gt;&amp;1</span><br><span class="line"><span class="keyword">if</span> [ $? -<span class="keyword">eq</span> 0 ]; then</span><br><span class="line">    ip link del docker<span class="label">$pid</span></span><br><span class="line">fi</span><br><span class="line"></span><br><span class="line"><span class="keyword">mkdir</span> -p /<span class="keyword">var</span>/<span class="keyword">run</span>/netns</span><br><span class="line">find -<span class="keyword">L</span> /<span class="keyword">var</span>/<span class="keyword">run</span>/netns -<span class="keyword">type</span> <span class="keyword">l</span> -delete</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> [ -f /<span class="keyword">var</span>/<span class="keyword">run</span>/netns/<span class="label">$pid</span> ]; then</span><br><span class="line">    <span class="keyword">rm</span> -f /<span class="keyword">var</span>/<span class="keyword">run</span>/netns/<span class="label">$pid</span></span><br><span class="line">fi</span><br><span class="line">ln -s /proc/<span class="label">$pid</span>/ns/<span class="keyword">net</span> /<span class="keyword">var</span>/<span class="keyword">run</span>/netns/<span class="label">$pid</span></span><br><span class="line">#</span><br><span class="line">ip link add docker<span class="label">$pid</span> <span class="keyword">type</span> veth peer name bridge0</span><br><span class="line">brctl addif br0 docker<span class="label">$pid</span></span><br><span class="line">ip link <span class="keyword">set</span> docker<span class="label">$pid</span> up</span><br><span class="line">ip link <span class="keyword">set</span> bridge0 netns <span class="label">$pid</span></span><br><span class="line">#先删除容器内已存在的eth0</span><br><span class="line">ip netns exec <span class="label">$pid</span> ip link del eth0 &gt; /dev/null 2&gt;&amp;1</span><br><span class="line">#设置容器新的网卡eth0</span><br><span class="line">ip netns exec <span class="label">$pid</span> ip link <span class="keyword">set</span> dev bridge0 name eth0</span><br><span class="line">ip netns exec <span class="label">$pid</span> ip link <span class="keyword">set</span> eth0 up</span><br><span class="line">ip netns exec <span class="label">$pid</span> ip addr add <span class="label">$SETIP</span>/24 dev eth0</span><br><span class="line">ip netns exec <span class="label">$pid</span> ip route add default via <span class="label">$GATEWAY</span></span><br><span class="line">done</span><br></pre></td></tr></table></figure>
-</li>
-</ol>
-<h2 id="补充">补充</h2><ul>
-<li>运行脚本后会自动启动3个容器，目前没有映射data目录，所以如果Docker出现问题后重新启动Zookeeper容器，还需要创建一些目录和节点，这个需要后续改善。</li>
-<li>目前参数都是固化在脚本中，不太适合后续做自动化工作，也需要改善，但这么多的参数感觉编写脚本是个比较麻烦的事情，再看看有没有其他的解决方案。</li>
-<li>参考了一些网上的资料：<blockquote>
-<p><a href="https://github.com/wouterd/docker-zookeeper" target="_blank" rel="external">https://github.com/wouterd/docker-zookeeper</a></p>
+        <blockquote>
+<p>这是一个很强大的命令，用来替代<code>ifconfig</code>,<code>netstat</code>,<code>route</code>等，因此打算汇总下，方便记忆。<br>本想详细写一下，但发现并不是很复杂，简单记录下。<br>参考文章：<br>iproute2项目Github：<a href="https://github.com/shemminger/iproute2" target="_blank" rel="external">https://github.com/shemminger/iproute2</a><br>参考文档：<a href="http://www.policyrouting.org/iproute2.doc.html" target="_blank" rel="external">http://www.policyrouting.org/iproute2.doc.html</a></p>
 </blockquote>
+<p>大多数的Linux发行版里已经预装了iproute2，可以直接使用。如果没有可以从Github上clone、编译安装。</p>
+<h2 id="IP命令集">IP命令集</h2><p>命令格式：<code>ip [ OPTIONS ] OBJECT [ COMMAND [ ARGUMENTS ]]</code></p>
+<h3 id="选项（OPTIONS）">选项（OPTIONS）</h3><ul>
+<li>-V, -Version  ——- 打印版本信息</li>
+<li>-s, -stats, -statistics ——- 输出更多信息</li>
+<li>-f, -family {inet, inet6, link} ——- 指定使用的协议族</li>
+<li>-4 —- -family inet的简写</li>
+<li>-6 —- -family inet6的简写</li>
+<li>-0 —- -family link的简写</li>
+<li>-o, -oneline —- 将输出在一行输出，用\隔开每一行</li>
+<li>-r, -resolve —- 使用DNS解析  <h3 id="对象（OBJECT）">对象（OBJECT）</h3></li>
+<li>link —- 管理网络设备，包含物理设备及虚拟设备</li>
+<li>address —- 管理设备上的IPv4、IPv6地址</li>
+<li>neighbour —- 管理ARP或NDISC</li>
+<li>route —- 管理路由表</li>
+<li>rule —- 管理路由策略</li>
+<li>maddress —- 管理多播地址</li>
+<li>mroute —- 管理多播路由</li>
+<li>tunnel —- 管理IP隧道<blockquote>
+<ul>
+<li>netns —- 管理网络命名空间，在CentOS7中预装，在CentOS6中需要升级iproute  </li>
+</ul>
+</blockquote>
+</li>
+</ul>
+<h3 id="命令（COMMAND）">命令（COMMAND）</h3><p>各个对象支持的命令不一致，几个常用的如下：</p>
+<ul>
+<li>show ，查看，可以缩写为sh,list,lst,ls,l</li>
+<li>add ,添加，可缩写为a</li>
+<li>delete，删除，可缩写为del，d</li>
+<li>flush，清除，可缩写为f  </li>
+</ul>
+<h3 id="ARGUMENTS">ARGUMENTS</h3><p>不同的对象、命令支持的ARGUMENTS不一致，主要包含两个部分</p>
+<ul>
+<li>flags</li>
+<li>parameters  </li>
+</ul>
+<h2 id="ip_link命令实例">ip link命令实例</h2><h3 id="set命令">set命令</h3><p>设置设备的属性，可缩写为s</p>
+<ul>
+<li><p>启用（禁用）设备:up|down</p>
+<figure class="highlight lasso"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ip <span class="keyword">link</span> <span class="built_in">set</span> dev eth0 up</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>设置网卡的MTU值</p>
+<figure class="highlight lasso"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ip <span class="keyword">link</span> <span class="built_in">set</span> dev eth0 mtu <span class="number">1500</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="show命令">show命令</h3><p>查看设备的属性，可配合选项-s使用以输出更多新新<br><figure class="highlight puppet"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="literal">ip</span> -s <span class="literal">link</span> show dev etho</span><br></pre></td></tr></table></figure></p>
+<h2 id="ip_address命令实例">ip address命令实例</h2><h3 id="show命令-1">show命令</h3><ul>
+<li>查看ip地址<figure class="highlight q"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ip addr <span class="built_in">show</span></span><br><span class="line">ip addr <span class="built_in">show</span> <span class="built_in">dev</span> eth0</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="add命令">add命令</h3><p>有以下Arguments：</p>
+<ul>
+<li>dev name —-这是我们添加地址的设备的名称</li>
+<li>local address（默认值） - 接口的IP地址<blockquote>
+<p>地址的格式取决于所使用协议。IPv4使用点分割的四组数字、IPv6的使用由冒号分隔的四位十六进制的序列。该地址可以跟着一个斜杠和一个十进制数，使用CIDR表示法来设定网络前缀（子网掩码）。如果没有指定CIDR网络掩码，系统会指定地址（/32掩码）。  </p>
+</blockquote>
+</li>
+<li>peer address —- 点到点接口的远端接口地址。同样该地址可以后跟斜杠和十进制数来确定网络掩码。当peer和local同时需要指定掩码时，只能分配给peer。</li>
+<li>broadcast address —- 接口的广播地址。<blockquote>
+<p>可以使用特殊符号“+”和“ - ”，而不指定广播地址。在这种情况下，广播地址由或设置所有接口主机位来自于一个（+）或通过设置所有的接口主机位到零（ - ）。目前在IPv4中的网络实现中使用（+）的设置即可。</p>
+</blockquote>
+</li>
+<li>lable name —-每个地址可以被标上标签字符串。<blockquote>
+<p>为了保持与Linux的2.0网络别名兼容，这个字符串必须与设备的名称一致，或者必须以设备名后跟一个冒号前缀。 （为eth0：杜）</p>
+</blockquote>
+</li>
+<li><p>scope SCOPE_VALUE —- 地址的有效范围。<br>预定义的范围值是：</p>
+<ul>
+<li>global —-地址是全局有效。</li>
+<li>site —-（仅IPv6）本地站点地址，仅对站点内部有效。</li>
+<li>link —-地址连接本地，仅在这个设备上有效</li>
+<li>host —-地址仅在这台主机上有效</li>
+</ul>
+</li>
+<li><p>设置一个IP</p>
+<figure class="highlight armasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="label">ip</span> <span class="keyword">addr </span><span class="keyword">add </span><span class="number">192</span>.<span class="number">168</span>.<span class="number">1</span>.<span class="number">100</span>/<span class="number">24</span> dev eth0</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>给回环网卡lo设置标准广播地址的一个IP，有效范围为本机</p>
+<figure class="highlight armasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="label">ip</span> <span class="keyword">addr </span><span class="keyword">add </span><span class="number">127</span>.<span class="number">0</span>.<span class="number">0</span>.<span class="number">1</span>/<span class="number">8</span> dev lo <span class="keyword">brd </span>+ scope host</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>给eth0设置一个标准广播的24位掩码的地址</p>
+<figure class="highlight armasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="label">ip</span> <span class="keyword">addr </span><span class="keyword">add </span><span class="number">10</span>.<span class="number">0</span>.<span class="number">0</span>.<span class="number">1</span>/<span class="number">24</span> <span class="keyword">brd </span>+ dev eth0</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="delete命令">delete命令</h3><ul>
+<li>删除回环lo上的地址<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">ip</span> addr del <span class="number">127.0.0.1</span>/<span class="number">8</span> dev lo</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="fulsh命令">fulsh命令</h3><ul>
+<li>清空所有以太网卡的IPv4地址<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ip -<span class="number">4</span> addr flush <span class="tag">label</span> <span class="string">"eth*"</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h2 id="ip_route命令实例">ip route命令实例</h2><p>ip route命令用来管理路由表。</p>
+<h3 id="show命令-2">show命令</h3><ul>
+<li>查看路由，有两种方式<figure class="highlight puppet"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="literal">ip</span> route show</span><br><span class="line"><span class="literal">ip</span> route</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="add命令-1">add命令</h3><p>添加路由</p>
+<ul>
+<li><p>添加10.0.0.0/24的路由到193.233.7.65</p>
+<figure class="highlight dns"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ip route add <span class="number">10.0.0/24</span> via <span class="number">193.233.7.65</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>添加路由到网络接口</p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">ip</span> route add <span class="number">192.168.0.0</span>/<span class="number">24</span> dev eth0</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="change命令">change命令</h3><p>修改路由</p>
+<ul>
+<li>修改路由为端口<figure class="highlight dns"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ip ro chg <span class="number">10.0.0/24</span> via <span class="number">193.233.7.65</span> dev dummy</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="delete命令-1">delete命令</h3><p>删除路由</p>
+<h2 id="其他命令">其他命令</h2><ul>
+<li><p>查看ARP</p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">ip</span> neighbor show</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>查看策略路由</p>
+<figure class="highlight inform7"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ip <span class="keyword">rule</span> show</span><br></pre></td></tr></table></figure>
 </li>
 </ul>
 
@@ -241,7 +408,7 @@
 
   <div class="article-tags">
   
-  <span></span> <a href="/tags/docker/">docker</a><a href="/tags/zookeeper/">zookeeper</a>
+  <span></span> <a href="/tags/IP/">IP</a><a href="/tags/iproute2/">iproute2</a>
   </div>
 
 </div>
@@ -252,139 +419,7 @@
 <div class="comments-count">
 	
 	  	<span></span>
-		<a href="/2015/09/10/Docker中部署Zookeeper集群/#comments" class="ds-thread-count comments-count-link" data-thread-key="2015/09/10/Docker中部署Zookeeper集群/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-  
-
-
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2015/09/09/CentOS 6.x上为Docker容器配置物理网段的静态IP/" title="CentOS 6.x上为Docker容器配置物理网段的静态IP" itemprop="url">CentOS 6.x上为Docker容器配置物理网段的静态IP</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="chenyang" target="_blank" itemprop="author">chenyang</a>
-		
-  <p class="article-time">
-    <time datetime="2015-09-09T04:21:04.000Z" itemprop="datePublished"> 发表于 2015-09-09</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <h1 id="CentOS_6-x上为Docker容器配置物理网段的静态IP">CentOS 6.x上为Docker容器配置物理网段的静态IP</h1><h2 id="设置宿主机的桥接网卡">设置宿主机的桥接网卡</h2><ul>
-<li><p>安装brctl</p>
-<figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum <span class="keyword">install</span> bridge-util</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>配置桥接接口</p>
-<figure class="highlight armasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">brctl </span><span class="keyword">addbr </span><span class="keyword">br0</span><br><span class="line"></span><span class="keyword">brctl </span><span class="keyword">addif </span><span class="keyword">br0 </span>em1</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>修改ifcfg文件<br>这是br0的配置文件ifcfg-br0：</p>
-<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="setting">DEVICE=<span class="value">br0</span></span></span><br><span class="line"><span class="setting">TYPE=<span class="value">Bridge</span></span></span><br><span class="line"><span class="setting">UUID=<span class="value"><span class="number">99</span>a50e2f-<span class="number">821</span>f-<span class="number">4</span>f1a-a8b1-<span class="number">7</span>cbae4be0cbe</span></span></span><br><span class="line"><span class="setting">ONBOOT=<span class="value"><span class="keyword">yes</span></span></span></span><br><span class="line"><span class="setting">NM_CONTROLLED=<span class="value"><span class="keyword">yes</span></span></span></span><br><span class="line"><span class="setting">BOOTPROTO=<span class="value">none</span></span></span><br><span class="line"><span class="setting">HWADDR=<span class="value"><span class="number">78</span>:<span class="number">2</span>B:CB:<span class="number">43</span>:B8:<span class="number">8</span>E</span></span></span><br><span class="line"><span class="setting">IPADDR=<span class="value"><span class="number">192.168</span>.<span class="number">8.100</span></span></span></span><br><span class="line"><span class="setting">PREFIX=<span class="value"><span class="number">24</span></span></span></span><br><span class="line"><span class="setting">DEFROUTE=<span class="value"><span class="keyword">yes</span></span></span></span><br><span class="line"><span class="setting">IPV4_FAILURE_FATAL=<span class="value"><span class="keyword">yes</span></span></span></span><br><span class="line"><span class="setting">IPV6INIT=<span class="value"><span class="keyword">no</span></span></span></span><br><span class="line"><span class="setting">NAME=<span class="value"><span class="string">"System br0"</span></span></span></span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<p>这是em1的配置文件ifcfg-em1：<br><figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="setting">DEVICE=<span class="value">em1</span></span></span><br><span class="line"><span class="setting">TYPE=<span class="value">Ethernet</span></span></span><br><span class="line"><span class="setting">UUID=<span class="value"><span class="number">99</span>a50e2f-<span class="number">821</span>f-<span class="number">4</span>f1a-a8b1-<span class="number">7</span>cbae4be0cbe</span></span></span><br><span class="line"><span class="setting">ONBOOT=<span class="value"><span class="keyword">yes</span></span></span></span><br><span class="line"><span class="setting">NM_CONTROLLED=<span class="value"><span class="keyword">yes</span></span></span></span><br><span class="line"><span class="setting">BOOTPROTO=<span class="value">none</span></span></span><br><span class="line"><span class="setting">HWADDR=<span class="value"><span class="number">78</span>:<span class="number">2</span>B:CB:<span class="number">43</span>:B8:<span class="number">8</span>E</span></span></span><br><span class="line"><span class="setting">DEFROUTE=<span class="value"><span class="keyword">yes</span></span></span></span><br><span class="line"><span class="setting">IPV4_FAILURE_FATAL=<span class="value"><span class="keyword">yes</span></span></span></span><br><span class="line"><span class="setting">IPV6INIT=<span class="value"><span class="keyword">no</span></span></span></span><br><span class="line"><span class="setting">NAME=<span class="value"><span class="string">"System em1"</span></span></span></span><br><span class="line"><span class="setting">BRIDGE=<span class="value">br0</span></span></span><br></pre></td></tr></table></figure></p>
-<ul>
-<li>重启网络<figure class="highlight puppet"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">service</span> network <span class="literal">restart</span></span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<h2 id="配置Docker使用br0">配置Docker使用br0</h2><ul>
-<li><p>删掉docker0</p>
-<figure class="highlight puppet"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">service</span> docker <span class="literal">stop</span></span><br><span class="line"><span class="literal">ip</span> <span class="literal">link</span> set dev docker<span class="number">0</span> down</span><br><span class="line">brctl delbr docker<span class="number">0</span></span><br><span class="line">iptables -t nat -<span class="constant">F</span> <span class="constant">P</span>OSTROUTING</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>修改Docker变量使用br0</p>
-<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">vim <span class="regexp">/etc/</span>sysconfig/docker</span><br><span class="line">other_args=<span class="string">"-b=br0"</span></span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<blockquote>
-<p>不同的系统变量不一致，官方文档是基于ubuntu的</p>
-</blockquote>
-<ul>
-<li><p>启动Docker</p>
-<figure class="highlight puppet"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">service</span> docker <span class="literal">start</span></span><br></pre></td></tr></table></figure>
-</li>
-<li><p>查看iptables是否正常</p>
-<figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">iptables -t nat -<span class="keyword">L</span> -<span class="keyword">n</span></span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<blockquote>
-<p>Chain POSTROUTING (policy ACCEPT)<br>target     prot opt source               destination<br>MASQUERADE  all  —  192.168.5.0/24      0.0.0.0/0</p>
-</blockquote>
-<h2 id="启动Docker容器并设置固定IP">启动Docker容器并设置固定IP</h2><ul>
-<li><p>启动容器  </p>
-<blockquote>
-<p>启动容器时一定要添加—net=none参数，否则会自动从桥接网卡br0取一个未占用IP地址，很可能是x.x.x.1网关</p>
-</blockquote>
-<figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker <span class="keyword">run</span> -it --<span class="keyword">rm</span> -<span class="keyword">h</span> test000 --<span class="keyword">net</span>=none centos:6 /bin/bash</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>配置IP，步骤比较复杂，参考网络上的脚本略作修改，在宿主机上执行如下脚本</p>
-<blockquote>
-<p>原文：<a href="http://www.xiaomastack.com/2015/02/06/docker-static-ip/" target="_blank" rel="external">http://www.xiaomastack.com/2015/02/06/docker-static-ip/</a></p>
-</blockquote>
-</li>
-</ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#/bin/bash</span></span><br><span class="line"><span class="keyword">if</span> [ -z <span class="variable">$1</span> ] || [ -z <span class="variable">$2</span> ] || [ -z <span class="variable">$3</span> ] || [ -z <span class="variable">$4</span> ];</span><br><span class="line"><span class="keyword">then</span></span><br><span class="line">        <span class="built_in">echo</span> <span class="string">"*****Input the necessary parameters: CONTAINERID IP MASK GATEWAY"</span></span><br><span class="line">        <span class="built_in">echo</span> <span class="string">"*****Call the script like: sh manual_con_static_ip.sh  b0e18b6a4432 192.168.5.123 24 192.168.5.1"</span></span><br><span class="line">        <span class="built_in">exit</span></span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line"></span><br><span class="line">CONTAINERID=<span class="variable">$1</span></span><br><span class="line">SETIP=<span class="variable">$2</span></span><br><span class="line">SETMASK=<span class="variable">$3</span></span><br><span class="line">GATEWAY=<span class="variable">$4</span></span><br><span class="line"></span><br><span class="line">pid=`docker inspect <span class="operator">-f</span> <span class="string">'&#123;&#123;.State.Pid&#125;&#125;'</span> <span class="variable">$CONTAINERID</span>`</span><br><span class="line"><span class="comment">#判断宿主机网卡是否存在</span></span><br><span class="line">ifconfig docker<span class="variable">$pid</span> &gt; /dev/null <span class="number">2</span>&gt;&amp;<span class="number">1</span></span><br><span class="line"><span class="keyword">if</span> [ $? <span class="operator">-eq</span> <span class="number">0</span> ]; <span class="keyword">then</span></span><br><span class="line">    <span class="built_in">read</span> -p <span class="string">"docker<span class="variable">$pid</span> exist,do you want delelte it? y/n "</span> del</span><br><span class="line">    <span class="keyword">if</span> [[ <span class="variable">$del</span> == <span class="string">'y'</span> ]]; <span class="keyword">then</span></span><br><span class="line">    ip link del docker<span class="variable">$pid</span></span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    <span class="built_in">exit</span></span><br><span class="line">    <span class="keyword">fi</span></span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"></span><br><span class="line">mkdir -p /var/run/netns</span><br><span class="line">find -L /var/run/netns -type l -delete</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> [ <span class="operator">-f</span> /var/run/netns/<span class="variable">$pid</span> ]; <span class="keyword">then</span></span><br><span class="line">    rm <span class="operator">-f</span> /var/run/netns/<span class="variable">$pid</span></span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line">ln <span class="operator">-s</span> /proc/<span class="variable">$pid</span>/ns/net /var/run/netns/<span class="variable">$pid</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line">ip link add docker<span class="variable">$pid</span> <span class="built_in">type</span> veth peer name bridge0</span><br><span class="line">brctl addif br0 docker<span class="variable">$pid</span></span><br><span class="line">ip link <span class="built_in">set</span> docker<span class="variable">$pid</span> up</span><br><span class="line">ip link <span class="built_in">set</span> bridge0 netns <span class="variable">$pid</span></span><br><span class="line"><span class="comment">#先删除容器内已存在的eth0</span></span><br><span class="line">ip netns <span class="built_in">exec</span> <span class="variable">$pid</span> ip link del eth0 &gt; /dev/null <span class="number">2</span>&gt;&amp;<span class="number">1</span></span><br><span class="line"><span class="comment">#设置容器新的网卡eth0</span></span><br><span class="line">ip netns <span class="built_in">exec</span> <span class="variable">$pid</span> ip link <span class="built_in">set</span> dev bridge0 name eth0</span><br><span class="line">ip netns <span class="built_in">exec</span> <span class="variable">$pid</span> ip link <span class="built_in">set</span> eth0 up</span><br><span class="line">ip netns <span class="built_in">exec</span> <span class="variable">$pid</span> ip addr add <span class="variable">$SETIP</span>/<span class="variable">$SETMASK</span> dev eth0</span><br><span class="line">ip netns <span class="built_in">exec</span> <span class="variable">$pid</span> ip route add default via <span class="variable">$GATEWAY</span></span><br></pre></td></tr></table></figure>
-<h2 id="关闭容器">关闭容器</h2><p>关闭容器后如果不再使用，要删掉添加的网卡及网络namespace，简单的脚本如下：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#/bin/bash</span></span><br><span class="line"><span class="keyword">if</span> [ -z <span class="variable">$1</span> ];</span><br><span class="line"><span class="keyword">then</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">"*****Input then ecessary parameters: CONTAINERID****"</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">"*****Call the script like: sh shutdowndocker.sh e8eae14aa992"</span></span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line"><span class="comment">#获取到容器的PID</span></span><br><span class="line">pid=`docker inspect <span class="operator">-f</span> <span class="string">'&#123;&#123;.State.Pid&#125;&#125;'</span> <span class="variable">$1</span>`</span><br><span class="line"><span class="comment">#停用并删掉容器</span></span><br><span class="line">docker stop <span class="variable">$1</span></span><br><span class="line">docker rm <span class="variable">$1</span></span><br><span class="line"><span class="comment">#删除容器的网络命名空间及虚拟网卡</span></span><br><span class="line">ip netns delete <span class="variable">$pid</span></span><br></pre></td></tr></table></figure></p>
-<h2 id="遇到的问题">遇到的问题</h2><ul>
-<li>可能会遇到<code>Object &quot;netns&quot; is unknown, try &quot;ip help&quot;.</code>的报错。  </li>
-</ul>
-<ol>
-<li><p>在CentOS6.5以前，内核不支持网络namespace，需要升级内核和iproute。CentOS6.5以后内核已支持网络namespace，只需要升级iproute即可。</p>
-<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum install -y <span class="string">http:</span><span class="comment">//rdo.fedorapeople.org/rdo-release.rpm</span></span><br></pre></td></tr></table></figure>
-</li>
-<li><p>默认的源中的地址已经无效，会报404，修改地址即可</p>
-<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">cat /etc/yum<span class="class">.repos</span><span class="class">.d</span>/rdo-release<span class="class">.repo</span></span><br><span class="line">[openstack-kilo]</span><br><span class="line">name=OpenStack Kilo Repository</span><br><span class="line">baseurl=https:<span class="comment">//repos.fedorapeople.org/repos/openstack/EOL/openstack-icehouse/epel-6/</span></span><br><span class="line">skip_if_unavailable=<span class="number">0</span></span><br><span class="line">enabled=<span class="number">1</span></span><br><span class="line">gpgcheck=<span class="number">0</span></span><br><span class="line">gpgkey=file:<span class="comment">///etc/pki/rpm-gpg/RPM-GPG-KEY-RDO-kilo</span></span><br></pre></td></tr></table></figure>
-</li>
-<li><p>安装iproute</p>
-<figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum <span class="keyword">install</span> -y iproute</span><br></pre></td></tr></table></figure>
-</li>
-</ol>
-<ul>
-<li>还可能遇到<code>RTNETLINK answers: No such process</code>的报错<br>我这里在执行<code>ip netns exec $pid ip route add default via $GATEWAY</code>遇到的是设置容器的IP地址是没有设置掩码，默认设置为了32位，所以无法指定默认网关</li>
-</ul>
-
-        
-        
-        <p class="article-more-link">
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/运维/">运维</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/docker/">docker</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2015/09/09/CentOS 6.x上为Docker容器配置物理网段的静态IP/#comments" class="ds-thread-count comments-count-link" data-thread-key="2015/09/09/CentOS 6.x上为Docker容器配置物理网段的静态IP/" data-count-type="comments">&nbsp;</a>
+		<a href="/2015/10/18/IP命令简介/#comments" class="ds-thread-count comments-count-link" data-thread-key="2015/10/18/IP命令简介/" data-count-type="comments">&nbsp;</a>
 	
 </div>
 
@@ -400,7 +435,7 @@
 
 
   <nav id="page-nav" class="clearfix">
-    <a class="extend prev" rel="prev" href="/"><span></span>Prev</a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><a class="extend next" rel="next" href="/page/3/">Next<span></span></a>
+    <a class="extend prev" rel="prev" href="/"><span></span>Prev</a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><a class="page-number" href="/page/5/">5</a><a class="extend next" rel="next" href="/page/3/">Next<span></span></a>
   </nav>
 
 </div>
@@ -416,7 +451,11 @@
 		<ul>
 		
 		  
-			<li><a href="/categories/运维/" title="运维">运维<sup>9</sup></a></li>
+			<li><a href="/categories/技术/" title="技术">技术<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/运维/" title="运维">运维<sup>11</sup></a></li>
 		  
 		
 		  
@@ -433,7 +472,7 @@
 		<ul class="clearfix">
 		
 			
-				<li><a href="/tags/Nginx/" title="Nginx">Nginx<sup>2</sup></a></li>
+				<li><a href="/tags/Nginx/" title="Nginx">Nginx<sup>3</sup></a></li>
 			
 		
 			
@@ -441,7 +480,7 @@
 			
 		
 			
-				<li><a href="/tags/读书笔记/" title="读书笔记">读书笔记<sup>1</sup></a></li>
+				<li><a href="/tags/IP/" title="IP">IP<sup>1</sup></a></li>
 			
 		
 			
@@ -465,7 +504,7 @@
 			
 		
 			
-				<li><a href="/tags/maven/" title="maven">maven<sup>1</sup></a></li>
+				<li><a href="/tags/读书笔记/" title="读书笔记">读书笔记<sup>1</sup></a></li>
 			
 		
 			
@@ -481,7 +520,7 @@
 			
 		
 			
-				<li><a href="/tags/IP/" title="IP">IP<sup>1</sup></a></li>
+				<li><a href="/tags/maven/" title="maven">maven<sup>1</sup></a></li>
 			
 		
 			
@@ -494,6 +533,22 @@
 		
 			
 				<li><a href="/tags/zookeeper/" title="zookeeper">zookeeper<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/SVN/" title="SVN">SVN<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Hooks/" title="Hooks">Hooks<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Python/" title="Python">Python<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/微服务/" title="微服务">微服务<sup>1</sup></a></li>
 			
 		
 		</ul>
@@ -541,7 +596,7 @@
 		
 
 		<p class="copyright">
-		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2015 
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2016 
 		
 		<a href="/about" target="_blank" title="chenyang">chenyang</a>
 		

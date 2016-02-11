@@ -1,0 +1,544 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>Zabbix安装部署-实操版 | 陈洋|晨阳</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="chenyang">
+    
+
+    
+    <meta name="description" content="安装php编译安装PHP123456789yum -y install patch make gcc gcc-c++ flex bison file libtool libtool-libs autoconf kernel-devel libjpeg libjpeg-devel libpng libpng-devel gd gd-devel freetype freetype-devel libx">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Zabbix安装部署-实操版">
+<meta property="og:url" content="http://chenyang.me/2016/02/11/Zabbix安装部署-实操版/index.html">
+<meta property="og:site_name" content="陈洋|晨阳">
+<meta property="og:description" content="安装php编译安装PHP123456789yum -y install patch make gcc gcc-c++ flex bison file libtool libtool-libs autoconf kernel-devel libjpeg libjpeg-devel libpng libpng-devel gd gd-devel freetype freetype-devel libx">
+<meta property="og:updated_time" content="2016-02-11T08:22:01.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Zabbix安装部署-实操版">
+<meta name="twitter:description" content="安装php编译安装PHP123456789yum -y install patch make gcc gcc-c++ flex bison file libtool libtool-libs autoconf kernel-devel libjpeg libjpeg-devel libpng libpng-devel gd gd-devel freetype freetype-devel libx">
+
+    
+    <link rel="alternative" href="/atom.xml" title="陈洋|晨阳" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="stylesheet" href="/css/style.css" type="text/css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="陈洋|晨阳">陈洋|晨阳</a></h1>
+				<h2 class="blog-motto"></h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:chenyang.me">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2016/02/11/Zabbix安装部署-实操版/" title="Zabbix安装部署-实操版" itemprop="url">Zabbix安装部署-实操版</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="chenyang" target="_blank" itemprop="author">chenyang</a>
+		
+  <p class="article-time">
+    <time datetime="2016-02-11T08:22:31.000Z" itemprop="datePublished"> 发表于 2016-02-11</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#安装php"><span class="toc-number">1.</span> <span class="toc-text">安装php</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#编译安装PHP"><span class="toc-number">1.1.</span> <span class="toc-text">编译安装PHP</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#配置PHP"><span class="toc-number">1.2.</span> <span class="toc-text">配置PHP</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#编译安装nginx"><span class="toc-number">2.</span> <span class="toc-text">编译安装nginx</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#安装MySQL"><span class="toc-number">3.</span> <span class="toc-text">安装MySQL</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#编译MySQL"><span class="toc-number">3.1.</span> <span class="toc-text">编译MySQL</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#配置MySQL"><span class="toc-number">3.2.</span> <span class="toc-text">配置MySQL</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#安装及配置Zabbix"><span class="toc-number">4.</span> <span class="toc-text">安装及配置Zabbix</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#安装Zabbix"><span class="toc-number">4.1.</span> <span class="toc-text">安装Zabbix</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#创建Zabbix数据库"><span class="toc-number">4.2.</span> <span class="toc-text">创建Zabbix数据库</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#修改Zabbix配置"><span class="toc-number">4.3.</span> <span class="toc-text">修改Zabbix配置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#启动Zabbix_Server"><span class="toc-number">4.4.</span> <span class="toc-text">启动Zabbix Server</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#部署Zabbix_Web页面"><span class="toc-number">4.5.</span> <span class="toc-text">部署Zabbix Web页面</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#其他问题"><span class="toc-number">5.</span> <span class="toc-text">其他问题</span></a></li></ol>
+		
+		</div>
+		
+		<h2 id="安装php">安装php</h2><h3 id="编译安装PHP">编译安装PHP</h3><figure class="highlight brainfuck"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">yum</span> <span class="literal">-</span><span class="comment">y</span> <span class="comment">install</span> <span class="comment">patch</span> <span class="comment">make</span> <span class="comment">gcc</span> <span class="comment">gcc</span><span class="literal">-</span><span class="comment">c</span><span class="literal">+</span><span class="literal">+</span> <span class="comment">flex</span> <span class="comment">bison</span> <span class="comment">file</span> <span class="comment">libtool</span> <span class="comment">libtool</span><span class="literal">-</span><span class="comment">libs</span> <span class="comment">autoconf</span> <span class="comment">kernel</span><span class="literal">-</span><span class="comment">devel</span> <span class="comment">libjpeg</span> <span class="comment">libjpeg</span><span class="literal">-</span><span class="comment">devel</span> <span class="comment">libpng</span> <span class="comment">libpng</span><span class="literal">-</span><span class="comment">devel</span> <span class="comment">gd</span> <span class="comment">gd</span><span class="literal">-</span><span class="comment">devel</span> <span class="comment">freetype</span> <span class="comment">freetype</span><span class="literal">-</span><span class="comment">devel</span> <span class="comment">libxml2</span> <span class="comment">libxml2</span><span class="literal">-</span><span class="comment">devel</span> <span class="comment">zlib</span> <span class="comment">zlib</span><span class="literal">-</span><span class="comment">devel</span> <span class="comment">glib2</span> <span class="comment">glib2</span><span class="literal">-</span><span class="comment">devel</span> <span class="comment">bzip2</span> <span class="comment">bzip2</span><span class="literal">-</span><span class="comment">devel</span> <span class="comment">libevent</span> <span class="comment">libevent</span><span class="literal">-</span><span class="comment">devel</span> <span class="comment">ncurses</span> <span class="comment">ncurses</span><span class="literal">-</span><span class="comment">devel</span> <span class="comment">curl</span> <span class="comment">curl</span><span class="literal">-</span><span class="comment">devel</span> <span class="comment">e2fsprogs</span> <span class="comment">e2fsprogs</span><span class="literal">-</span><span class="comment">devel</span> <span class="comment">krb5</span><span class="literal">-</span><span class="comment">devel</span> <span class="comment">libidn</span> <span class="comment">libidn</span><span class="literal">-</span><span class="comment">devel</span> <span class="comment">openssl</span> <span class="comment">openssl</span><span class="literal">-</span><span class="comment">devel</span> <span class="comment">vim</span><span class="literal">-</span><span class="comment">minimal</span> <span class="comment">nano</span> <span class="comment">gettext</span> <span class="comment">gettext</span><span class="literal">-</span><span class="comment">devel</span> <span class="comment">ncurses</span><span class="literal">-</span><span class="comment">devel</span> <span class="comment">gmp</span><span class="literal">-</span><span class="comment">devel</span> <span class="comment">unzip</span> <span class="comment">libcap</span> <span class="comment">libtool</span><span class="literal">-</span><span class="comment">ltdl</span> <span class="comment">libtool</span><span class="literal">-</span><span class="comment">ltdl</span><span class="literal">-</span><span class="comment">devel</span> <span class="comment">libmcrypt</span> <span class="comment">libmcrypt</span><span class="literal">-</span><span class="comment">devel</span> <span class="comment">openldap</span><span class="literal">-</span><span class="comment">devel</span></span><br><span class="line"></span><br><span class="line"><span class="comment">wget</span> <span class="comment">http://cn2</span><span class="string">.</span><span class="comment">php</span><span class="string">.</span><span class="comment">net/distributions/php</span><span class="literal">-</span><span class="comment">5</span><span class="string">.</span><span class="comment">6</span><span class="string">.</span><span class="comment">17</span><span class="string">.</span><span class="comment">tar</span><span class="string">.</span><span class="comment">gz</span></span><br><span class="line"></span><br><span class="line"><span class="string">.</span><span class="comment">/buildconf</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">force</span></span><br><span class="line"><span class="string">.</span><span class="comment">/configure</span>  <span class="literal">-</span><span class="literal">-</span><span class="comment">prefix=/usr/local/php</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">with</span><span class="literal">-</span><span class="comment">config</span><span class="literal">-</span><span class="comment">file</span><span class="literal">-</span><span class="comment">path=/usr/local/php/etc</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">with</span><span class="literal">-</span><span class="comment">bz2</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">with</span><span class="literal">-</span><span class="comment">curl</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">enable</span><span class="literal">-</span><span class="comment">ftp</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">enable</span><span class="literal">-</span><span class="comment">sockets</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">disable</span><span class="literal">-</span><span class="comment">ipv6</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">with</span><span class="literal">-</span><span class="comment">gd</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">with</span><span class="literal">-</span><span class="comment">jpeg</span><span class="literal">-</span><span class="comment">dir=/usr/local</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">with</span><span class="literal">-</span><span class="comment">png</span><span class="literal">-</span><span class="comment">dir=/usr/local</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">with</span><span class="literal">-</span><span class="comment">freetype</span><span class="literal">-</span><span class="comment">dir=/usr/local</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">enable</span><span class="literal">-</span><span class="comment">gd</span><span class="literal">-</span><span class="comment">native</span><span class="literal">-</span><span class="comment">ttf</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">with</span><span class="literal">-</span><span class="comment">iconv</span><span class="literal">-</span><span class="comment">dir=/usr/local</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">enable</span><span class="literal">-</span><span class="comment">mbstring</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">enable</span><span class="literal">-</span><span class="comment">calendar</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">with</span><span class="literal">-</span><span class="comment">gettext</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">with</span><span class="literal">-</span><span class="comment">libxml</span><span class="literal">-</span><span class="comment">dir=/usr/local</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">with</span><span class="literal">-</span><span class="comment">zlib</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">with</span><span class="literal">-</span><span class="comment">pdo</span><span class="literal">-</span><span class="comment">mysql=mysqlnd</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">with</span><span class="literal">-</span><span class="comment">mysqli=mysqlnd</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">with</span><span class="literal">-</span><span class="comment">mysql=mysqlnd</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">enable</span><span class="literal">-</span><span class="comment">dom</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">enable</span><span class="literal">-</span><span class="comment">xml</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">enable</span><span class="literal">-</span><span class="comment">fpm</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">with</span><span class="literal">-</span><span class="comment">libdir=lib64</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">enable</span><span class="literal">-</span><span class="comment">bcmath</span></span><br><span class="line"></span><br><span class="line"><span class="comment">make</span></span><br><span class="line"><span class="comment">make</span> <span class="comment">install</span></span><br></pre></td></tr></table></figure>
+<h3 id="配置PHP">配置PHP</h3><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">cp php<span class="class">.ini-production</span> /usr/local/php/etc/php<span class="class">.ini</span></span><br><span class="line">mkdir /usr/local/php/etc/php<span class="class">.d</span></span><br><span class="line"></span><br><span class="line">sed -<span class="tag">i</span> <span class="string">'s#output_buffering = Off#output_buffering = On#'</span> /usr/local/php/etc/php<span class="class">.ini</span></span><br><span class="line">sed -<span class="tag">i</span> <span class="string">'s/post_max_size = 8M/post_max_size = 50M/g'</span> /usr/local/php/etc/php<span class="class">.ini</span></span><br><span class="line">sed -<span class="tag">i</span> <span class="string">'s/upload_max_filesize = 2M/upload_max_filesize = 50M/g'</span> /usr/local/php/etc/php<span class="class">.ini</span></span><br><span class="line">sed -<span class="tag">i</span> <span class="string">'s/;date.timezone =/date.timezone = PRC/g'</span> /usr/local/php/etc/php<span class="class">.ini</span></span><br><span class="line">sed -<span class="tag">i</span> <span class="string">'s/short_open_tag = Off/short_open_tag = On/g'</span> /usr/local/php/etc/php<span class="class">.ini</span></span><br><span class="line">sed -<span class="tag">i</span> <span class="string">'s/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=1/g'</span> /usr/local/php/etc/php<span class="class">.ini</span></span><br><span class="line">sed -<span class="tag">i</span> <span class="string">'s/;cgi.fix_pathinfo=0/cgi.fix_pathinfo=1/g'</span> /usr/local/php/etc/php<span class="class">.ini</span></span><br><span class="line">sed -<span class="tag">i</span> <span class="string">'s/max_execution_time = 30/max_execution_time = 300/g'</span> /usr/local/php/etc/php<span class="class">.ini</span></span><br><span class="line">sed -<span class="tag">i</span> <span class="string">'s/max_input_time = 60/max_input_time = 300/g'</span> /usr/local/php/etc/php<span class="class">.ini</span></span><br><span class="line">sed -<span class="tag">i</span> <span class="string">'s/expose_php = On/expose_php = Off/g'</span> /usr/local/php/etc/php<span class="class">.ini</span></span><br><span class="line">sed -<span class="tag">i</span> <span class="string">'s!; extension_dir = "./"!extension_dir = "/usr/local/php/lib/php/extensions/no-debug-non-zts-20090626"!g'</span> /usr/local/php/etc/php<span class="class">.ini</span></span><br><span class="line"></span><br><span class="line">cp sapi/fpm/init<span class="class">.d</span><span class="class">.php-fpm</span> /etc/init.d/php-fpm #因为php5.<span class="number">3</span>开始自带fpm，使用自带的管理脚本</span><br><span class="line">chmod +x /etc/init.d/php-fpm</span><br><span class="line">chkconfig php-fpm on #设置开机自启动</span><br><span class="line">cp /usr/local/php/etc/php-fpm<span class="class">.conf</span><span class="class">.default</span> /usr/local/php/etc/php-fpm.conf</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>注：max_input_time = 300</p>
+</blockquote>
+<h2 id="编译安装nginx">编译安装nginx</h2><figure class="highlight brainfuck"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">useradd</span> <span class="literal">-</span><span class="comment">s</span> <span class="comment">/sbin/nologin</span> <span class="literal">-</span><span class="comment">M</span> <span class="comment">www</span></span><br><span class="line"></span><br><span class="line"><span class="comment">wget</span> <span class="comment">http://nginx</span><span class="string">.</span><span class="comment">org/download/nginx</span><span class="literal">-</span><span class="comment">1</span><span class="string">.</span><span class="comment">8</span><span class="string">.</span><span class="comment">0</span><span class="string">.</span><span class="comment">tar</span><span class="string">.</span><span class="comment">gz</span></span><br><span class="line"></span><br><span class="line"><span class="comment">yum</span> <span class="comment">install</span> <span class="comment">gcc</span> <span class="comment">zlib</span><span class="literal">-</span><span class="comment">devel</span> <span class="comment">openssl</span><span class="literal">-</span><span class="comment">devel</span> <span class="comment">pcre</span><span class="literal">-</span><span class="comment">devel</span></span><br><span class="line"><span class="string">.</span><span class="comment">/configure</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">user=www</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">group=www</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">prefix=/usr/local/nginx</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">with</span><span class="literal">-</span><span class="comment">http_stub_status_module</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">with</span><span class="literal">-</span><span class="comment">http_ssl_module</span></span><br><span class="line"><span class="comment">make</span></span><br><span class="line"><span class="comment">make</span> <span class="comment">install</span></span><br></pre></td></tr></table></figure>
+<h2 id="安装MySQL">安装MySQL</h2><h3 id="编译MySQL">编译MySQL</h3><figure class="highlight nix"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">yum install –y autoconf automake imake libxml2-devel expat-devel cmake gcc gcc-c++ libaio libaio-devel bzr bison libtool ncurses5-devel</span><br><span class="line"></span><br><span class="line">wget http://dev.mysql.com/get/Downloads/MySQL-<span class="number">5.6</span>/mysql-<span class="number">5.6</span>.<span class="number">28</span>.tar.gz</span><br><span class="line"></span><br><span class="line">useradd -s /sbin/nologin -M mysql</span><br><span class="line">cmake <span class="variable">-DCMAKE_INSTALL_PREFIX=</span>/usr/local/mysql <span class="variable">-DMYSQL_DATADIR=</span>/data/mysql/data <span class="variable">-DSYSCONFDIR=</span>/etc <span class="variable">-DWITH_MYISAM_STORAGE_ENGINE=</span><span class="number">1</span> <span class="variable">-DWITH_INNOBASE_STORAGE_ENGINE=</span><span class="number">1</span> <span class="variable">-DWITH_MEMORY_STORAGE_ENGINE=</span><span class="number">1</span> <span class="variable">-DWITH_READLINE=</span><span class="number">1</span> <span class="variable">-DMYSQL_UNIX_ADDR=</span>/var/lib/mysql/mysql.sock <span class="variable">-DMYSQL_TCP_PORT=</span><span class="number">3306</span> <span class="variable">-DENABLED_LOCAL_INFILE=</span><span class="number">1</span> <span class="variable">-DWITH_PARTITION_STORAGE_ENGINE=</span><span class="number">1</span> <span class="variable">-DEXTRA_CHARSETS=</span>all <span class="variable">-DDEFAULT_CHARSET=</span>utf8 <span class="variable">-DDEFAULT_COLLATION=</span>utf8_general_ci</span><br><span class="line"></span><br><span class="line">make</span><br><span class="line">make install</span><br></pre></td></tr></table></figure>
+<h3 id="配置MySQL">配置MySQL</h3><figure class="highlight lasso"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">chown <span class="attribute">-R</span> mysql:mysql /usr/<span class="built_in">local</span>/mysql</span><br><span class="line"></span><br><span class="line">cd /usr/<span class="built_in">local</span>/mysql</span><br><span class="line">scripts/mysql_install_db <span class="subst">--</span>basedir<span class="subst">=</span>/usr/<span class="built_in">local</span>/mysql <span class="subst">--</span>datadir<span class="subst">=</span>/<span class="built_in">data</span>/mysql/<span class="built_in">data</span> <span class="subst">--</span>user<span class="subst">=</span>mysql</span><br><span class="line">cp support<span class="attribute">-files</span>/mysql<span class="built_in">.</span>server /etc/init<span class="built_in">.</span>d/mysql</span><br><span class="line"></span><br><span class="line">chkconfig mysql <span class="keyword">on</span></span><br><span class="line">service mysql start</span><br><span class="line"></span><br><span class="line">mysql <span class="attribute">-uroot</span></span><br><span class="line">mysql<span class="subst">&gt;</span> <span class="built_in">SET</span> PASSWORD <span class="subst">=</span> PASSWORD(<span class="string">'9XFIo1y6G9QPWsF5y1U6'</span>);</span><br><span class="line"></span><br><span class="line">mysql<span class="subst">&gt;</span> GRANT <span class="literal">ALL</span> PRIVILEGES <span class="keyword">ON</span> <span class="subst">*</span><span class="built_in">.</span><span class="subst">*</span> <span class="keyword">TO</span> <span class="string">'root'</span>@<span class="string">'%'</span> IDENTIFIED <span class="keyword">BY</span> <span class="string">'9XFIo1y6G9QPWsF5y1U6'</span> <span class="keyword">WITH</span> GRANT OPTION;</span><br></pre></td></tr></table></figure>
+<h2 id="安装及配置Zabbix">安装及配置Zabbix</h2><h3 id="安装Zabbix">安装Zabbix</h3><figure class="highlight brainfuck"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">groupadd</span> <span class="comment">zabbix</span></span><br><span class="line"><span class="comment">useradd</span> <span class="literal">-</span><span class="comment">g</span> <span class="comment">zabbix</span> <span class="comment">zabbix</span></span><br><span class="line"></span><br><span class="line"><span class="comment">wget</span> <span class="comment">http://netix</span><span class="string">.</span><span class="comment">dl</span><span class="string">.</span><span class="comment">sourceforge</span><span class="string">.</span><span class="comment">net/project/zabbix/ZABBIX%20Latest%20Stable/2</span><span class="string">.</span><span class="comment">4</span><span class="string">.</span><span class="comment">7/zabbix</span><span class="literal">-</span><span class="comment">2</span><span class="string">.</span><span class="comment">4</span><span class="string">.</span><span class="comment">7</span><span class="string">.</span><span class="comment">tar</span><span class="string">.</span><span class="comment">gz</span></span><br><span class="line"></span><br><span class="line"><span class="comment">yum</span> <span class="literal">-</span><span class="comment">y</span> <span class="comment">install</span> <span class="comment">net</span><span class="literal">-</span><span class="comment">snmp</span><span class="literal">-</span><span class="comment">devel</span> <span class="comment">libxml2</span><span class="literal">-</span><span class="comment">devel</span> <span class="comment">libcurl</span><span class="literal">-</span><span class="comment">devel</span></span><br><span class="line"><span class="string">.</span><span class="comment">/configure</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">prefix=/usr/local/zabbix</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">enable</span><span class="literal">-</span><span class="comment">server</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">enable</span><span class="literal">-</span><span class="comment">agent</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">with</span><span class="literal">-</span><span class="comment">mysql</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">with</span><span class="literal">-</span><span class="comment">net</span><span class="literal">-</span><span class="comment">snmp</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">with</span><span class="literal">-</span><span class="comment">libcurl</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">with</span><span class="literal">-</span><span class="comment">libxml2</span></span><br><span class="line"><span class="comment">make</span></span><br><span class="line"><span class="comment">make</span> <span class="comment">install</span></span><br></pre></td></tr></table></figure>
+<h3 id="创建Zabbix数据库">创建Zabbix数据库</h3><figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">create</span> database zabbix default charset utf8;</span><br><span class="line"><span class="title">create</span> user <span class="string">"zabbix"</span>@<span class="string">"localhost"</span> IDENTIFIED BY <span class="string">'G9QPWsF5y1U6'</span>;</span><br><span class="line"><span class="title">grant</span> all <span class="built_in">on</span> <span class="regexp">zabbix.*</span> to <span class="string">"zabbix"</span>@<span class="string">"localhost"</span>;</span><br><span class="line"></span><br><span class="line"><span class="title">mysql</span> -uroot -p zabbix &lt; database/mysql/schema.sql</span><br><span class="line">mysql -uroot -p zabbix &lt; database/mysql/images.sql</span><br><span class="line">mysql -uroot -p zabbix &lt; database/mysql/data.sql</span><br></pre></td></tr></table></figure>
+<h3 id="修改Zabbix配置">修改Zabbix配置</h3><figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">cd</span> /usr/<span class="keyword">local</span>/zabbix/etc</span><br><span class="line">vim zabbix_server.<span class="keyword">conf</span></span><br></pre></td></tr></table></figure>
+<p>修改数据库信息:数据库服务器地址、账号、密码等</p>
+<blockquote>
+<p>注：如果出现数据库报错：<br>ln -s /usr/local/mysql/lib/libmysqlclient.so.18 /usr/lib64/</p>
+</blockquote>
+<h3 id="启动Zabbix_Server">启动Zabbix Server</h3><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sbin/zabbix_server</span><br></pre></td></tr></table></figure>
+<h3 id="部署Zabbix_Web页面">部署Zabbix Web页面</h3><figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cp -r frontends<span class="regexp">/php/</span>* <span class="regexp">/data/</span>apps<span class="regexp">/zabbix-web/</span></span><br></pre></td></tr></table></figure>
+<p>配置一个Nginx vhost即可</p>
+<h2 id="其他问题">其他问题</h2><ul>
+<li>只有guest用户，无法admin登陆  <ul>
+<li>修改php.ini修改为：<br>cgi.fix_pathinfo=1</li>
+</ul>
+</li>
+</ul>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/运维/">运维</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/MySQL/">MySQL</a><a href="/tags/Nginx/">Nginx</a><a href="/tags/PHP/">PHP</a><a href="/tags/Zabbix/">Zabbix</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://chenyang.me/2016/02/11/Zabbix安装部署-实操版/" data-title="Zabbix安装部署-实操版 | 陈洋|晨阳" data-tsina="null" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+
+<div class="next">
+<a href="/2016/01/05/【译】微服务入门/"  title="">
+ <strong>下一篇：</strong><br/> 
+ <span>(no title)
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="2016/02/11/Zabbix安装部署-实操版/" data-title="Zabbix安装部署-实操版" data-url="http://chenyang.me/2016/02/11/Zabbix安装部署-实操版/"></div>
+</section>
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#安装php"><span class="toc-number">1.</span> <span class="toc-text">安装php</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#编译安装PHP"><span class="toc-number">1.1.</span> <span class="toc-text">编译安装PHP</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#配置PHP"><span class="toc-number">1.2.</span> <span class="toc-text">配置PHP</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#编译安装nginx"><span class="toc-number">2.</span> <span class="toc-text">编译安装nginx</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#安装MySQL"><span class="toc-number">3.</span> <span class="toc-text">安装MySQL</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#编译MySQL"><span class="toc-number">3.1.</span> <span class="toc-text">编译MySQL</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#配置MySQL"><span class="toc-number">3.2.</span> <span class="toc-text">配置MySQL</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#安装及配置Zabbix"><span class="toc-number">4.</span> <span class="toc-text">安装及配置Zabbix</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#安装Zabbix"><span class="toc-number">4.1.</span> <span class="toc-text">安装Zabbix</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#创建Zabbix数据库"><span class="toc-number">4.2.</span> <span class="toc-text">创建Zabbix数据库</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#修改Zabbix配置"><span class="toc-number">4.3.</span> <span class="toc-text">修改Zabbix配置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#启动Zabbix_Server"><span class="toc-number">4.4.</span> <span class="toc-text">启动Zabbix Server</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#部署Zabbix_Web页面"><span class="toc-number">4.5.</span> <span class="toc-text">部署Zabbix Web页面</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#其他问题"><span class="toc-number">5.</span> <span class="toc-text">其他问题</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/技术/" title="技术">技术<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/运维/" title="运维">运维<sup>11</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/阅读/" title="阅读">阅读<sup>1</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/Nginx/" title="Nginx">Nginx<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker/" title="docker">docker<sup>2</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/IP/" title="IP">IP<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/LEMP/" title="LEMP">LEMP<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/shutdown/" title="shutdown">shutdown<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/批处理/" title="批处理">批处理<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/nexus/" title="nexus">nexus<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/DDOS/" title="DDOS">DDOS<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/读书笔记/" title="读书笔记">读书笔记<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/超级整理术/" title="超级整理术">超级整理术<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mac/" title="mac">mac<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ssh/" title="ssh">ssh<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/maven/" title="maven">maven<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/iproute2/" title="iproute2">iproute2<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/DigitalOcean/" title="DigitalOcean">DigitalOcean<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/zookeeper/" title="zookeeper">zookeeper<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/SVN/" title="SVN">SVN<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Hooks/" title="Hooks">Hooks<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Python/" title="Python">Python<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/微服务/" title="微服务">微服务<sup>1</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+    </ul>
+</div>
+
+  
+
+
+  <div class="rsspart">
+	<a href="/atom.xml" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	
+	<section class="info">
+		<p> Hello ,I&#39;m ChenYang from beijing. <br/>
+			This is my blog,believe it or not.</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2016 
+		
+		<a href="/about" target="_blank" title="chenyang">chenyang</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"chyang"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>
