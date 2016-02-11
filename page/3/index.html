@@ -74,96 +74,6 @@
         <header class="article-info clearfix">
   <h1 itemprop="name">
     
-      <a href="/2015/09/10/Docker中部署Zookeeper集群/" title="Docker中部署Zookeeper集群" itemprop="url">Docker中部署Zookeeper集群</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="chenyang" target="_blank" itemprop="author">chenyang</a>
-		
-  <p class="article-time">
-    <time datetime="2015-09-10T04:48:06.000Z" itemprop="datePublished"> 发表于 2015-09-10</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <h1 id="Docker中部署Zookeeper集群">Docker中部署Zookeeper集群</h1><p>上一篇汇总了Docker主机初始化及容器初始化脚本的一些内容，昨天下午在此基础上开始构建Zookeeper的镜像，今天上午结合昨天初始化容器的脚本，完成了一键启动3台Zookeeper集群的脚本，在这里记录下。</p>
-<h2 id="Dockerfile文件">Dockerfile文件</h2><ul>
-<li>jdk是用的内网自己搭建的repo，因此添加了一个repo，也可以使用公共的或编译安装，去掉那一行，修改下方<code>yum install -y jdk1.8.0_51</code>即可。</li>
-<li>centos:6.7是根据官方镜像更新、修改的<figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">FROM</span> centos:<span class="number">6.7</span></span><br><span class="line"><span class="built_in">MAINTAINER</span> me@chenyang.me</span><br><span class="line"><span class="built_in">USER</span> root</span><br><span class="line"></span><br><span class="line"><span class="built_in">ADD</span> <span class="bash">test.repo /etc/yum.repos.d/test.repo</span><br><span class="line"></span><span class="built_in">ADD</span> <span class="bash">zookeeper-<span class="number">3.4</span>.<span class="number">6</span> /usr/<span class="built_in">local</span>/zookeeper</span><br><span class="line"></span><span class="built_in">COPY</span> <span class="bash">hosts /etc/hosts</span><br><span class="line"></span><span class="built_in">RUN</span> <span class="bash">yum clean all &amp;&amp; yum install -y jdk1.<span class="number">8.0</span>_51 &amp;&amp; yum clean all &amp;&amp; mkdir -p /usr/<span class="built_in">local</span>/zookeeper/data</span><br><span class="line"></span><span class="built_in">WORKDIR</span> <span class="bash">/usr/<span class="built_in">local</span>/zookeeper</span><br><span class="line"></span></span><br><span class="line"><span class="built_in">ADD</span> <span class="bash">start.sh /start.sh</span><br><span class="line"></span><span class="built_in">RUN</span> <span class="bash">chmod +x /start.sh</span><br><span class="line"></span></span><br><span class="line"><span class="built_in">CMD</span> <span class="bash">[<span class="string">"/start.sh"</span>]</span><br><span class="line"></span></span><br><span class="line"><span class="built_in">EXPOSE</span> <span class="number">2181</span> <span class="number">2888</span> <span class="number">3888</span></span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<h2 id="编写启动脚本">编写启动脚本</h2><ul>
-<li>ZOO_ID是定义的一个参数，会从稍后的一键启动脚本中传入，start.sh会将它写到myid文件中<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="shebang">#!/bin/bash</span><br><span class="line"></span></span><br><span class="line"><span class="keyword">if</span> [ -z <span class="variable">$&#123;ZOO_ID&#125;</span> ] ; <span class="keyword">then</span></span><br><span class="line">  <span class="built_in">echo</span> <span class="string">'No ID specified, please specify one between 1 and 255'</span></span><br><span class="line">  <span class="built_in">exit</span> -<span class="number">1</span></span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> [ ! <span class="operator">-f</span> /conf/zoo.cfg ] ; <span class="keyword">then</span></span><br><span class="line">  <span class="built_in">echo</span> <span class="string">'Waiting for config file to appear...'</span></span><br><span class="line">  <span class="keyword">while</span> [ ! <span class="operator">-f</span> /usr/<span class="built_in">local</span>/zookeeper/conf/zoo.cfg ] ; <span class="keyword">do</span></span><br><span class="line">    sleep <span class="number">1</span></span><br><span class="line">  <span class="keyword">done</span></span><br><span class="line">  <span class="built_in">echo</span> <span class="string">'Config file found, starting server.'</span></span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line"></span><br><span class="line">mkdir -p /usr/<span class="built_in">local</span>/zookeeper/data</span><br><span class="line"></span><br><span class="line"><span class="built_in">echo</span> <span class="string">"<span class="variable">$&#123;ZOO_ID&#125;</span>"</span> &gt; /usr/<span class="built_in">local</span>/zookeeper/data/myid</span><br><span class="line"></span><br><span class="line">/usr/<span class="built_in">local</span>/zookeeper/bin/zkServer.sh start-foreground</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<h2 id="一键启动脚本">一键启动脚本</h2><ul>
-<li>在昨天的容器初始化脚本上做了一些修改，将一些参数在脚本中直接设定了，不再接受传入参数，具体说明如下：</li>
-</ul>
-<ol>
-<li>ZOO_ID如上所说，会传入start.sh脚本写入myid文件</li>
-<li>Zookeeper的配置文件是映射了宿主机的一个目录，三个容器共享一份配置文件</li>
-<li>因为无法直接修改容器内的/etc/hosts文件，这里使用—add-host传入</li>
-<li>zookeeper:0.2为根据上边Dockerfile构建的镜像及tag号<figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line">#/bin/bash</span><br><span class="line">IPs=(192.168.8.200 192.168.8.201 192.168.8.202)</span><br><span class="line">GATEWAY=192.168.8.1</span><br><span class="line">#开始循环，创建3个容器</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> &#123;1..3&#125; ; <span class="keyword">do</span></span><br><span class="line">CONTAINERID=`docker <span class="keyword">run</span> -<span class="keyword">d</span> -v /docker/zookeeper/<span class="keyword">conf</span>:/usr/<span class="keyword">local</span>/zookeeper/<span class="keyword">conf</span> -<span class="keyword">e</span> ZOO_ID=<span class="label">$&#123;i&#125;</span> -<span class="keyword">h</span> zk0<span class="label">$&#123;i&#125;</span> --name zk0<span class="label">$&#123;i&#125;</span> --<span class="keyword">net</span>=none \</span><br><span class="line">--add-host zk01.<span class="keyword">test</span>:<span class="label">$&#123;IPs</span>[0]&#125; --add-host zk02.<span class="keyword">test</span>:<span class="label">$&#123;IPs</span>[1]&#125; --add-host zk03.<span class="keyword">test</span>:<span class="label">$&#123;IPs</span>[2]&#125; zookeeper:0.2`</span><br><span class="line">SETIP=<span class="label">$&#123;IPs</span>[<span class="label">$i</span>-1]&#125;</span><br><span class="line"></span><br><span class="line">pid=`docker <span class="keyword">inspect</span> -f '&#123;&#123;.State.Pid&#125;&#125;' <span class="label">$CONTAINERID</span>`</span><br><span class="line">#判断宿主机网卡是否存在</span><br><span class="line">ifconfig docker<span class="label">$pid</span> &gt; /dev/null 2&gt;&amp;1</span><br><span class="line"><span class="keyword">if</span> [ $? -<span class="keyword">eq</span> 0 ]; then</span><br><span class="line">    ip link del docker<span class="label">$pid</span></span><br><span class="line">fi</span><br><span class="line"></span><br><span class="line"><span class="keyword">mkdir</span> -p /<span class="keyword">var</span>/<span class="keyword">run</span>/netns</span><br><span class="line">find -<span class="keyword">L</span> /<span class="keyword">var</span>/<span class="keyword">run</span>/netns -<span class="keyword">type</span> <span class="keyword">l</span> -delete</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> [ -f /<span class="keyword">var</span>/<span class="keyword">run</span>/netns/<span class="label">$pid</span> ]; then</span><br><span class="line">    <span class="keyword">rm</span> -f /<span class="keyword">var</span>/<span class="keyword">run</span>/netns/<span class="label">$pid</span></span><br><span class="line">fi</span><br><span class="line">ln -s /proc/<span class="label">$pid</span>/ns/<span class="keyword">net</span> /<span class="keyword">var</span>/<span class="keyword">run</span>/netns/<span class="label">$pid</span></span><br><span class="line">#</span><br><span class="line">ip link add docker<span class="label">$pid</span> <span class="keyword">type</span> veth peer name bridge0</span><br><span class="line">brctl addif br0 docker<span class="label">$pid</span></span><br><span class="line">ip link <span class="keyword">set</span> docker<span class="label">$pid</span> up</span><br><span class="line">ip link <span class="keyword">set</span> bridge0 netns <span class="label">$pid</span></span><br><span class="line">#先删除容器内已存在的eth0</span><br><span class="line">ip netns exec <span class="label">$pid</span> ip link del eth0 &gt; /dev/null 2&gt;&amp;1</span><br><span class="line">#设置容器新的网卡eth0</span><br><span class="line">ip netns exec <span class="label">$pid</span> ip link <span class="keyword">set</span> dev bridge0 name eth0</span><br><span class="line">ip netns exec <span class="label">$pid</span> ip link <span class="keyword">set</span> eth0 up</span><br><span class="line">ip netns exec <span class="label">$pid</span> ip addr add <span class="label">$SETIP</span>/24 dev eth0</span><br><span class="line">ip netns exec <span class="label">$pid</span> ip route add default via <span class="label">$GATEWAY</span></span><br><span class="line">done</span><br></pre></td></tr></table></figure>
-</li>
-</ol>
-<h2 id="补充">补充</h2><ul>
-<li>运行脚本后会自动启动3个容器，目前没有映射data目录，所以如果Docker出现问题后重新启动Zookeeper容器，还需要创建一些目录和节点，这个需要后续改善。</li>
-<li>目前参数都是固化在脚本中，不太适合后续做自动化工作，也需要改善，但这么多的参数感觉编写脚本是个比较麻烦的事情，再看看有没有其他的解决方案。</li>
-<li>参考了一些网上的资料：<blockquote>
-<p><a href="https://github.com/wouterd/docker-zookeeper" target="_blank" rel="external">https://github.com/wouterd/docker-zookeeper</a></p>
-</blockquote>
-</li>
-</ul>
-
-        
-        
-        <p class="article-more-link">
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/运维/">运维</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/docker/">docker</a><a href="/tags/zookeeper/">zookeeper</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2015/09/10/Docker中部署Zookeeper集群/#comments" class="ds-thread-count comments-count-link" data-thread-key="2015/09/10/Docker中部署Zookeeper集群/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-  
-
-
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
       <a href="/2015/09/09/CentOS 6.x上为Docker容器配置物理网段的静态IP/" title="CentOS 6.x上为Docker容器配置物理网段的静态IP" itemprop="url">CentOS 6.x上为Docker容器配置物理网段的静态IP</a>
   </h1>
   <p class="article-author">By
@@ -415,6 +325,86 @@
 
 
 
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2014/04/29/mac下使用ssh动态代理/" title="Mac下使用SSH动态代理" itemprop="url">Mac下使用SSH动态代理</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="chenyang" target="_blank" itemprop="author">chenyang</a>
+		
+  <p class="article-time">
+    <time datetime="2014-04-29T04:03:07.000Z" itemprop="datePublished"> 发表于 2014-04-29</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <h1 id="Mac下使用SSH动态代理">Mac下使用SSH动态代理</h1><p>最近IDC内部署了不少虚拟机，没有公网IP，之前使用ssh端口映射的方式，但没一个会话都需要映射一个端口，且ssh断开后，映射的侦听端口还在，总之，很不方便。用动态代理的方式就好多了，只需要侦听一个端口即可：</p>
+<ul>
+<li>在家目录.ssh下新建config文件，这其实是一个策略文件，172.16.10.*段的IP都会走这个代理</li>
+</ul>
+<blockquote>
+<p>Host 172.16.10.*</p>
+<p>   ProxyCommand /usr/bin/nc -x 127.0.0.1:1080 %h %p</p>
+</blockquote>
+<ul>
+<li>使用ssh命令创建侦听端口，其中-D 1080为指定本地侦听端口，可自定义；-p 22为远程跳板机的SSH端口，chenyang为用户，200.200.200.200为跳板机IP</li>
+</ul>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">ssh</span> -D <span class="number">1080</span> -qfnN -p <span class="number">2222</span> chenyang@<span class="number">200.200.200.200</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>接下来就可以直接ssh内网服务器了</li>
+</ul>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">ssh</span> -p <span class="number">2222</span> chenyang@<span class="number">172.16.10.10</span></span><br></pre></td></tr></table></figure>
+<h2 id="简化方式">简化方式</h2><p>BTW,还有一种简单的方式，将命令保存为alias，以后只需执行别名即可，如以下直接执行myproxy即可创建代理，执行my10即可SSH到远程服务器。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">alias</span> myproxy=<span class="string">'ssh -D 1080 -qfnN -p 2222 chenyang@200.200.200.200'</span></span><br><span class="line"><span class="built_in">alias</span> my10=<span class="string">'ssh -p 2222 chenyang@172.16.10.10'</span></span><br></pre></td></tr></table></figure>
+
+        
+        
+        <p class="article-more-link">
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/运维/">运维</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/mac/">mac</a><a href="/tags/ssh/">ssh</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2014/04/29/mac下使用ssh动态代理/#comments" class="ds-thread-count comments-count-link" data-thread-key="2014/04/29/mac下使用ssh动态代理/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+  
+
+
+
 
   <nav id="page-nav" class="clearfix">
     <a class="extend prev" rel="prev" href="/page/2/"><span></span>Prev</a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span><a class="page-number" href="/page/4/">4</a><a class="extend next" rel="next" href="/page/4/">Next<span></span></a>
@@ -435,7 +425,7 @@
 		  
 		
 		  
-			<li><a href="/categories/运维/" title="运维">运维<sup>11</sup></a></li>
+			<li><a href="/categories/运维/" title="运维">运维<sup>10</sup></a></li>
 		  
 		
 		  
@@ -516,19 +506,17 @@
 			
 		
 			
-				<li><a href="/tags/SVN/" title="SVN">SVN<sup>1</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/Hooks/" title="Hooks">Hooks<sup>1</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/Python/" title="Python">Python<sup>1</sup></a></li>
-			
-		
-			
 				<li><a href="/tags/PHP/" title="PHP">PHP<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Zabbix/" title="Zabbix">Zabbix<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/MySQL/" title="MySQL">MySQL<sup>1</sup></a></li>
+			
+		
 			
 		
 		</ul>
