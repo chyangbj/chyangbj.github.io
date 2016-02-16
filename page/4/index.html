@@ -74,6 +74,86 @@
         <header class="article-info clearfix">
   <h1 itemprop="name">
     
+      <a href="/2014/04/29/mac下使用ssh动态代理/" title="Mac下使用SSH动态代理" itemprop="url">Mac下使用SSH动态代理</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="chenyang" target="_blank" itemprop="author">chenyang</a>
+		
+  <p class="article-time">
+    <time datetime="2014-04-29T04:03:07.000Z" itemprop="datePublished"> 发表于 2014-04-29</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <h1 id="Mac下使用SSH动态代理">Mac下使用SSH动态代理</h1><p>最近IDC内部署了不少虚拟机，没有公网IP，之前使用ssh端口映射的方式，但没一个会话都需要映射一个端口，且ssh断开后，映射的侦听端口还在，总之，很不方便。用动态代理的方式就好多了，只需要侦听一个端口即可：</p>
+<ul>
+<li>在家目录.ssh下新建config文件，这其实是一个策略文件，172.16.10.*段的IP都会走这个代理</li>
+</ul>
+<blockquote>
+<p>Host 172.16.10.*</p>
+<p>   ProxyCommand /usr/bin/nc -x 127.0.0.1:1080 %h %p</p>
+</blockquote>
+<ul>
+<li>使用ssh命令创建侦听端口，其中-D 1080为指定本地侦听端口，可自定义；-p 22为远程跳板机的SSH端口，chenyang为用户，200.200.200.200为跳板机IP</li>
+</ul>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">ssh</span> -D <span class="number">1080</span> -qfnN -p <span class="number">2222</span> chenyang@<span class="number">200.200.200.200</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>接下来就可以直接ssh内网服务器了</li>
+</ul>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">ssh</span> -p <span class="number">2222</span> chenyang@<span class="number">172.16.10.10</span></span><br></pre></td></tr></table></figure>
+<h2 id="简化方式">简化方式</h2><p>BTW,还有一种简单的方式，将命令保存为alias，以后只需执行别名即可，如以下直接执行myproxy即可创建代理，执行my10即可SSH到远程服务器。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">alias</span> myproxy=<span class="string">'ssh -D 1080 -qfnN -p 2222 chenyang@200.200.200.200'</span></span><br><span class="line"><span class="built_in">alias</span> my10=<span class="string">'ssh -p 2222 chenyang@172.16.10.10'</span></span><br></pre></td></tr></table></figure>
+
+        
+        
+        <p class="article-more-link">
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/运维/">运维</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/mac/">mac</a><a href="/tags/ssh/">ssh</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2014/04/29/mac下使用ssh动态代理/#comments" class="ds-thread-count comments-count-link" data-thread-key="2014/04/29/mac下使用ssh动态代理/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+  
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
       <a href="/2014/02/14/在DigitalOcean 512M内存VPS上部署 LEMP/" title="在DigitalOcean 512M内存VPS上部署 LEMP" itemprop="url">在DigitalOcean 512M内存VPS上部署 LEMP</a>
   </h1>
   <p class="article-author">By
@@ -269,7 +349,7 @@
 		  
 		
 		  
-			<li><a href="/categories/运维/" title="运维">运维<sup>10</sup></a></li>
+			<li><a href="/categories/运维/" title="运维">运维<sup>11</sup></a></li>
 		  
 		
 		  
@@ -286,7 +366,7 @@
 		<ul class="clearfix">
 		
 			
-				<li><a href="/tags/Nginx/" title="Nginx">Nginx<sup>3</sup></a></li>
+				<li><a href="/tags/Nginx/" title="Nginx">Nginx<sup>4</sup></a></li>
 			
 		
 			

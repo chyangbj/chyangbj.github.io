@@ -74,6 +74,87 @@
         <header class="article-info clearfix">
   <h1 itemprop="name">
     
+      <a href="/2016/02/16/【译】Nginx 1.9.11动态模块介绍/" title="【译】Nginx 1.9.11动态模块介绍" itemprop="url">【译】Nginx 1.9.11动态模块介绍</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="chenyang" target="_blank" itemprop="author">chenyang</a>
+		
+  <p class="article-time">
+    <time datetime="2016-02-16T11:49:24.000Z" itemprop="datePublished"> 发表于 2016-02-16</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <blockquote>
+<p>原文：<a href="https://www.nginx.com/blog/dynamic-modules-nginx-1-9-11/" target="_blank" rel="external">https://www.nginx.com/blog/dynamic-modules-nginx-1-9-11/</a>  </p>
+</blockquote>
+<p>最近发布的Nginx 1.9.11版本带来一个重要的新功能：动态模块，给我们以后如何使用Nginx带来了巨大的影响。通过动态模块，你可以在运行时有有选择性的加载第三方或Nginx官方模块。新的实现方式通过API模块保持尽可能的向后兼容。<br>下一个版本的Nginx Plus(Nginx Plus R9)将基于动态模块新特性进行构建。我们计划创建一个模块仓库，收集那些已经在Nginx Plus上通过测试和认证的第三方模块，使添加常用的扩展更加方便更加放心。如果你希望将你的开源模块或者商业模块在我们的模块仓库中，请通过链接与我们的销售联系。<br>在此之前，如果要给Nginx增加一个模块，需要将模块与源代码一起编译进Nginx二进制文件，而且不管你是否愿意，每次打开Nginx都会加载此模块。如此以来就很难在操作系统发行版的包中为每个用户创建自定义的Nginx二进制文件。<br><img src="/images/dynamic-modules-executable.jpg" alt="传统方式" title="重新编译二进制文件"><br>在动态模块的第一版中，你仍然需要和Nginx二进制文件一起编译可选模块，但是会为每一个动态加载模块创建一个独立的共享对象，通过Nginx配置文件中的命令来启用和禁用在运行时加载共享对象。<br><img src="/images/dynamic-modules-shared-object.jpg" alt="动态模块" title="动态加载模块">  </p>
+<h2 id="动态加载Nginx模块">动态加载Nginx模块</h2><p>在动态模块第一版中支持以下Nginx模块、模块包的动态构建：</p>
+<ul>
+<li>GeoIP（ngx_http_geoip_module）</li>
+<li>Image-Filter (ngx_http_image_filter_module)</li>
+<li>Mail (包含所有的邮件相关模块: ngx<em>mail</em>{core, auth, imap, pop3, proxy, smtp}_module)</li>
+<li>Stream (包含所有的Stream相关模块: ngx<em>stream</em>{core, access, limit_conn, proxy, ssl, upstream}_module)</li>
+<li>XSLT (ngx_http_xslt_module)  </li>
+</ul>
+<p>可以通过在标准的—with参数后追加=dynamic来生成动态可加载的共享对象，如下所示：<br><figure class="highlight actionscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">./configure --<span class="keyword">with</span>-http_geoip_module=<span class="keyword">dynamic</span> \</span><br><span class="line">              --<span class="keyword">with</span>-http_image_filter_module=<span class="keyword">dynamic</span> \</span><br><span class="line">              --<span class="keyword">with</span>-mail=<span class="keyword">dynamic</span> \</span><br><span class="line">              --<span class="keyword">with</span>-stream=<span class="keyword">dynamic</span> \</span><br><span class="line">              --<span class="keyword">with</span>-http_xslt_module=<span class="keyword">dynamic</span></span><br></pre></td></tr></table></figure></p>
+<p>当你编译安装Nginx 1.9.11时，会创建一个modules的子目录，用来存放动态加载模块共享对象的二进制文件，默认的路径为<code>/usr/local/nginx/modules</code>.</p>
+<p>要在运行时加载模块，在全局配置中使用<code>load_module</code>命令，指定动态模块共享文件的路径，并以引号括起来。当重新加载配置或重启Nginx的时候，模块就会被载入。路径可以是相对路径（本例中），也可以是完整路径。<br><figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">load_module</span> <span class="string">"modules/ngx_http_geoip_module.so"</span>;</span><br><span class="line"><span class="title">load_module</span> <span class="string">"modules/ngx_stream_module.so"</span>;</span><br></pre></td></tr></table></figure></p>
+<p>要在运行时动态的“卸载”一个模块，可以注释或删掉相对应的<code>load_module</code>命令，并重新加载Nginx配置。如果有其他跟这个模块相关的命令，也请确保注释或者删除掉。</p>
+<h2 id="转换第三方模块">转换第三方模块</h2><p>对于大多数的传统模块的开发者来说，转化为动态加载只需要很少的工作，大多数情况下只需要修改一下源码的配置文件，部分模块可能需要稍微多一些的工作。Nginx 的Wiki中有<a href="https://www.nginx.com/resources/wiki/extending/converting/" target="_blank" rel="external">模块转换指南</a>和<a href="https://www.nginx.com/resources/wiki/extending/new_config/" target="_blank" rel="external">模块源配置文件格式的详细信息</a>。<br>要编译一个已经转换完成的第三方模块为动态模块，可通过新的<code>--add-dynamic-module</code>参数并指定模块的路径：<br><figure class="highlight oxygene"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./configure --<span class="keyword">add</span>-<span class="keyword">dynamic</span>-<span class="keyword">module</span>=/path/<span class="keyword">to</span>/<span class="keyword">module</span>/source</span><br></pre></td></tr></table></figure></p>
+<p>和Nginx模块相同，动态模块的共享文件将会被安装到modules子目录中，你可以通过<code>load_module</code>命令来调用这个模块。<br>我们的开发者关系团队可以协助转换模块，请通过Nginx开发者邮件列表与我们联系。</p>
+<h2 id="动态模块展望">动态模块展望</h2><p>在未来的版本中，我们计划在已编译完成的Nginx二进制文件中增加模块，我们也正在编写API模块的文档，当编写完成后将可以通过Nginx Wiki中免费查看。<br>来吧，开始尝试动态模块吧。<a href="http://nginx.org/en/download.html" target="_blank" rel="external">点击下载Nginx1.9.11</a></p>
+
+        
+        
+        <p class="article-more-link">
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/运维/">运维</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Nginx/">Nginx</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2016/02/16/【译】Nginx 1.9.11动态模块介绍/#comments" class="ds-thread-count comments-count-link" data-thread-key="2016/02/16/【译】Nginx 1.9.11动态模块介绍/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+  
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
       <a href="/2016/02/11/《超级整理术》读书笔记/" title="《超级整理术》读书笔记" itemprop="url">《超级整理术》读书笔记</a>
   </h1>
   <p class="article-author">By
@@ -235,118 +316,6 @@
 
 
 
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2015/10/25/【译】创建Nginx Rewrite规则/" title="【译】创建Nginx Rewrite规则" itemprop="url">【译】创建Nginx Rewrite规则</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="chenyang" target="_blank" itemprop="author">chenyang</a>
-		
-  <p class="article-time">
-    <time datetime="2015-10-24T16:10:53.000Z" itemprop="datePublished"> 发表于 2015-10-25</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <blockquote>
-<p>翻译了一篇之后有点上瘾哈，看到这一篇感觉也不错，Rewrite规则在Nginx的使用中经常用到，文中也提到了很多具体的例子，就顺手翻译下。<br>原文地址：<a href="https://www.nginx.com/blog/creating-nginx-rewrite-rules/" target="_blank" rel="external">https://www.nginx.com/blog/creating-nginx-rewrite-rules/</a></p>
-</blockquote>
-<p>本文我们将讨论如何创建Nginx的rewrite规则（规则对于Nginx社区版和Nginx Plus版通用）。Rewrite规则修改客户请求的部分或全部URL，通常为了下述两个目的中的一个：</p>
-<ul>
-<li>为了告知客户端请求的资源已经处于新的位置。通常用于当你网站的域名发生变化时、当你希望用户使用规范的URL格式是（比如加或不加www前缀）、当你希望捕获拼写错误的域名并将之纠正到正确的域名上时（译者注：如www.taobso.com这样子的域名）。<code>return</code>和<code>rewrite</code>命令很适合满足这种目的。</li>
-<li>为了控制请求在Nginx中处理的流向。例如当请求的内容需要动态生成时将其转发到某个应用服务器。<code>try_files</code>通常用于处理这种情况。<blockquote>
-<p>注意：如果想要将已有的Apache HTTP Server的Rewrite规则转换为Nginx规则，请参考我们的另外一篇博客：<a href="https://www.nginx.com/blog/converting-apache-to-nginx-rewrite-rules/" target="_blank" rel="external">Converting Apache Rewrite Rules to NGINX Rewrite Rules</a></p>
-</blockquote>
-</li>
-</ul>
-<p>使用Nginx Rewrite规则需要了解HTTP状态码和正则表达式（Nginx使用Perl语法的正则），这里假设大家都已经了解。</p>
-<h2 id="对比return、rewrite和try_files命令">对比<code>return</code>、<code>rewrite</code>和<code>try_files</code>命令</h2><p>通常用于做Nginx地址重写的命令为<code>return</code>和<code>rewrite</code>这两个，<code>try_files</code>命令是一个将请求转发到后端应用服务器的好用的方式。让我们一起看一看这三个命令的作用和不同之处。</p>
-<h3 id="return命令"><code>return</code>命令</h3><p><code>return</code>命令相比<code>rewrite</code>来说更简单一些，因此我们也更推荐尽可能的使用<code>return</code>而不是<code>rewrite</code>(下文会讲到为什么和在什么时候用)。将<code>return</code>放在将要重写的URL所在的<code>server</code>或<code>location</code>的上下文中，它也定义了客户端未来请求资源使用的重写后正确的URL。<br>这里有一个很简单的例子，将客户请求重定向到一个新的域名：<br><figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">server</span> &#123;</span><br><span class="line">    <span class="title">listen</span> <span class="number">80</span>;</span><br><span class="line">    <span class="title">listen</span> <span class="number">443</span> ssl;</span><br><span class="line">    <span class="title">server_name</span> www.old-name.com;</span><br><span class="line">    <span class="title">return</span> <span class="number">301</span> <span class="variable">$scheme</span>://www.new-name.com<span class="variable">$request_uri</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p><code>listen</code>命令意味着此<code>server</code>块提供HTTP和HTTPS两种访问方式。<code>server_name</code>命令匹配客户端的URL请求中包含www.old-name.com的请求。<code>return</code>命令告诉Nginx停止处理请求并立即返回301（永久重定向）和新的URL给客户端。重写后的URL使用了两个Nginx变量来获取和替换初始请求中的值：<code>$scheme</code>是指请求的协议（HTTP或HTTPS），<code>$request_uri</code>指包含参数的全部URI。<br>你可以在3xx系列的HTTP状态码中指定重写后的URL：<br><figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">return (301 |<span class="string"> 302 </span>|<span class="string"> 303 </span>|<span class="string"> 307) url;</span></span><br></pre></td></tr></table></figure></p>
-<p>对于其他的HTTP状态码，你可以在响应的页面中自定义一个文本（标准的状态码文本信息依然会显示，比如『404 Not Found』）。文本中可包含Nginx变量。<br><figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">return (1xx |<span class="string"> 2xx </span>|<span class="string"> 4xx </span>|<span class="string"> 5xx) ["text"];</span></span><br></pre></td></tr></table></figure></p>
-<p>比如，这个命令就很适合在拒绝一个没有包含验证令牌的请求时给出一些提示：<br><figure class="highlight actionscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">return</span> <span class="number">401</span> <span class="string">"Access denied because token is expired or invalid"</span>;</span><br></pre></td></tr></table></figure></p>
-<p>也有一些语法的快捷方式可以使用，比如当使用302临时重定向时，可以去掉<code>302</code>状态码（即<code>return URL</code>默认采用302重定向）。具体可以查看Nginx参考文档中关于<code>return</code>的部分。</p>
-<blockquote>
-<p>有些情况下我们可能会期望返回比HTTP状态码文本信息更复杂更多彩的内容，这时可以考虑<code>error_page</code>。通过这个命令，我们可以针对每一种HTTP状态码返回完整的自定义HTML页面。</p>
-</blockquote>
-<p><code>return</code>命令使用比较简单，比较适合以下两种情况的重定向：对访问这个<code>server</code>或<code>location</code>的所有请求重定向后的URL是一致的；可以使用标准Nginx变量重写URL。<br>但是，当我们需要探测URL间更复杂的差别、捕获无法使用Nginx参数从原始URL获取的元素，或者改变、修改URL中的元素时，<code>return</code>命令就无法处理了，我们需要用到<code>rewrite</code>命令。</p>
-<h3 id="rewrite命令"><code>rewrite</code>命令</h3><p>与<code>return</code>一样，也是将<code>rewrite</code>命令放到需要重写的URL所在的<code>server</code>或<code>location</code>上下文中。两个命令有更多的不同之处，<code>rewrite</code>使用上要复杂的多，虽然它的语法很简单：<br><figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">rewrite</span> <span class="tag">regex</span> <span class="tag">URL</span> <span class="attr_selector">[flag]</span>;</span><br></pre></td></tr></table></figure></p>
-<p>第一个参数<code>regex</code>，意味着在匹配<code>server</code>、<code>location</code>之后Nginx重写URL之前需要先经过另外一个检查：URL需要匹配特定的正则表达式。这也意味着Nginx需要进行更多的处理（影响性能）。<br>另外一个不同之处是，<code>rewrite</code>命令只能返回301或302状态码，如果需要返回其他的状态码，需要在<code>rewrite</code>之后附加<code>return</code>命令（详见下面的例子）。<br>最后，<code>rewrite</code>不像<code>return</code>那样必须停止Nginx对请求的处理，也不一定必须返回客户端一个重定向URL。除非特别指明需要Nginx中止请求或者返回重定向，Nginx将查找<code>rewrite</code>模块中定义的命令（<code>break</code>、<code>if</code>、<code>return</code>和<code>set</code>）并按顺序执行。一旦重写后的URL匹配<code>rewrite</code>模块中的其他命令，Nginx也会对重写后的URL执行指定的动作（通常是再次重写）。<br>由于这些特性，使用<code>rewrite</code>命令就变的很复杂，我们需要小心的计划命令的执行顺序以达到期望的效果。如果出现设计不当的情况，比如重写后的URL匹配原始的<code>location</code>块，Nginx将陷入循环中，不断的重写直到默认的循环限制次数10次。请查看Nginx文档中关于<code>[rewrite](http://nginx.org/en/docs/http/ngx_http_rewrite_module.html?_ga=1.82048469.2137319792.1439284699)</code>模块的部分，来详细的了解<code>rewrite</code>命令。如之前所说，在<code>return</code>可以实现的情况下尽可能的使用<code>return</code>命令。<br>接下来是一个使用<code>rewrite</code>重写的例子，它匹配以/download开始并且在路径中包含/media或/audio，重写规则将他们替换成/mp3并添加了统一的文件后缀.mp3或.ra。<code>$1</code>和<code>$2</code>参数获取路径中不会改变的部分（译者注：详看正则表达式）。比如，/download/cdn-west/media/fil1 根据规则会被重写为 /download/cdn-west/mp3/file1.mp3。<br><figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">server &#123;</span><br><span class="line">    ...</span><br><span class="line">    rewrite ^(<span class="regexp">/download/</span>.*)/media/(.*)\..*<span class="variable">$ </span><span class="variable">$1</span>/mp3/<span class="variable">$2</span>.mp3 last;</span><br><span class="line">    rewrite ^(<span class="regexp">/download/</span>.*)/audio/(.*)\..*<span class="variable">$ </span><span class="variable">$1</span>/mp3/<span class="variable">$2</span>.ra  last;</span><br><span class="line">    <span class="keyword">return</span>  <span class="number">403</span>;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>我们之前提到过可以在<code>rewrite</code>命令后添加标识来控制处理流程。上例中的<code>last</code>标识就是一个：它告诉Nginx跳出当前<code>server</code>或<code>location</code>块中的其他匹配重写规则，并根据重写后的URL继续匹配其他的<code>location</code>。</p>
-<blockquote>
-<p>译者注：常用的还有<code>break</code>，它与<code>last</code>不同，也是跳出当前<code>server</code>或<code>location</code>的匹配，并不再匹配其他的规则或<code>location</code>，直接处理。</p>
-</blockquote>
-<p>上例中最后的<code>return</code>命令意味着当请求无法匹配上边两个重写规则后将返回403状态码。</p>
-<h3 id="try_files命令"><code>try_files</code>命令</h3><p>与前两个命令一样<code>try_files</code>也是放在<code>server</code>或<code>location</code>中使用。<code>try_files</code>的参数是一个包含一个或多个文件、目录的列表，并以URI结束：<br><figure class="highlight applescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">try_files <span class="type">file</span> … uri;</span><br></pre></td></tr></table></figure></p>
-<p>Nginx按顺序检查文件后缀和目录（通过配置中的<code>root</code>和<code>alias</code>来构建文件的完整路径），并返回第一个找到的文件。为了标识一个目录，需要在元素的后面加一个「/」。如果没有文件和目录匹配到，Nginx会执行一个内部重定向到最后一个元素中指定的URI。<br>为保证<code>try_files</code>正常工作，我们需要定义一个<code>location</code>以匹配其内部重定向的URI。最后一个元素有也可以是一个命名<code>location</code>(named location)，以前缀@标识。<br><code>try_files</code>命令一般使用<code>$uri</code>参数，URI相当于域名后边的URL部分。<br>在接下来这个例子中，当客户端的请求的文件不存在时Nginx将返回一个默认的GIF文件。比如客户端请求 <a href="http://www.domain.com/images/image1.gif，Nginx首先在根据`root`或`alias`命令构建的完整路径中查找image1.gif，如果不存在就继续查找image1.gif/，如果仍然不存在，就重定向到/images/default.gif。请求会完全匹配到第二个`location`命令，处理就会结束，然后Nginx返回这个文件并将起标记为缓存30秒。" target="_blank" rel="external">http://www.domain.com/images/image1.gif，Nginx首先在根据`root`或`alias`命令构建的完整路径中查找image1.gif，如果不存在就继续查找image1.gif/，如果仍然不存在，就重定向到/images/default.gif。请求会完全匹配到第二个`location`命令，处理就会结束，然后Nginx返回这个文件并将起标记为缓存30秒。</a><br><figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">location</span> /images/ &#123;</span><br><span class="line">    <span class="title">try_files</span> <span class="variable">$uri</span> <span class="variable">$uri</span>/ /images/default.gif;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="title">location</span> = /images/default.gif &#123;</span><br><span class="line">    <span class="title">expires</span> <span class="number">30s</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<h2 id="实例：域名标准化">实例：域名标准化</h2><p>Nginx重写规则的一个非常常见的用法就是捕获废弃的、非标准的网站域名并将他们重定向到当前使用的域名上。接下来我们展示几个相关的具体实例。</p>
-<h3 id="重定向一个旧域名到新域名">重定向一个旧域名到新域名</h3><p>下例中Nginx将到旧域名www.old-name.com、old-name.com的请求永久重定向到新的域名www.new-name.com，同时使用了两个Nginx参数来获取初始请求中的值：<code>$scheme</code>是指初始请求使用的协议（HTTP或HTTPS），<code>$request_uri</code>是域名后边包含参数在内的完整URI。<br><figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">server</span> &#123;</span><br><span class="line">    <span class="title">listen</span> <span class="number">80</span>;</span><br><span class="line">    <span class="title">listen</span> <span class="number">443</span> ssl;</span><br><span class="line">    <span class="title">server_name</span> www.old-name.com old-name.com;</span><br><span class="line">    <span class="title">return</span> <span class="number">301</span> <span class="variable">$scheme</span>://www.new-name.com<span class="variable">$request_uri</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>由于<code>$request_uri</code>包含了域名后面的URL部分，因此这种重写只适合新旧域名的页面可以一一对应的情况（比如www.new-name.com/about与www.old-name.com/about相同）。如果已经重构了网站，去掉<code>return</code>命令中的<code>$request_uri</code>，将所有旧域名的请求重定向到主页会更安全一些<br><figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">server</span> &#123;</span><br><span class="line">    <span class="title">listen</span> <span class="number">80</span>;</span><br><span class="line">    <span class="title">listen</span> <span class="number">443</span> ssl;</span><br><span class="line">    <span class="title">server_name</span> www.old-name.com old-name.com;</span><br><span class="line">    <span class="title">return</span> <span class="number">301</span> <span class="variable">$scheme</span>://www.new-name.com;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>有一些博客上使用<code>rewrite</code>命令来处理这种情况，配置如下：<br><figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># NOT RECOMMENDED</span></span><br><span class="line">rewrite ^ <span class="variable">$scheme</span><span class="symbol">://www</span>.new-name.com<span class="variable">$request_uri</span> permanent;</span><br></pre></td></tr></table></figure></p>
-<p>这种方式相比<code>return</code>来说比较低效，因为<code>rewrite</code>命令即使非常简单的重写需要Nginx先处理正则匹配（^会匹配完整的初始URL）。同时，<code>return</code>命令也更便于人们理解：<code>return 301</code>相比<code>rewrite ... permanent</code>会更加清楚的显示Nginx返回301状态码。</p>
-<h3 id="添加和删除www前缀">添加和删除www前缀</h3><p>接下来的例子是添加和删除www前缀：<br><figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># add 'www'</span></span><br><span class="line"><span class="title">server</span> &#123;</span><br><span class="line">    <span class="title">listen</span> <span class="number">80</span>;</span><br><span class="line">    <span class="title">listen</span> <span class="number">443</span> ssl;</span><br><span class="line">    <span class="title">server_name</span> domain.com;</span><br><span class="line">    <span class="title">return</span> <span class="number">301</span> <span class="variable">$scheme</span>://www.domain.com<span class="variable">$request_uri</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># remove 'www'</span></span><br><span class="line"><span class="title">server</span> &#123;</span><br><span class="line">    <span class="title">listen</span> <span class="number">80</span>;</span><br><span class="line">    <span class="title">listen</span> <span class="number">443</span> ssl;</span><br><span class="line">    <span class="title">server_name</span> www.domain.com;</span><br><span class="line">    <span class="title">return</span> <span class="number">301</span> <span class="variable">$scheme</span>://domain.com<span class="variable">$request_uri</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>再说一次，<code>return</code>比<code>rewrite</code>更适合这种处理，如下例子，Nginx需要先处理^(.*)$这个正则，同时也声明了一个自定义变量<code>$1</code>，其实与<code>$request_uri</code>参数的作用一样。<br><figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># NOT RECOMMENDED</span></span><br><span class="line">rewrite ^(.*)<span class="variable">$ </span><span class="variable">$scheme</span><span class="symbol">://www</span>.domain.com<span class="variable">$1</span> permanent;</span><br></pre></td></tr></table></figure></p>
-<h3 id="重定向所有的流量到一个正确的域名">重定向所有的流量到一个正确的域名</h3><p>有一些特殊的情况，比如访问请求的域名拼写错误，无法匹配到到任何的<code>server</code>和<code>location</code>块，这时可以将所有的入站流量重定向到网站主页。此外需要配合的修改<code>server_name</code>命令为一个『_』，同时在<code>listen</code>命令上增加<code>default_server</code>参数。<br><figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">server</span> &#123;</span><br><span class="line">    <span class="title">listen</span> <span class="number">80</span> default_server;</span><br><span class="line">    <span class="title">listen</span> <span class="number">443</span> ssl default_server;</span><br><span class="line">    <span class="title">server_name</span> _;</span><br><span class="line">    <span class="title">return</span> <span class="number">301</span> <span class="variable">$scheme</span>://www.domain.com;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>我们使用<em>来避免不经意间匹配到真实的域名—假设不会有网站使用</em>来做域名。当请求无法匹配到配置文件中的<code>server</code>时，请求就会流向这里。我们默认去掉了<code>$request_uri</code>，将所有的请求都重定向到网站的主页，因为通常情况下错误域名请求的URI也是错误的。</p>
-<h2 id="实例：强制所有的请求使用HTTPS（TLS/SSL加密）">实例：强制所有的请求使用HTTPS（TLS/SSL加密）</h2><p>下例中的<code>server</code>将强制所有的访客使用加密连接访问我们的站点：<br><figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">server</span> &#123;</span><br><span class="line">    <span class="title">listen</span> <span class="number">80</span>;</span><br><span class="line">    <span class="title">server_name</span> www.domain.com;</span><br><span class="line">    <span class="title">return</span> <span class="number">301</span> <span class="url">https://www.domain.com<span class="variable">$request_uri</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>有一些博客使用Nginx的<code>if</code>检测并使用<code>rewrite</code>来实现这一目的，但这种方式会增加Nginx额外的处理，因为Nginx需要先处理<code>if</code>的结果并处理<code>rewrite</code>中的正则表达式，不建议使用这种方式。<br><figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># NOT RECOMMENDED</span></span><br><span class="line"><span class="title">if</span> (<span class="variable">$scheme</span> != <span class="string">"https"</span>) &#123;</span><br><span class="line">    <span class="title">rewrite</span><span class="regexp"> ^</span> <span class="url">https://www.mydomain.com<span class="variable">$uri</span></span> <span class="built_in">permanent</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<h2 id="实例：为Wordpress网站启用漂亮的固定链接">实例：为Wordpress网站启用漂亮的固定链接</h2><p>在很多Wordpress网站中都使用Nginx作为应用分发的平台，下面这个例子中，<code>try_files</code>命令告诉Nginx按顺序检查<code>$uri</code>文件、<code>$uri/</code>目录是否存在，如果都不存在，就会将请求重定向到/index.php并在后边附加请求的参数。<br><figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">location</span> / &#123;</span><br><span class="line">    <span class="title">try_files</span> <span class="variable">$uri</span> <span class="variable">$uri</span>/ /index.php?<span class="variable">$args</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<h2 id="实例：丢掉不支持的文件后缀的请求">实例：丢掉不支持的文件后缀的请求</h2><p>会有各种各样的原因，网站总会收到各种包含服务器不支持的文件后缀的请求。下面这个例子来自<a href="https://blog.engineyard.com/2011/useful-rewrites-for-nginx" target="_blank" rel="external">Engine Yard blog,</a>，应用服务器使用Ruby On Rails，所以其他应用服务器的文件格式（比如ASP、PHP、CGI等等）都无法支持，应该拒绝掉。在一个将所有非静态元素的请求都传递给应用的<code>server</code>块中，这个<code>location</code>命令会在请求到达Rails的请求队列之前将所有非Rails支持的文件格式的请求丢弃掉。<br><figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">location ~ \.(aspx|<span class="string">php</span>|<span class="string">jsp</span>|<span class="string">cgi)$ &#123;</span><br><span class="line">    return 410;</span><br><span class="line">&#125;</span></span><br></pre></td></tr></table></figure></p>
-<p>严格的说，410状态码用于请求资源的URL之前可用，但当前失效了，服务器也不知道它现在的位置。相比404状态码的优点是，410明确的告知客户端请求的资源永久不可用，客户端就不会再发送请求。<br>如果你想给客户端一些更明确的请求失败的原因，可以返回403状态码（禁止访问），并附加一个解释文本『服务器仅响应Ruby请求』。另外，<code>deny all</code>命令也会返回一个403状态码，但没有解释性文字。<br><figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">location ~ \.(aspx|<span class="string">php</span>|<span class="string">jsp</span>|<span class="string">cgi)$ &#123;</span><br><span class="line">    deny all;</span><br><span class="line">&#125;</span></span><br></pre></td></tr></table></figure></p>
-<p>返回403状态码隐含着文件实际是存在的意思，因此如果想尽可能少的给客户端信息以求获取安全的话，返回404状态码是一个更好的选择。缺点就是客户端会不断的重试请求，因为404并不会说明文件是临时失效还是永久失效。</p>
-<h2 id="实例：自定义重新路由">实例：自定义重新路由</h2><p>这个例子来自<a href="https://modxcloud.com/userguide/using-modx-cloud/tools-and-configuration/web-rules-rewrites-redirects-tweaks.html" target="_blank" rel="external">MODXCloud</a>，有一台服务器作为一系列URL的控制器。用户使用比较易读的方式请求资源，我们通过重写（非重定向）URL，使其可以通过控制器<code>listing.html</code>来处理。比如<a href="http://mysite.com/listings/123会被重写为http://mysite.com/listing.html?listing=123：" target="_blank" rel="external">http://mysite.com/listings/123会被重写为http://mysite.com/listing.html?listing=123：</a><br><figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">rewrite</span><span class="regexp"> ^/listings/(.*)$</span> /listing.html?listing=<span class="variable">$1</span> <span class="built_in">last</span>;</span><br></pre></td></tr></table></figure></p>
-<blockquote>
-<p>文章比想象中长多了，有错误或不严谨之处请帮忙指出，谢谢。</p>
-</blockquote>
-
-        
-        
-        <p class="article-more-link">
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/运维/">运维</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/Nginx/">Nginx</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2015/10/25/【译】创建Nginx Rewrite规则/#comments" class="ds-thread-count comments-count-link" data-thread-key="2015/10/25/【译】创建Nginx Rewrite规则/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-  
-
-
-
 
   <nav id="page-nav" class="clearfix">
     <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><a class="extend next" rel="next" href="/page/2/">Next<span></span></a>
@@ -367,7 +336,7 @@
 		  
 		
 		  
-			<li><a href="/categories/运维/" title="运维">运维<sup>10</sup></a></li>
+			<li><a href="/categories/运维/" title="运维">运维<sup>11</sup></a></li>
 		  
 		
 		  
@@ -384,7 +353,7 @@
 		<ul class="clearfix">
 		
 			
-				<li><a href="/tags/Nginx/" title="Nginx">Nginx<sup>3</sup></a></li>
+				<li><a href="/tags/Nginx/" title="Nginx">Nginx<sup>4</sup></a></li>
 			
 		
 			
